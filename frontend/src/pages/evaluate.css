@@ -1,0 +1,64 @@
+.eval-page {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.eval-card {
+  width: 700px;
+  background: #f4f6fb;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* INFO */
+.info-box p {
+  margin: 5px 0;
+}
+
+/* ABSTRACT */
+.abstract-box {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 15px 0;
+}
+
+/* INPUTS */
+.input, .textarea {
+  width: 100%;
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+/* BUTTONS */
+.submit-btn {
+  margin-top: 20px;
+  background: #ff8c00;
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.ai-btn {
+  margin-top: 10px;
+  background: #4b2e83;
+  color: white;
+  padding: 8px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+/* AI BOX */
+.ai-box {
+  background: #e6ecff;
+  padding: 15px;
+  margin-top: 15px;
+  border-radius: 8px;
+}

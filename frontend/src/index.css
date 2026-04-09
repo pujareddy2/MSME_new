@@ -1,0 +1,515 @@
+/* ===================================== */
+/* ROOT VARIABLES */
+/* ===================================== */
+
+:root {
+  --primary-green: #4b275e;
+  --deep-green: #2a8caf;
+  --accent-orange: #F57C00;
+  --accent-red: #4c75ce;
+  --light-bg: #F4F8F6;
+  --text-dark: #293046;
+}
+
+/* ===================================== */
+/* GLOBAL RESET */
+/* ===================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #ffffff;
+  color: var(--text-dark);
+  line-height: 1.6;
+}
+
+section {
+  padding: 80px 0;
+}
+
+/* ===================================== */
+/* HEADER */
+/* ===================================== */
+
+.gov-strip {
+  background: #3a8be2;
+  padding: 12px 0;
+  border-bottom: 2px solid var(--accent-orange);
+}
+
+.gov-container {
+  width: 85%;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sih-logo {
+  height: 50px;
+}
+
+.gov-right {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.gov-right a {
+  text-decoration: none;
+  font-weight: 600;
+  color: var(--primary-green);
+}
+
+.login-btn {
+  padding: 8px 20px;
+  border-radius: 25px;
+  background: var(--accent-orange);
+  color: rgb(131, 63, 63);
+}
+
+/* ===================================== */
+/* NAVBAR */
+/* ===================================== */
+
+.main-navbar {
+  background: #ffffff;
+  border-bottom: 3px solid var(--primary-green);
+}
+
+.nav-container {
+  width: 85%;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 0;
+}
+
+.brand {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--primary-green);
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 35px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: var(--primary-green);
+  font-weight: 600;
+}
+
+.nav-links a:hover {
+  color: var(--accent-orange);
+}
+
+/* ===================================== */
+/* HERO */
+/* ===================================== */
+
+.hero {
+  height: 85vh;
+  background: url("https://images.unsplash.com/photo-1521737604893-d14cc237f11d") center/cover no-repeat;
+  position: relative;
+}
+
+.hero-overlay {
+  background: rgba(60, 150, 192, 0.85);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.hero-content {
+  color: rgb(203, 210, 212);
+}
+
+.hero-content h1 {
+  font-size: 52px;
+  font-weight: 800;
+}
+
+.hero-btn {
+  margin-top: 30px;
+  padding: 14px 40px;
+  background: var(--accent-orange);
+  color: rgb(58, 48, 48);
+  border-radius: 30px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+/* ===================================== */
+/* ABOUT */
+/* ===================================== */
+
+.about-container {
+  width: 65%;
+  margin: auto;
+  text-align: center;
+}
+
+.section-title {
+  font-size: 36px;
+  color: var(--primary-green);
+  margin-bottom: 20px;
+}
+
+.divider {
+  width: 70px;
+  height: 4px;
+  background: var(--accent-orange);
+  margin: 10px auto 40px;
+  border-radius: 4px;
+}
+
+/* ===================================== */
+/* THEMES SLIDER */
+/* ===================================== */
+/* ===================================== */
+/* PREMIUM THEMES SECTION */
+/* ===================================== */
+.themes {
+  padding: 80px 0;
+  background: #f4f8f6;
+  text-align: center;
+}
+
+.section-title {
+  font-size: 34px;
+  font-weight: 700;
+  color: #0f5c4d;
+  margin-bottom: 10px;
+}
+
+.themes-sub {
+  font-size: 16px;
+  color: #4d4a5a;
+  margin-bottom: 40px;
+}
+
+.slider-wrapper {
+  position: relative;
+  width: 90%;
+  margin: auto;
+  display: flex;
+  align-items: center;
+}
+
+.themes-slider {
+  display: flex;
+  gap: 25px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 20px 10px;
+}
+
+.themes-slider::-webkit-scrollbar {
+  display: none;
+}
+
+.theme-card {
+  min-width: 280px;
+  background: rgb(105, 159, 206);
+  padding: 25px;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.theme-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 30px rgba(40, 76, 97, 0.12);
+}
+
+.theme-card img {
+  width: 60px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+.theme-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1b0b6d;
+  margin-bottom: 8px;
+}
+
+.theme-card p {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.5;
+}
+
+.arrow {
+  position: absolute;
+  background: #2a82bd;
+  border: none;
+  color: rgb(145, 60, 60);
+  font-size: 26px;
+  padding: 8px 14px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.arrow.left {
+  left: -20px;
+}
+
+.arrow.right {
+  right: -20px;
+}
+
+.arrow:hover {
+  background: #08042a;
+}
+/* ===================================== */
+/* GUIDELINES */
+/* ===================================== */
+
+.guidelines-container {
+  width: 65%;
+  margin: auto;
+}
+
+.guideline-item {
+  background: #F4F8F6;
+  padding: 25px;
+  margin-bottom: 30px;
+  border-left: 4px solid var(--primary-green);
+  border-radius: 8px;
+}
+
+/* ===================================== */
+/* FAQ */
+/* ===================================== */
+
+.faq {
+  background: var(--light-bg);
+}
+
+.faq-container {
+  width: 65%;
+  margin: auto;
+}
+
+.faq-card {
+  background: white;
+  margin-bottom: 20px;
+  border-radius: 8px;
+}
+
+.faq-header {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.faq-icon {
+  background: #5C6BC0;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.faq-body {
+  padding: 20px;
+  border-top: 1px solid #eee;
+}
+
+/* ===================================== */
+/* CONTACT */
+/* ===================================== */
+
+.contact-container {
+  width: 65%;
+  margin: auto;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.contact-form button {
+  padding: 14px;
+  background: var(--accent-orange);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* ===================================== */
+/* FOOTER */
+/* ===================================== */
+
+.footer {
+  background: var(--deep-green);
+  color: white;
+  padding: 60px 0 20px;
+  text-align: center;
+}
+
+.footer-bottom {
+  margin-top: 20px;
+  border-top: 2px solid var(--accent-orange);
+  padding-top: 10px;
+  font-size: 14px;
+}
+/* ============================= */
+/* PROBLEM STATEMENTS PAGE */
+/* ============================= */
+
+.ps-container{
+width:90%;
+margin:auto;
+padding:40px 0;
+font-family:Arial, Helvetica, sans-serif;
+}
+
+/* HEADER */
+
+.ps-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:25px;
+}
+
+.ps-title{
+font-size:30px;
+font-weight:700;
+color:#1f2937;
+}
+
+/* TEMPLATE BUTTON */
+
+.template-download{
+background:#ff7a00;
+color:white;
+padding:10px 18px;
+border-radius:6px;
+text-decoration:none;
+font-weight:600;
+transition:0.2s;
+}
+
+.template-download:hover{
+background:#e86d00;
+}
+
+/* FILTERS */
+
+.ps-filters{
+display:flex;
+gap:30px;
+margin-bottom:30px;
+}
+
+.filter-group{
+display:flex;
+flex-direction:column;
+font-size:14px;
+font-weight:600;
+color:#374151;
+}
+
+.filter-group select{
+margin-top:6px;
+padding:8px;
+border-radius:6px;
+border:1px solid #cbd5e1;
+min-width:200px;
+background:white;
+}
+
+/* TABLE */
+
+.ps-table{
+width:100%;
+border-collapse:collapse;
+box-shadow:0 3px 10px rgba(0,0,0,0.05);
+}
+
+/* TABLE HEADER */
+
+.ps-table thead{
+background:#579fcf;
+color:white;
+}
+
+.ps-table th{
+padding:14px;
+text-align:left;
+font-size:14px;
+}
+
+/* TABLE BODY */
+
+.ps-table td{
+padding:14px;
+border-bottom:1px solid #e5e7eb;
+font-size:14px;
+}
+
+/* ROW HOVER */
+
+.ps-table tbody tr:hover{
+background:#f1f5f9;
+}
+
+/* APPLY BUTTON */
+
+.apply-btn{
+background:#0ea5e9;
+border:none;
+color:white;
+padding:6px 14px;
+border-radius:4px;
+cursor:pointer;
+font-weight:600;
+}
+
+.apply-btn:hover{
+background:#0284c7;
+}
+
+/* LINK STYLE */
+
+.ps-table a{
+text-decoration:none;
+color:#2563eb;
+font-weight:500;
+}
+
+.ps-table a:hover{
+text-decoration:underline;
+}

@@ -1,0 +1,172 @@
+/* PAGE */
+
+.applicationPage {
+  padding: 40px;
+  text-align: center;
+  background: #f4f6fb;
+  min-height: 100vh;
+}
+
+
+/* TITLE */
+
+.teamTitle {
+  color: #5a4fb3;
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 30px;
+}
+
+
+/* TEAM NAME ROW */
+
+.teamNameRow {
+  width: 70%;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.teamNameRow label {
+  font-weight: 600;
+  font-size: 18px;
+  width: 150px;
+}
+
+.teamNameRow input {
+  flex: 1;
+  padding: 12px;
+  font-size: 15px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+
+/* TABLE */
+
+.teamTable {
+  width: 90%;
+  margin: auto;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+
+/* HEADER */
+
+.teamTable th {
+  background: #333;
+  color: white;
+  padding: 15px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+}
+
+
+/* FIELD COLUMN */
+
+.teamTable td:first-child {
+  background: #333;
+  color: white;
+  font-weight: 600;
+  text-align: center;
+  width: 180px;
+}
+
+
+/* NORMAL CELLS */
+
+.teamTable td {
+  padding: 15px;
+  border: 1px solid #ddd;
+  background: #f9f9f9;
+}
+
+
+/* INPUTS */
+
+.teamTable input {
+  width: 85%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #bbb;
+  font-size: 14px;
+}
+
+.teamTable select {
+  width: 85%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #bbb;
+  font-size: 14px;
+}
+
+
+/* ADD MEMBER BUTTON */
+
+.addBtn {
+  margin-top: 25px;
+  background: #2e6bd6;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.addBtn:hover {
+  background: #1e4fa5;
+}
+
+
+/* ABSTRACT */
+
+.solutionBox {
+  margin-top: 40px;
+}
+
+.solutionBox textarea {
+  width: 70%;
+  height: 180px;
+  padding: 12px;
+  font-size: 15px;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+}
+
+
+/* UPLOAD SECTION */
+
+.uploadWrapper {
+  margin-top: 35px;
+}
+
+
+/* FILE INPUT */
+
+.uploadWrapper input {
+  margin-top: 15px;
+  width: 300px;
+}
+
+
+/* SUBMIT BUTTON */
+
+.submitBtn {
+  margin-top: 40px;
+  background: green;
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  font-size: 18px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.submitBtn:hover {
+  background: #006400;
+}

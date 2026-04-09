@@ -1,0 +1,136 @@
+.eval-container{
+width:90%;
+margin:auto;
+padding:40px;
+font-family:Arial, Helvetica, sans-serif;
+}
+
+.eval-title{
+font-size:32px;
+margin-bottom:30px;
+color:#0f766e;
+font-weight:600;
+}
+
+.section-title{
+font-size:22px;
+margin:25px 0 15px 0;
+color:#334155;
+}
+
+
+/* Student Table */
+
+.eval-table{
+width:100%;
+border-collapse:collapse;
+background:white;
+box-shadow:0 3px 10px rgba(0,0,0,0.1);
+margin-bottom:40px;
+}
+
+.eval-table th{
+background:#0f766e;
+color:white;
+padding:12px;
+text-align:left;
+}
+
+.eval-table td{
+padding:12px;
+border-bottom:1px solid #eee;
+}
+
+.eval-table tr:hover{
+background:#f8fafc;
+}
+
+
+
+/* Score */
+
+.score{
+font-weight:bold;
+}
+
+
+
+/* Status */
+
+.status{
+padding:5px 10px;
+border-radius:6px;
+font-size:13px;
+font-weight:600;
+}
+
+.status.Pending{
+background:#fde68a;
+}
+
+.status.Accepted{
+background:#86efac;
+}
+
+.status.Rejected{
+background:#fca5a5;
+}
+
+
+
+/* Buttons */
+
+.analysis-btn{
+background:#9333ea;
+color:white;
+border:none;
+padding:7px 14px;
+border-radius:6px;
+cursor:pointer;
+margin-right:8px;
+}
+
+.analysis-btn:hover{
+background:#7e22ce;
+}
+
+
+.evaluate-btn{
+background:#0284c7;
+color:white;
+border:none;
+padding:7px 14px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.evaluate-btn:hover{
+background:#0369a1;
+}
+
+
+
+/* College Table */
+
+.college-table{
+width:100%;
+border-collapse:collapse;
+background:white;
+box-shadow:0 3px 10px rgba(0,0,0,0.1);
+}
+
+.college-table th{
+background:#334155;
+color:white;
+padding:12px;
+text-align:left;
+}
+
+.college-table td{
+padding:12px;
+border-bottom:1px solid #eee;
+}
+
+.college-table tr:hover{
+background:#f8fafc;
+}
