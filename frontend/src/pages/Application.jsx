@@ -1,14 +1,18 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { createApplication, getProblemById } from "../services/api";
 import "./application.css";
 
 function Application() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const currentRole = localStorage.getItem("role");
 
   const [solution, setSolution] = useState("");
   const [file, setFile] = useState(null);
   const [team, setTeam] = useState(null);
+  const [problem, setProblem] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // Load team safely
   useEffect(() => {
@@ -30,6 +34,16 @@ function Application() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!id) {
+      return;
+    }
+
+    getProblemById(id)
+      .then((response) => setProblem(response.data))
+      .catch(() => setProblem(null));
+  }, [id]);
+
   const handleFileChange = (e) => {
     const selected = e.target.files[0];
 
@@ -46,6 +60,11 @@ function Application() {
   };
 
   const submitForm = async () => {
+    if (currentRole !== "TEAM_LEAD") {
+      alert("Only TEAM_LEAD can submit applications");
+      return;
+    }
+
     if (!team) {
       alert("Please create a team first");
       return;
@@ -62,32 +81,33 @@ function Application() {
     }
 
     try {
-      const response = await fetch("http://localhost:8080/api/applications", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          abstractText: solution,
-          submissionVersion: "v1.0",
-          team: {
-            teamId: team.teamId || 1,
-          },
-          problem: {
-            problemId: parseInt(id),
-          },
-        }),
-      });
+      setLoading(true);
 
-      if (response.ok) {
-        alert("Application Submitted Successfully ✅");
-        navigate("/my-applications");
-      } else {
-        alert("Submission Failed ❌");
-      }
+      const formData = new FormData();
+      formData.append(
+        "application",
+        JSON.stringify({
+          teamId: team.teamId,
+          problemId: parseInt(id, 10),
+          abstractText: solution.trim(),
+          submissionVersion: "v1.0",
+        })
+      );
+      formData.append("file", file);
+
+      await createApplication(formData);
+
+      alert("Application Submitted Successfully ✅");
+      navigate("/my-applications");
     } catch (error) {
       console.error(error);
-      alert("Server Error ❌");
+      const message =
+        error?.response?.data?.message ||
+        error?.response?.data ||
+        "Server Error ❌";
+      alert(typeof message === "string" ? message : "Server Error ❌");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -99,6 +119,13 @@ function Application() {
   return (
     <div className="applicationPage">
       <h2 className="teamTitle">Application Form</h2>
+
+      {problem && (
+        <div className="teamInfoBox">
+          <h3>Problem: {problem.problemTitle || problem.title}</h3>
+          <p>{problem.problemDescription || problem.description}</p>
+        </div>
+      )}
 
       {/* TEAM INFO */}
       {team ? (
@@ -133,8 +160,8 @@ function Application() {
       </div>
 
       {/* SUBMIT */}
-      <button className="submitBtn" onClick={submitForm}>
-        Submit Application
+      <button className="submitBtn" onClick={submitForm} disabled={loading}>
+        {loading ? "Submitting..." : "Submit Application"}
       </button>
     </div>
   );

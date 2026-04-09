@@ -1,21 +1,25 @@
 import { useEffect, useState } from "react";
+import { getApplications } from "../services/api";
 import "./dashboard.css";
 
 function MyApplications() {
   const [apps, setApps] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/applications")
-      .then((res) => res.json())
-      .then((data) => setApps(data))
-      .catch((err) => console.error(err));
+    getApplications()
+      .then((response) => setApps(response.data))
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
     <div className="dashboard-container">
       <h2 className="dashboard-title">My Applications</h2>
 
-      {apps.length === 0 ? (
+      {loading ? (
+        <p className="no-team">Loading applications...</p>
+      ) : apps.length === 0 ? (
         <p className="no-team">No applications submitted yet</p>
       ) : (
         <table className="application-table">
@@ -32,8 +36,8 @@ function MyApplications() {
 
           <tbody>
             {apps.map((app) => (
-              <tr key={app.applicationId}>
-                <td>{app.applicationId}</td>
+              <tr key={app.applicationId || app.id}>
+                <td>{app.applicationId || app.id}</td>
 
                 <td>
                   {app.abstractText
@@ -51,7 +55,7 @@ function MyApplications() {
 
                 <td>{app.team?.teamName || "N/A"}</td>
 
-                <td>{app.problem?.problemTitle || "N/A"}</td>
+                <td>{app.problem?.problemTitle || app.problem?.title || "N/A"}</td>
               </tr>
             ))}
           </tbody>

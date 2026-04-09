@@ -1,10 +1,18 @@
 package com.sih.backend.controller;
 
-import com.sih.backend.model.*;
-import com.sih.backend.repository.*;
+import com.sih.backend.model.Application;
+import com.sih.backend.service.ApplicationService;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -13,44 +21,21 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class ApplicationController {
 
-    @Autowired
-    private ApplicationRepository applicationRepository;
+    private final ApplicationService applicationService;
 
-    @Autowired
-    private TeamRepository teamRepository;
-
-    @Autowired
-    private ProblemStatementRepository problemRepository;
-
-    // ✅ CREATE APPLICATION (FIXED)
-    @PostMapping
-    public Application createApplication(@RequestBody Application application) {
-
-        System.out.println("🔥 API HIT");
-
-        // 🔹 STEP 2: CHECK DATA
-        System.out.println("Incoming Team ID: " + application.getTeam().getTeamId());
-        System.out.println("Incoming Problem ID: " + application.getProblem().getProblemId());
-
-        // 🔹 STEP 3: FETCH REAL OBJECTS FROM DB
-        Team team = teamRepository
-                .findById(application.getTeam().getTeamId())
-                .orElse(null);
-
-        ProblemStatement problem = problemRepository
-                .findById(application.getProblem().getProblemId())
-                .orElse(null);
-
-        // 🔹 SET INTO APPLICATION
-        application.setTeam(team);
-        application.setProblem(problem);
-
-        return applicationRepository.save(application);
+    public ApplicationController(ApplicationService applicationService) {
+        this.applicationService = applicationService;
     }
 
-    // GET ALL
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Application> createApplication(
+            @RequestPart("application") String application,
+            @RequestPart("file") MultipartFile file) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(applicationService.createApplication(application, file));
+    }
+
     @GetMapping
     public List<Application> getAllApplications() {
-        return applicationRepository.findAll();
+        return applicationService.getAllApplications();
     }
 }

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import problemData from "../data/problemData";
+import { getApplications, getProblems } from "../services/api";
 import "./problemstatements.css";
 
 function ProblemStatements() {
@@ -11,23 +12,58 @@ const [categoryFilter,setCategoryFilter] = useState("");
 const [themeFilter,setThemeFilter] = useState("");
 const [entries,setEntries] = useState(10);
 const [search,setSearch] = useState("");
+const [applicationCounts, setApplicationCounts] = useState({});
+const [problems, setProblems] = useState(problemData);
 
-const storedProblems =
-JSON.parse(localStorage.getItem("addedProblems")) || [];
+useEffect(() => {
+getProblems()
+.then((response) => {
+setProblems(response.data);
+})
+.catch(() => {
+try {
+const storedProblems = JSON.parse(localStorage.getItem("addedProblems")) || [];
+setProblems([...problemData, ...storedProblems]);
+} catch (error) {
+setProblems(problemData);
+}
+});
 
-const allProblems = [...problemData, ...storedProblems];
+getApplications()
+.then((response) => {
+const counts = {};
+
+response.data.forEach((application) => {
+const problemId = application.problem?.problemId || application.problem?.id || application.problemId;
+if (!problemId) {
+return;
+}
+counts[problemId] = (counts[problemId] || 0) + 1;
+});
+
+setApplicationCounts(counts);
+})
+.catch(() => {
+setApplicationCounts({});
+});
+}, []);
+
+const allProblems = problems;
 
 /* Filtering Logic */
 
 const filteredProblems = allProblems.filter((problem)=>{
 
 const matchesFilters =
-(categoryFilter === "" || problem.category === categoryFilter) &&
-(themeFilter === "" || problem.theme === themeFilter);
+(categoryFilter === "" || problem.category === categoryFilter || problem.domain === categoryFilter) &&
+(themeFilter === "" || problem.theme === themeFilter || problem.difficultyLevel === themeFilter);
 
+const searchTerm = search.toLowerCase();
 const matchesSearch =
-problem.category.toLowerCase().includes(search.toLowerCase()) ||
-problem.theme.toLowerCase().includes(search.toLowerCase());
+(problem.title || problem.problemTitle || "").toLowerCase().includes(searchTerm) ||
+(problem.category || problem.domain || "").toLowerCase().includes(searchTerm) ||
+(problem.theme || problem.difficultyLevel || "").toLowerCase().includes(searchTerm) ||
+(problem.description || problem.problemDescription || "").toLowerCase().includes(searchTerm);
 
 return matchesFilters && matchesSearch;
 
@@ -161,21 +197,23 @@ placeholder="Search problems"
 
 {visibleProblems.map((problem)=>(
 
-<tr key={problem.id}>
+<tr key={problem.id || problem.problemId}>
 
-<td>{problem.id}</td>
+<td>{problem.id || problem.problemId}</td>
 
 <td
 className="problem-link"
-onClick={()=>navigate(`/problems/${problem.id}`)}
+onClick={()=>navigate(`/problems/${problem.id || problem.problemId}`)}
 >
-{problem.title}
+{problem.title || problem.problemTitle}
 </td>
 
-<td>{problem.category}</td>
-<td>{problem.theme}</td>
-<td>{problem.deadline}</td>
-<td>{problem.submissions}</td>
+<td>{problem.category || problem.domain}</td>
+<td>{problem.theme || problem.difficultyLevel}</td>
+<td>{problem.deadline || problem.submissionDeadline}</td>
+<td>
+	{(applicationCounts[problem.id || problem.problemId] || problem.submissions || 0)} / {(problem.max || 100)}
+</td>
 
 </tr>
 

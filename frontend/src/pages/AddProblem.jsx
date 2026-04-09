@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { createProblem } from "../services/api";
 import "./addproblem.css";
 
 function AddProblem(){
 
 const navigate = useNavigate();
+const currentRole = localStorage.getItem("role");
 
 const [id,setId] = useState("");
 const [title,setTitle] = useState("");
@@ -16,6 +18,11 @@ const [description,setDescription] = useState("");
 const handleSubmit = (e) => {
 
 e.preventDefault();
+
+if(currentRole !== "ADMIN" && currentRole !== "EVENT_HEAD"){
+alert("Only ADMIN or EVENT_HEAD can add problem statements");
+return;
+}
 
 if(id==="" || title==="" || category==="" || theme==="" || deadline===""){
 alert("Please fill all fields");
@@ -43,6 +50,15 @@ submissions:0
 
 existing.push(newProblem);
 
+createProblem({
+problemId: Number(id),
+problemTitle: title,
+problemDescription: description,
+domain: category,
+organizationName: "MSME",
+difficultyLevel: theme,
+submissionDeadline: deadline,
+}).then(() => {
 localStorage.setItem("addedProblems",JSON.stringify(existing));
 
 alert("Problem Statement Added Successfully");
@@ -50,6 +66,10 @@ alert("Problem Statement Added Successfully");
 /* Redirect back */
 
 navigate("/problems");
+}).catch((error) => {
+console.error(error);
+alert(error?.response?.data?.message || "Failed to add problem");
+});
 
 };
 

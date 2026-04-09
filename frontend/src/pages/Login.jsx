@@ -25,43 +25,26 @@ function Login() {
       return;
     }
 
-    /* 🔵 Evaluator Login */
-    if (role === "Evaluator") {
+    // ✅ Store login info
+    localStorage.setItem("userEmail", email);
+    localStorage.setItem("role", role);
 
-      if (
-        email === "160623733160@gmail.com" &&
-        password === "160623733160"
-      ) {
-
-        // ✅ Store login info
-        localStorage.setItem("userEmail", email);
-        localStorage.setItem("role", "Evaluator");
-
-        if (source === "addproblem") {
-          navigate("/add-problem");
-        } else {
-          navigate("/evaluator");
-        }
-
-      } else {
-        alert("Invalid Evaluator Credentials");
+    if (source === "addproblem") {
+      if (role === "ADMIN" || role === "EVENT_HEAD") {
+        navigate("/add-problem");
+        return;
       }
 
+      alert("Only ADMIN or EVENT_HEAD can manage problem statements");
       return;
     }
 
-    /* 🟢 User Login */
-    if (role === "User") {
-
-      // ✅ Store login info
-      localStorage.setItem("userEmail", email);
-      localStorage.setItem("role", "User");
-
-      // 🚀 Future: Replace this with backend API
-      navigate("/dashboard");
-
+    if (role === "JUDGE" || role === "EVALUATOR") {
+      navigate("/evaluator");
       return;
     }
+
+    navigate("/dashboard");
   };
 
   return (
@@ -97,13 +80,14 @@ function Login() {
               Please Select User Role
             </option>
 
-            <option value="User">
-              User
-            </option>
-
-            <option value="Evaluator">
-              Evaluator
-            </option>
+            <option value="TEAM_LEAD">TEAM_LEAD</option>
+            <option value="TEAM_MEMBER">TEAM_MEMBER</option>
+            <option value="JUDGE">JUDGE</option>
+            <option value="EVALUATOR">EVALUATOR</option>
+            <option value="MENTOR">MENTOR</option>
+            <option value="EVENT_HEAD">EVENT_HEAD</option>
+            <option value="COLLEGE_SPOC">COLLEGE_SPOC</option>
+            <option value="ADMIN">ADMIN</option>
           </select>
 
           <p className="forgot">

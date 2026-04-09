@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { createTeam } from "../services/api";
 import "./application.css";
 
 function CreateTeam() {
   const [teamName, setTeamName] = useState("");
   const navigate = useNavigate();
+  const currentRole = localStorage.getItem("role");
   const [members, setMembers] = useState([
     {
       name: "",
@@ -60,8 +62,32 @@ function CreateTeam() {
     return true;
   };
 
+  const hasDuplicateMembers = () => {
+    const emails = new Set();
+    const rollNumbers = new Set();
+
+    for (const member of members) {
+      const email = member.email.trim().toLowerCase();
+      const rollNumber = member.rollno.trim().toLowerCase();
+
+      if (emails.has(email) || rollNumbers.has(rollNumber)) {
+        return true;
+      }
+
+      emails.add(email);
+      rollNumbers.add(rollNumber);
+    }
+
+    return false;
+  };
+
   // ✅ UPDATED FUNCTION (BACKEND CONNECTED)
   const submitTeam = async () => {
+    if (currentRole !== "TEAM_LEAD") {
+      alert("Only TEAM_LEAD can create a team");
+      return;
+    }
+
     if (teamName.trim() === "") {
       alert("Enter Team Name");
       return;
@@ -72,23 +98,18 @@ function CreateTeam() {
       return;
     }
 
+    if (hasDuplicateMembers()) {
+      alert("Duplicate team member email or roll number found");
+      return;
+    }
+
     try {
-      const response = await fetch("http://localhost:8080/api/teams", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          teamName: teamName,
-          members: members,
-        }),
+      const response = await createTeam({
+        teamName: teamName.trim(),
+        members,
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to save team");
-      }
-
-      const data = await response.json();
+      const data = response.data;
 
       // ✅ SAVE REAL TEAM (WITH teamId)
       localStorage.setItem("team", JSON.stringify(data));

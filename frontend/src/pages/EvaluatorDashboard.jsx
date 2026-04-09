@@ -1,17 +1,26 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getApplications } from "../services/api";
 import "./evaluator.css";
 
 function EvaluatorDashboard() {
   const [applications, setApplications] = useState([]);
+  const currentRole = localStorage.getItem("role");
   const navigate = useNavigate();
+  const isAllowed = currentRole === "JUDGE" || currentRole === "EVALUATOR";
 
   useEffect(() => {
-    const storedApps =
-      JSON.parse(localStorage.getItem("applications")) || [];
-
-    setApplications(storedApps);
+    getApplications()
+      .then((response) => setApplications(response.data))
+      .catch((error) => {
+        console.error(error);
+        setApplications([]);
+      });
   }, []);
+
+  if (!isAllowed) {
+    return <p style={{ padding: "80px" }}>Access restricted</p>;
+  }
 
   return (
     <div className="evaluator-container">
@@ -38,9 +47,9 @@ function EvaluatorDashboard() {
           ) : (
             applications.map((app, index) => (
               <tr key={index}>
-                <td>{app.problemId}</td>
-                <td>{app.team.teamName}</td>
-                <td>{app.team.members[0]?.name}</td>
+                <td>{app.problem?.problemId || app.problem?.id || "N/A"}</td>
+                <td>{app.team?.teamName || "N/A"}</td>
+                <td>{app.team?.members?.[0]?.name || "N/A"}</td>
 
                 <td>
                   <button
