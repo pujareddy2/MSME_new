@@ -122,6 +122,10 @@ section {
   border-radius: 25px;
   background: var(--accent-orange);
   color: rgb(131, 63, 63);
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  text-decoration: none;
 }
 
 /* ===================================== */
@@ -157,7 +161,8 @@ section {
 .nav-links a {
   text-decoration: none;
   color: var(--primary-green);
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 17px;
 }
 
 .nav-links a:hover {
@@ -190,6 +195,29 @@ section {
 .hero-content h1 {
   font-size: 52px;
   font-weight: 800;
+}
+
+.hero-sub,
+.hero-quote,
+.about p,
+.about-highlight,
+.themes-sub,
+.section-title,
+.team-card p,
+.team-card li,
+.application-table th,
+.application-table td,
+.ps-table th,
+.ps-table td {
+  font-size: 18px;
+}
+
+.hero-sub {
+  font-size: 20px;
+}
+
+.hero-quote {
+  font-size: 17px;
 }
 
 .hero-btn {

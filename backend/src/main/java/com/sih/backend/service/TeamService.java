@@ -4,8 +4,11 @@ import com.sih.backend.dto.TeamCreateRequest;
 import com.sih.backend.dto.TeamMemberRequest;
 import com.sih.backend.model.Team;
 import com.sih.backend.model.TeamMember;
+import com.sih.backend.model.User;
 import com.sih.backend.repository.TeamMemberRepository;
 import com.sih.backend.repository.TeamRepository;
+import com.sih.backend.repository.UserRepository;
+import com.sih.backend.service.NotificationService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -24,10 +27,18 @@ public class TeamService {
 
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
+    private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
-    public TeamService(TeamRepository teamRepository, TeamMemberRepository teamMemberRepository) {
+    public TeamService(
+            TeamRepository teamRepository,
+            TeamMemberRepository teamMemberRepository,
+            UserRepository userRepository,
+            NotificationService notificationService) {
         this.teamRepository = teamRepository;
         this.teamMemberRepository = teamMemberRepository;
+        this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     public List<Team> getAllTeams() {
@@ -39,14 +50,34 @@ public class TeamService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Team not found"));
     }
 
+    public Team getTeamByLeaderId(Long leaderId) {
+        return teamRepository.findByLeader_UserId(leaderId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Team not found for leader"));
+    }
+
     @Transactional
     public Team createTeam(TeamCreateRequest request) {
+        if (request.getLeaderId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Leader ID is required");
+        }
+
         if (request.getTeamName() == null || request.getTeamName().trim().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Team name is required");
         }
 
         if (teamRepository.existsByTeamNameIgnoreCase(request.getTeamName().trim())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Team name already exists");
+        }
+
+        User leader = userRepository.findById(request.getLeaderId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Team leader not found"));
+
+        if (leader.getRoleName() == null || !leader.getRoleName().equalsIgnoreCase("TEAM_LEAD")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only team leaders can create teams");
+        }
+
+        if (teamRepository.existsByLeader_UserId(leader.getUserId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "One team leader can create only one team");
         }
 
         List<TeamMemberRequest> members = request.getMembers() == null ? List.of() : request.getMembers();
@@ -81,11 +112,31 @@ public class TeamService {
         Team team = new Team();
         team.setTeamName(request.getTeamName().trim());
         team.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        team.setLeader(leader);
 
         Team savedTeam = teamRepository.save(team);
         List<TeamMember> savedMembers = new ArrayList<>();
 
         for (TeamMemberRequest memberRequest : members) {
+            if (teamMemberRepository.existsByEmailIgnoreCase(memberRequest.getEmail().trim())) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "This participant is already registered in another team.");
+            }
+
+            if (teamMemberRepository.existsByMobileIgnoreCase(memberRequest.getMobile().trim())) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "This phone number is already registered in another team.");
+            }
+
+            User memberUser = new User();
+            memberUser.setFullName(memberRequest.getName().trim());
+            memberUser.setEmail(memberRequest.getEmail().trim().toLowerCase(Locale.ROOT));
+            memberUser.setPhoneNumber(memberRequest.getMobile().trim());
+            memberUser.setRoleName("TEAM_MEMBER");
+            memberUser.setAccountStatus("INVITED");
+            memberUser.setTeam(savedTeam);
+            memberUser.setPasswordHash(new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode(memberRequest.getMobile().trim()));
+            memberUser.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+            userRepository.save(memberUser);
+
             TeamMember teamMember = new TeamMember();
             teamMember.setName(memberRequest.getName());
             teamMember.setEmail(memberRequest.getEmail());
@@ -96,10 +147,19 @@ public class TeamService {
             teamMember.setRollNumber(memberRequest.getRollno());
             teamMember.setCreatedAt(new Timestamp(System.currentTimeMillis()));
             teamMember.setTeam(savedTeam);
+            teamMember.setInvitationStatus("INVITED");
+            teamMember.setInvitedBy(leader.getUserId());
+            teamMember.setUser(memberUser);
             savedMembers.add(teamMemberRepository.save(teamMember));
+
+            notificationService.createNotification(memberUser.getUserId(),
+                    "You have been added to team " + savedTeam.getTeamName() + " by Team Leader " + leader.getFullName() + ".");
         }
 
-        savedTeam.setMembers(new LinkedHashSet<>(savedMembers));
+        savedTeam.getMembers().clear();
+        savedTeam.getMembers().addAll(savedMembers);
+        notificationService.createNotification(leader.getUserId(),
+                "Team created successfully. Invitations have been sent to team members.");
         return savedTeam;
     }
 

@@ -13,13 +13,20 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 import java.sql.Timestamp;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "teams")
+@Table(
+    name = "teams",
+    uniqueConstraints = {
+        @UniqueConstraint(name = "uk_teams_team_name", columnNames = "team_name"),
+        @UniqueConstraint(name = "uk_teams_leader_user", columnNames = "leader_user_id")
+    }
+)
 public class Team {
 
     @Id
@@ -49,7 +56,7 @@ public class Team {
     private Event event;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<TeamMember> members = new LinkedHashSet<>();
 
     // ---------------- GETTERS & SETTERS ----------------

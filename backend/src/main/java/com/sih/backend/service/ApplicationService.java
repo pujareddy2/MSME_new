@@ -87,6 +87,10 @@ public class ApplicationService {
         application.setSubmissionVersion(request.getSubmissionVersion() == null || request.getSubmissionVersion().trim().isEmpty()
                 ? "v1.0"
                 : request.getSubmissionVersion().trim());
+        application.setSubmissionStatus("Submitted");
+        application.setTechnologyStack(request.getTechnologyStack());
+        application.setGithubLink(request.getGithubLink());
+        application.setDemoLink(request.getDemoLink());
         application.setTeam(team);
         application.setProblem(problemStatement);
 
@@ -106,8 +110,8 @@ public class ApplicationService {
         }
 
         String lowerName = originalName.toLowerCase();
-        if (!lowerName.endsWith(".ppt") && !lowerName.endsWith(".pptx")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only PPT or PPTX files are allowed");
+        if (!lowerName.endsWith(".ppt") && !lowerName.endsWith(".pptx") && !lowerName.endsWith(".pdf")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only PPT, PPTX, or PDF files are allowed");
         }
     }
 

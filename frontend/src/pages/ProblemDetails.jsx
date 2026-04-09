@@ -2,11 +2,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import problemData from "../data/problemData";
 import { getProblemById } from "../services/api";
+import { getStoredTeam, getStoredUser } from "../utils/session";
 
 function ProblemDetails() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [problem, setProblem] = useState(null);
+  const currentUser = getStoredUser();
+  const currentTeam = getStoredTeam();
 
   useEffect(() => {
     if (!id) {
@@ -89,7 +92,27 @@ function ProblemDetails() {
 
       <button
         className="apply-btn"
-        onClick={() => navigate(`/apply/${id}`)}
+        onClick={() => {
+          const userRole = currentUser?.role || localStorage.getItem("role");
+
+          if (!currentUser) {
+            navigate("/login");
+            return;
+          }
+
+          if (userRole !== "TEAM_LEAD") {
+            alert("Only Team Leaders can submit applications.");
+            return;
+          }
+
+          if (!currentTeam?.teamId) {
+            alert("You must add team members before applying.");
+            navigate("/create-team");
+            return;
+          }
+
+          navigate(`/apply/${id}`);
+        }}
       >
         Apply
       </button>

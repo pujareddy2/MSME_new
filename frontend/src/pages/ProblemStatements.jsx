@@ -1,234 +1,203 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import problemData from "../data/problemData";
 import { getApplications, getProblems } from "../services/api";
+import { getStoredTeam, getStoredUser } from "../utils/session";
 import "./problemstatements.css";
 
 function ProblemStatements() {
+	const navigate = useNavigate();
+	const currentUser = getStoredUser();
+	const currentTeam = getStoredTeam();
 
-const navigate = useNavigate();
+	const [categoryFilter, setCategoryFilter] = useState("");
+	const [themeFilter, setThemeFilter] = useState("");
+	const [entries, setEntries] = useState(10);
+	const [search, setSearch] = useState("");
+	const [applicationCounts, setApplicationCounts] = useState({});
+	const [problems, setProblems] = useState(problemData);
 
-const [categoryFilter,setCategoryFilter] = useState("");
-const [themeFilter,setThemeFilter] = useState("");
-const [entries,setEntries] = useState(10);
-const [search,setSearch] = useState("");
-const [applicationCounts, setApplicationCounts] = useState({});
-const [problems, setProblems] = useState(problemData);
+	useEffect(() => {
+		getProblems()
+			.then((response) => setProblems(response.data || []))
+			.catch(() => {
+				try {
+					const storedProblems = JSON.parse(localStorage.getItem("addedProblems")) || [];
+					setProblems([...problemData, ...storedProblems]);
+				} catch {
+					setProblems(problemData);
+				}
+			});
 
-useEffect(() => {
-getProblems()
-.then((response) => {
-setProblems(response.data);
-})
-.catch(() => {
-try {
-const storedProblems = JSON.parse(localStorage.getItem("addedProblems")) || [];
-setProblems([...problemData, ...storedProblems]);
-} catch (error) {
-setProblems(problemData);
-}
-});
+		getApplications()
+			.then((response) => {
+				const counts = {};
+				(response.data || []).forEach((application) => {
+					const problemId = application.problem?.problemId || application.problem?.id || application.problemId;
+					if (problemId) {
+						counts[problemId] = (counts[problemId] || 0) + 1;
+					}
+				});
+				setApplicationCounts(counts);
+			})
+			.catch(() => setApplicationCounts({}));
+	}, []);
 
-getApplications()
-.then((response) => {
-const counts = {};
+	const filteredProblems = useMemo(() => {
+		return problems.filter((problem) => {
+			const categoryValue = problem.category || problem.domain || "";
+			const themeValue = problem.theme || problem.difficultyLevel || "";
+			const searchTerm = search.toLowerCase();
 
-response.data.forEach((application) => {
-const problemId = application.problem?.problemId || application.problem?.id || application.problemId;
-if (!problemId) {
-return;
-}
-counts[problemId] = (counts[problemId] || 0) + 1;
-});
+			const matchesFilters =
+				(categoryFilter === "" || categoryValue === categoryFilter) &&
+				(themeFilter === "" || themeValue === themeFilter);
 
-setApplicationCounts(counts);
-})
-.catch(() => {
-setApplicationCounts({});
-});
-}, []);
+			const matchesSearch =
+				(problem.title || problem.problemTitle || "").toLowerCase().includes(searchTerm) ||
+				categoryValue.toLowerCase().includes(searchTerm) ||
+				themeValue.toLowerCase().includes(searchTerm) ||
+				(problem.organizationName || problem.org || "").toLowerCase().includes(searchTerm) ||
+				(`PS${problem.id || problem.problemId}`).toLowerCase().includes(searchTerm);
 
-const allProblems = problems;
+			return matchesFilters && matchesSearch;
+		});
+	}, [problems, categoryFilter, themeFilter, search]);
 
-/* Filtering Logic */
+	const visibleProblems = filteredProblems.slice(0, entries);
 
-const filteredProblems = allProblems.filter((problem)=>{
+	const handleApply = (problemId) => {
+		const userRole = currentUser?.role || localStorage.getItem("role");
 
-const matchesFilters =
-(categoryFilter === "" || problem.category === categoryFilter || problem.domain === categoryFilter) &&
-(themeFilter === "" || problem.theme === themeFilter || problem.difficultyLevel === themeFilter);
+		if (!currentUser) {
+			navigate("/login");
+			return;
+		}
 
-const searchTerm = search.toLowerCase();
-const matchesSearch =
-(problem.title || problem.problemTitle || "").toLowerCase().includes(searchTerm) ||
-(problem.category || problem.domain || "").toLowerCase().includes(searchTerm) ||
-(problem.theme || problem.difficultyLevel || "").toLowerCase().includes(searchTerm) ||
-(problem.description || problem.problemDescription || "").toLowerCase().includes(searchTerm);
+		if (userRole !== "TEAM_LEAD") {
+			alert("Only Team Leaders can submit applications.");
+			return;
+		}
 
-return matchesFilters && matchesSearch;
+		if (!currentTeam?.teamId) {
+			alert("You must add team members before applying.");
+			navigate("/create-team");
+			return;
+		}
 
-});
+		navigate(`/apply/${problemId}`);
+	};
 
-const visibleProblems = filteredProblems.slice(0, entries);
+	return (
+		<div className="ps-page">
+			<h1 className="ps-title">TS-MSME Problem Statements</h1>
 
-return(
+			<div className="top-actions">
+				<a href="/MSME_Template.pptx" download className="template-btn">
+					Download PPT Template
+				</a>
 
-<div className="ps-page">
+				<button className="add-problem-btn" onClick={() => navigate("/login?source=addproblem")}>
+					Add Problem Statement
+				</button>
+			</div>
 
-<h1 className="ps-title">
-TS-MSME Problem Statements
-</h1>
+			<div className="filters">
+				<div className="filter-box">
+					<label>Category</label>
+					<select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+						<option value="">All</option>
+						<option value="Software">Software</option>
+						<option value="Hardware">Hardware</option>
+						<option value="Miscellaneous">Miscellaneous</option>
+					</select>
+				</div>
 
-{/* Top Buttons */}
+				<div className="filter-box">
+					<label>Theme</label>
+					<select value={themeFilter} onChange={(e) => setThemeFilter(e.target.value)}>
+						<option value="">All</option>
+						<option value="Artificial Intelligence">Artificial Intelligence</option>
+						<option value="Smart Education">Smart Education</option>
+						<option value="Health Tech">Health Tech</option>
+						<option value="Agriculture">Agriculture</option>
+						<option value="Sustainable Development">Sustainable Development</option>
+					</select>
+				</div>
+			</div>
 
-<div className="top-actions">
+			<div className="table-controls">
+				<div className="entries-box">
+					Show
+					<select value={entries} onChange={(e) => setEntries(Number(e.target.value))}>
+						<option value={10}>10</option>
+						<option value={25}>25</option>
+						<option value={50}>50</option>
+						<option value={100}>100</option>
+					</select>
+					entries
+				</div>
 
-<a
-href="/MSME_Template.pptx"
-download
-className="template-btn"
->
-Download PPT Template
-</a>
+				<div className="search-box">
+					Search:
+					<input
+						type="text"
+						value={search}
+						onChange={(e) => setSearch(e.target.value)}
+						placeholder="Search by title, organization, category, PS number"
+					/>
+				</div>
+			</div>
 
-<button
-className="add-problem-btn"
-onClick={()=>navigate("/login?source=addproblem")}
->
-Add Problem Statement
-</button>
+			<div className="table-container">
+				<table className="ps-table">
+					<thead>
+						<tr>
+							<th>S.No</th>
+							<th>Organization</th>
+							<th>Problem Statement Title</th>
+							<th>Category</th>
+							<th>PS Number</th>
+							<th>Submitted Ideas Count</th>
+							<th>Team Capacity</th>
+							<th>Submission Deadline</th>
+							<th>Apply</th>
+						</tr>
+					</thead>
 
-</div>
+					<tbody>
+						{visibleProblems.map((problem, index) => {
+							const problemId = problem.id || problem.problemId;
+							const maxSubmissions = problem.maxSubmissions || problem.max || 300;
+							const submissionCount = applicationCounts[problemId] || problem.submissions || 0;
 
-{/* Filters */}
-
-<div className="filters">
-
-<div className="filter-box">
-
-<label>Category</label>
-
-<select
-value={categoryFilter}
-onChange={(e)=>setCategoryFilter(e.target.value)}
->
-
-<option value="">All</option>
-<option value="Software">Software</option>
-<option value="Hardware">Hardware</option>
-<option value="Miscellaneous">Miscellaneous</option>
-
-</select>
-
-</div>
-
-<div className="filter-box">
-
-<label>Theme</label>
-
-<select
-value={themeFilter}
-onChange={(e)=>setThemeFilter(e.target.value)}
->
-
-<option value="">All</option>
-<option value="Artificial Intelligence">Artificial Intelligence</option>
-<option value="Smart Education">Smart Education</option>
-<option value="Health Tech">Health Tech</option>
-<option value="Agriculture">Agriculture</option>
-<option value="Sustainable Development">Sustainable Development</option>
-
-</select>
-
-</div>
-
-</div>
-
-{/* Entries + Search Row */}
-
-<div className="table-controls">
-
-<div className="entries-box">
-Show
-<select
-value={entries}
-onChange={(e)=>setEntries(Number(e.target.value))}
->
-<option value={10}>10</option>
-<option value={25}>25</option>
-<option value={50}>50</option>
-<option value={100}>100</option>
-</select>
-entries
-</div>
-
-<div className="search-box">
-Search:
-<input
-type="text"
-value={search}
-onChange={(e)=>setSearch(e.target.value)}
-placeholder="Search problems"
-/>
-</div>
-
-</div>
-
-{/* Table */}
-
-<div className="table-container">
-
-<table className="ps-table">
-
-<thead>
-
-<tr>
-<th>ID</th>
-<th>Problem Statement</th>
-<th>Category</th>
-<th>Theme</th>
-<th>Deadline</th>
-<th>Submissions</th>
-</tr>
-
-</thead>
-
-<tbody>
-
-{visibleProblems.map((problem)=>(
-
-<tr key={problem.id || problem.problemId}>
-
-<td>{problem.id || problem.problemId}</td>
-
-<td
-className="problem-link"
-onClick={()=>navigate(`/problems/${problem.id || problem.problemId}`)}
->
-{problem.title || problem.problemTitle}
-</td>
-
-<td>{problem.category || problem.domain}</td>
-<td>{problem.theme || problem.difficultyLevel}</td>
-<td>{problem.deadline || problem.submissionDeadline}</td>
-<td>
-	{(applicationCounts[problem.id || problem.problemId] || problem.submissions || 0)} / {(problem.max || 100)}
-</td>
-
-</tr>
-
-))}
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-);
-
+							return (
+								<tr key={problemId}>
+									<td>{index + 1}</td>
+									<td>{problem.organizationName || problem.org || "MSME"}</td>
+									<td className="problem-link" onClick={() => navigate(`/problems/${problemId}`)}>
+										{problem.title || problem.problemTitle}
+									</td>
+									<td>{problem.category || problem.domain}</td>
+									<td>{problem.psNumber || `PS${problemId}`}</td>
+									<td>{submissionCount} / {maxSubmissions}</td>
+									<td>Team Size: 6</td>
+									<td>{problem.deadline || problem.submissionDeadline}</td>
+									<td>
+										{submissionCount >= maxSubmissions ? (
+											<button className="view-btn" disabled>Submissions Closed</button>
+										) : (
+											<button className="apply-btn" onClick={() => handleApply(problemId)}>Apply</button>
+										)}
+									</td>
+								</tr>
+							);
+						})}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	);
 }
 
 export default ProblemStatements;

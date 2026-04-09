@@ -1,12 +1,14 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createTeam } from "../services/api";
+import { getStoredTeam, getStoredUser, saveSession } from "../utils/session";
 import "./application.css";
 
 function CreateTeam() {
   const [teamName, setTeamName] = useState("");
   const navigate = useNavigate();
   const currentRole = localStorage.getItem("role");
+  const currentUser = getStoredUser();
   const [members, setMembers] = useState([
     {
       name: "",
@@ -19,9 +21,22 @@ function CreateTeam() {
     },
   ]);
 
+  useEffect(() => {
+    const storedTeam = getStoredTeam();
+    const pendingTeamName = localStorage.getItem("pendingTeamName");
+
+    if (pendingTeamName && !teamName) {
+      setTeamName(pendingTeamName);
+    }
+
+    if (storedTeam && storedTeam.teamName && !teamName) {
+      setTeamName(storedTeam.teamName);
+    }
+  }, [teamName]);
+
   const addMember = () => {
     if (members.length >= 5) {
-      alert("Maximum 5 Members Allowed");
+      alert("Maximum team size reached.");
       return;
     }
 
@@ -88,6 +103,12 @@ function CreateTeam() {
       return;
     }
 
+    if (!currentUser?.userId) {
+      alert("Please login again to continue");
+      navigate("/login");
+      return;
+    }
+
     if (teamName.trim() === "") {
       alert("Enter Team Name");
       return;
@@ -105,6 +126,7 @@ function CreateTeam() {
 
     try {
       const response = await createTeam({
+        leaderId: currentUser.userId,
         teamName: teamName.trim(),
         members,
       });
@@ -112,7 +134,8 @@ function CreateTeam() {
       const data = response.data;
 
       // ✅ SAVE REAL TEAM (WITH teamId)
-      localStorage.setItem("team", JSON.stringify(data));
+      saveSession(currentUser, data);
+      localStorage.removeItem("pendingTeamName");
 
       alert("Team Created Successfully ✅");
 
@@ -120,7 +143,7 @@ function CreateTeam() {
 
     } catch (error) {
       console.error(error);
-      alert("Error saving team ❌");
+      alert(error?.response?.data?.message || "Error saving team ❌");
     }
   };
 

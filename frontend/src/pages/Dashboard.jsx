@@ -1,77 +1,171 @@
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { getApplications, getNotifications, getTeamByLeaderId, getTeamMemberTeam } from "../services/api";
+import { getStoredUser } from "../utils/session";
 import "./dashboard.css";
 
 function Dashboard() {
   const navigate = useNavigate();
+  const currentUser = getStoredUser();
   const [team, setTeam] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const savedTeam = localStorage.getItem("team");
+    async function loadDashboard() {
+      if (!currentUser?.userId) {
+        setLoading(false);
+        return;
+      }
 
-    if (savedTeam) {
       try {
-        const parsed = JSON.parse(savedTeam);
+        try {
+          const teamResponse = currentUser.role === "TEAM_LEAD"
+            ? await getTeamByLeaderId(currentUser.userId)
+            : await getTeamMemberTeam(currentUser.userId);
 
-        // ✅ ensure members always exists
-        if (!parsed.members) {
-          parsed.members = [];
+          const teamData = teamResponse.data;
+          if (!teamData.members) {
+            teamData.members = [];
+          }
+          setTeam(teamData);
+
+          if (teamData.teamId) {
+            const applicationsResponse = await getApplications();
+            const filteredApplications = (applicationsResponse.data || []).filter(
+              (application) => (application.team?.teamId || application.teamId) === teamData.teamId
+            );
+            setApplications(filteredApplications);
+          }
+        } catch (teamError) {
+          console.error(teamError);
         }
 
-        setTeam(parsed);
-      } catch (e) {
-        console.error("Invalid team data");
+        const notificationsResponse = await getNotifications(currentUser.userId);
+        setNotifications(notificationsResponse.data || []);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
       }
     }
-  }, []);
+
+    loadDashboard();
+  }, [currentUser?.userId, currentUser?.role]);
+
+  const summaryCards = useMemo(() => [
+    { label: "Team Members", value: team?.members?.length || 0 },
+    { label: "Applications", value: applications.length },
+    { label: "Notifications", value: notifications.length },
+  ], [team, applications.length, notifications.length]);
+
+  const allowedToApply = currentUser?.role === "TEAM_LEAD";
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-shell">
+      <aside className="dashboard-sidebar">
+        <div>
+          <p className="sidebar-eyebrow">MSME Hackathon</p>
+          <h2 className="dashboard-title">{currentUser?.role || "Dashboard"}</h2>
+        </div>
 
-      <h2 className="dashboard-title">Dashboard</h2>
+        <button onClick={() => navigate("/")}>Home</button>
+        <button onClick={() => navigate("/problems")}>Problem Statements</button>
+        {allowedToApply && <button onClick={() => navigate("/create-team")}>Create Team</button>}
+        {allowedToApply && <button onClick={() => navigate("/my-applications")}>My Applications</button>}
+        {!allowedToApply && <button onClick={() => navigate("/team-member-dashboard")}>Team Member View</button>}
+        <button onClick={() => navigate("/profile")}>Profile</button>
+      </aside>
 
-      {/* TEAM CARD */}
-      <div className="team-card">
-        <h3>Team Details</h3>
+      <section className="dashboard-content">
+        <div className="dashboard-hero">
+          <div>
+            <p className="sidebar-eyebrow">Welcome back</p>
+            <h1>{currentUser?.name || "Participant"}</h1>
+            <p>{team ? `Team ${team.teamName}` : "No team linked yet"}</p>
+          </div>
+          <div className="hero-actions">
+            {allowedToApply ? (
+              <button onClick={() => navigate("/problems")}>Browse Problems</button>
+            ) : (
+              <button onClick={() => navigate("/problems")}>View Problems</button>
+            )}
+          </div>
+        </div>
 
-        {team ? (
-          <>
-            <p className="team-name">Team Name: {team.teamName}</p>
-
-            <div className="members">
-              <p className="member-title">Members:</p>
-
-              {team.members && team.members.length > 0 ? (
-                team.members.map((m, index) => (
-                  <div key={index} className="member-item">
-                    {m.name} ({m.email})
-                  </div>
-                ))
-              ) : (
-                <p>No members found</p>
-              )}
+        <div className="summary-grid">
+          {summaryCards.map((card) => (
+            <div key={card.label} className="summary-card">
+              <span>{card.label}</span>
+              <strong>{card.value}</strong>
             </div>
-          </>
-        ) : (
-          <p className="no-team">No team created yet</p>
-        )}
-      </div>
+          ))}
+        </div>
 
-      {/* BUTTONS */}
-      <div className="dashboard-buttons">
-        <button onClick={() => navigate("/create-team")}>
-          Create Team
-        </button>
+        <div className="dashboard-grid">
+          <div className="team-card">
+            <h3>My Team</h3>
+            {loading ? (
+              <p className="no-team">Loading team...</p>
+            ) : team ? (
+              <>
+                <p className="team-name">Team Name: {team.teamName}</p>
+                <p>Leader: {team.leader?.fullName || currentUser?.name || "N/A"}</p>
+                <div className="members">
+                  <p className="member-title">Members:</p>
+                  {team.members && team.members.length > 0 ? (
+                    team.members.map((member, index) => (
+                      <div key={member.memberId || index} className="member-item">
+                        {member.name} ({member.email})
+                      </div>
+                    ))
+                  ) : (
+                    <p>No members found</p>
+                  )}
+                </div>
+              </>
+            ) : (
+              <p className="no-team">No team created yet</p>
+            )}
+          </div>
 
-        <button onClick={() => navigate("/problems")}>
-          View Problems
-        </button>
+          <div className="team-card">
+            <h3>Recent Activity</h3>
+            {notifications.length > 0 ? (
+              notifications.slice(0, 5).map((notification) => (
+                <div key={notification.notificationId} className="member-item">
+                  {notification.message}
+                </div>
+              ))
+            ) : (
+              <p className="no-team">No recent activity</p>
+            )}
+          </div>
+        </div>
 
-        <button onClick={() => navigate("/my-applications")}>
-          My Applications
-        </button>
-      </div>
+        <div className="team-card">
+          <h3>Quick Actions</h3>
+          <div className="dashboard-buttons">
+            {allowedToApply && <button onClick={() => navigate("/create-team")}>Create Team</button>}
+            <button onClick={() => navigate("/problems")}>View Problems</button>
+            <button onClick={() => navigate("/my-applications")}>My Applications</button>
+          </div>
+        </div>
 
+        <div className="team-card">
+          <h3>Notifications</h3>
+          {notifications.length > 0 ? (
+            notifications.map((notification) => (
+              <div key={notification.notificationId} className="member-item">
+                {notification.message}
+              </div>
+            ))
+          ) : (
+            <p className="no-team">No notifications yet</p>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

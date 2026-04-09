@@ -5,6 +5,7 @@ import Footer from "./components/layout/Footer";
 import Evaluate from "./pages/Evaluate";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import RegisterTeamLeader from "./pages/RegisterTeamLeader";
 
 import ProblemStatement from "./pages/ProblemStatements";
 import ProblemDetails from "./pages/ProblemDetails";
@@ -19,6 +20,9 @@ import AddProblem from "./pages/AddProblem";
 import Dashboard from "./pages/Dashboard";
 import CreateTeam from "./pages/CreateTeam";
 import MyApplications from "./pages/MyApplications";
+import Profile from "./pages/Profile";
+import Leaderboard from "./pages/Leaderboard";
+import RoleDashboard from "./pages/RoleDashboard";
 
 import AboutSection from "./sections/AboutSection";
 import GuidelinesSection from "./sections/GuidelinesSection";
@@ -37,9 +41,16 @@ function App() {
 
           {/* Login */}
           <Route path="/login" element={<Login />} />
+          <Route path="/register-team-lead" element={<RegisterTeamLeader />} />
 
           {/* ✅ Dashboard */}
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/team-member-dashboard" element={<RoleDashboard role="TEAM_MEMBER" />} />
+          <Route path="/mentor-dashboard" element={<RoleDashboard role="MENTOR" />} />
+          <Route path="/event-head-dashboard" element={<RoleDashboard role="EVENT_HEAD" />} />
+          <Route path="/admin-dashboard" element={<RoleDashboard role="ADMIN" />} />
+          <Route path="/spoc-dashboard" element={<RoleDashboard role="COLLEGE_SPOC" />} />
+          <Route path="/judge-dashboard" element={<RoleDashboard role="JUDGE" />} />
 
           {/* Information Pages */}
           <Route path="/about" element={<AboutSection />} />
@@ -63,6 +74,10 @@ function App() {
 
           {/* Evaluator */}
           <Route path="/evaluator" element={<EvaluatorDashboard />} />
+
+          {/* Shared role pages */}
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
 
           {/* Add Problem Statement */}
           <Route path="/add-problem" element={<AddProblem />} />

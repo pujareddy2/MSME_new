@@ -28,6 +28,102 @@
   color: #61dafb;
 }
 
+.home-stats,
+.home-features,
+.home-events {
+  width: 85%;
+  margin: 0 auto;
+  padding: 40px 0 10px;
+}
+
+.home-section-header {
+  margin-bottom: 20px;
+}
+
+.home-section-header h2 {
+  color: #4b275e;
+  margin-bottom: 8px;
+}
+
+.home-section-header p {
+  color: #5b6478;
+  font-size: 18px;
+}
+
+.home-card-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.stats-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.feature-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.event-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.home-card,
+.event-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(18, 49, 92, 0.08);
+  border: 1px solid #e9edf6;
+}
+
+.home-card {
+  padding: 22px;
+}
+
+.home-card strong {
+  display: block;
+  color: #4b275e;
+  font-size: 34px;
+  margin-bottom: 8px;
+}
+
+.home-card span,
+.home-card p,
+.event-card p {
+  color: #5b6478;
+  font-size: 17px;
+}
+
+.home-card h3,
+.event-card h3 {
+  color: #2f3140;
+  margin-bottom: 10px;
+}
+
+.event-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 16px 16px 0 0;
+}
+
+.event-card div {
+  padding: 18px;
+}
+
+@media (max-width: 992px) {
+  .stats-grid,
+  .feature-grid,
+  .event-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-stats,
+  .home-features,
+  .home-events {
+    width: 90%;
+  }
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

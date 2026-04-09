@@ -3,8 +3,17 @@ package com.sih.backend.dto;
 import java.util.List;
 
 public class TeamCreateRequest {
+    private Long leaderId;
     private String teamName;
     private List<TeamMemberRequest> members;
+
+    public Long getLeaderId() {
+        return leaderId;
+    }
+
+    public void setLeaderId(Long leaderId) {
+        this.leaderId = leaderId;
+    }
 
     public String getTeamName() {
         return teamName;

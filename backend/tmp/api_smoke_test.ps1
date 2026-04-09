@@ -9,18 +9,36 @@ if (!(Test-Path '.\tmp')) {
 
 Set-Content -Path '.\tmp\sample.ppt' -Value 'fake ppt content'
 
-$stamp = Get-Date -Format 'yyyyMMddHHmmss'
-$teamName = "Team API Smoke $stamp"
-$memberEmail = "lead.$stamp@example.com"
-$rollNo = "R$stamp"
+$stamp = (Get-Date).ToString('yyyyMMddHHmmssfff')
+$guid = ([guid]::NewGuid().ToString('N')).Substring(0, 8)
+$teamName = "Team API Smoke $stamp $guid"
+$leaderEmail = "lead.$stamp.$guid@example.com"
+$memberEmail = "member.$stamp.$guid@example.com"
+$rollNo = "R$stamp$guid"
+$leaderPhone = "7$($stamp.Substring($stamp.Length - 9))"
+$memberPhone = "8$($stamp.Substring($stamp.Length - 9))"
+
+$leaderPayload = @{
+    name = 'Lead One'
+    email = $leaderEmail
+    phone = $leaderPhone
+    password = 'P@ssword123'
+    confirmPassword = 'P@ssword123'
+    teamName = $teamName
+    collegeId = 'MSME-001'
+} | ConvertTo-Json -Depth 5
+
+$leader = Invoke-RestMethod -Method POST -Uri 'http://localhost:8080/api/auth/register/team-lead' -ContentType 'application/json' -Body $leaderPayload
+Write-Output ("RegisteredLeaderId=$($leader.userId)")
 
 $payload = @{
+    leaderId = [int64]$leader.userId
     teamName = $teamName
     members = @(
         @{
             name = 'Lead One'
             email = $memberEmail
-            mobile = '9999999991'
+            mobile = $memberPhone
             gender = 'Male'
             college = 'MSME College'
             course = 'BTech'

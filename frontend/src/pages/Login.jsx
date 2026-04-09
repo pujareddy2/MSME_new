@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { getTeamByLeaderId, getTeamMemberTeam, login } from "../services/api";
+import { saveSession } from "../utils/session";
 import "./login.css";
 
 function Login() {
@@ -11,40 +13,100 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (email.trim() === "" || password.trim() === "") {
-      alert("Please enter Email and Password");
+  const routeByRole = (userRole) => {
+    if (userRole === "TEAM_MEMBER") {
+      navigate("/team-member-dashboard");
       return;
     }
 
-    if (role === "") {
-      alert("Please select a role");
-      return;
-    }
-
-    // ✅ Store login info
-    localStorage.setItem("userEmail", email);
-    localStorage.setItem("role", role);
-
-    if (source === "addproblem") {
-      if (role === "ADMIN" || role === "EVENT_HEAD") {
-        navigate("/add-problem");
-        return;
-      }
-
-      alert("Only ADMIN or EVENT_HEAD can manage problem statements");
-      return;
-    }
-
-    if (role === "JUDGE" || role === "EVALUATOR") {
+    if (userRole === "JUDGE" || userRole === "EVALUATOR") {
       navigate("/evaluator");
       return;
     }
 
+    if (userRole === "MENTOR") {
+      navigate("/mentor-dashboard");
+      return;
+    }
+
+    if (userRole === "EVENT_HEAD") {
+      navigate("/event-head-dashboard");
+      return;
+    }
+
+    if (userRole === "ADMIN") {
+      navigate("/admin-dashboard");
+      return;
+    }
+
+    if (userRole === "COLLEGE_SPOC") {
+      navigate("/spoc-dashboard");
+      return;
+    }
+
     navigate("/dashboard");
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (email.trim() === "" || password.trim() === "") {
+      setMessage("Please enter Email and Password");
+      return;
+    }
+
+    if (role === "") {
+      setMessage("Please select a role");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setMessage("");
+
+      const response = await login({ email, password, role });
+      const user = response.data;
+      saveSession(user, user.teamId ? { teamId: user.teamId, teamName: user.teamName } : null);
+
+      if (user.role === "TEAM_LEAD" && user.userId) {
+        try {
+          const teamResponse = await getTeamByLeaderId(user.userId);
+          localStorage.setItem("team", JSON.stringify(teamResponse.data));
+        } catch {
+          if (user.teamId) {
+            try {
+              const teamResponse = await getTeamMemberTeam(user.userId);
+              localStorage.setItem("team", JSON.stringify(teamResponse.data));
+            } catch {
+              // keep session data only
+            }
+          }
+        }
+      }
+
+      if (source === "addproblem") {
+        if (user.role === "ADMIN" || user.role === "EVENT_HEAD") {
+          navigate("/add-problem");
+          return;
+        }
+
+        setMessage("Only ADMIN or EVENT_HEAD can manage problem statements");
+        return;
+      }
+
+      routeByRole(user.role);
+    } catch (error) {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.response?.data ||
+        "Login failed";
+      setMessage(typeof errorMessage === "string" ? errorMessage : "Login failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -59,8 +121,8 @@ function Login() {
         <form onSubmit={handleSubmit}>
 
           <input
-            type="email"
-            placeholder="Email"
+            type="text"
+            placeholder="Email / Phone"
             value={email}
             onChange={(e)=>setEmail(e.target.value)}
           />
@@ -90,6 +152,8 @@ function Login() {
             <option value="ADMIN">ADMIN</option>
           </select>
 
+          {message && <p style={{ color: "#b00020", marginTop: 0 }}>{message}</p>}
+
           <p className="forgot">
             Forgot Your Password?
           </p>
@@ -97,8 +161,18 @@ function Login() {
           <button
             type="submit"
             className="submit-btn"
+            disabled={loading}
           >
-            Submit
+            {loading ? "Signing in..." : "Login"}
+          </button>
+
+          <button
+            type="button"
+            className="submit-btn"
+            style={{ marginTop: 12, background: "#0a6b63" }}
+            onClick={() => navigate("/register-team-lead")}
+          >
+            Register as Team Leader
           </button>
 
         </form>

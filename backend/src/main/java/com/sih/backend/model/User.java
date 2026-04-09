@@ -1,5 +1,7 @@
 package com.sih.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import java.util.Set;
 
@@ -21,6 +23,15 @@ public class User {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Column(name = "password_hash")
+    private String passwordHash;
+
+    @Column(name = "role_name")
+    private String roleName;
+
+    @Column(name = "college_id")
+    private String collegeId;
+
     @Column(name = "account_status")
     private String accountStatus;
 
@@ -38,8 +49,14 @@ public class User {
     private User supervisor;
 
     // 🔹 ONE USER → MANY SUBORDINATES
+    @JsonIgnore
     @OneToMany(mappedBy = "supervisor")
     private Set<User> subordinates;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "team_id")
+    private Team team;
 
     // ---------------- GETTERS & SETTERS ----------------
 
@@ -73,6 +90,30 @@ public class User {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
+    }
+
+    public String getCollegeId() {
+        return collegeId;
+    }
+
+    public void setCollegeId(String collegeId) {
+        this.collegeId = collegeId;
     }
 
     public String getAccountStatus() {
@@ -113,5 +154,13 @@ public class User {
 
     public void setSubordinates(Set<User> subordinates) {
         this.subordinates = subordinates;
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
     }
 }

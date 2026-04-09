@@ -33,6 +33,9 @@ public class Application {
     @Column(name = "submission_version")
     private String submissionVersion;
 
+    @Column(name = "submission_status")
+    private String submissionStatus;
+
     @Column(name = "submission_date")
     private Timestamp submissionDate;
 
@@ -41,6 +44,15 @@ public class Application {
 
     @Column(name = "ppt_file_path")
     private String pptFilePath;
+
+    @Column(name = "technology_stack", columnDefinition = "TEXT")
+    private String technologyStack;
+
+    @Column(name = "github_link")
+    private String githubLink;
+
+    @Column(name = "demo_link")
+    private String demoLink;
 
     @ManyToOne
     @JoinColumn(name = "team_id")
@@ -81,6 +93,14 @@ public class Application {
         this.submissionVersion = submissionVersion;
     }
 
+    public String getSubmissionStatus() {
+        return submissionStatus;
+    }
+
+    public void setSubmissionStatus(String submissionStatus) {
+        this.submissionStatus = submissionStatus;
+    }
+
     public Timestamp getSubmissionDate() {
         return submissionDate;
     }
@@ -103,6 +123,30 @@ public class Application {
 
     public void setPptFilePath(String pptFilePath) {
         this.pptFilePath = pptFilePath;
+    }
+
+    public String getTechnologyStack() {
+        return technologyStack;
+    }
+
+    public void setTechnologyStack(String technologyStack) {
+        this.technologyStack = technologyStack;
+    }
+
+    public String getGithubLink() {
+        return githubLink;
+    }
+
+    public void setGithubLink(String githubLink) {
+        this.githubLink = githubLink;
+    }
+
+    public String getDemoLink() {
+        return demoLink;
+    }
+
+    public void setDemoLink(String demoLink) {
+        this.demoLink = demoLink;
     }
 
     public Team getTeam() {

@@ -5,6 +5,9 @@ public class ApplicationCreateRequest {
     private Long problemId;
     private String abstractText;
     private String submissionVersion;
+    private String technologyStack;
+    private String githubLink;
+    private String demoLink;
 
     public Long getTeamId() {
         return teamId;
@@ -36,5 +39,29 @@ public class ApplicationCreateRequest {
 
     public void setSubmissionVersion(String submissionVersion) {
         this.submissionVersion = submissionVersion;
+    }
+
+    public String getTechnologyStack() {
+        return technologyStack;
+    }
+
+    public void setTechnologyStack(String technologyStack) {
+        this.technologyStack = technologyStack;
+    }
+
+    public String getGithubLink() {
+        return githubLink;
+    }
+
+    public void setGithubLink(String githubLink) {
+        this.githubLink = githubLink;
+    }
+
+    public String getDemoLink() {
+        return demoLink;
+    }
+
+    public void setDemoLink(String demoLink) {
+        this.demoLink = demoLink;
     }
 }

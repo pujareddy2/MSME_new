@@ -1,6 +1,7 @@
 package com.sih.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,11 +11,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "team_members")
+@Table(
+    name = "team_members",
+    uniqueConstraints = {
+        @UniqueConstraint(name = "uk_team_members_email", columnNames = "email"),
+        @UniqueConstraint(name = "uk_team_members_mobile", columnNames = "mobile")
+    }
+)
 public class TeamMember {
 
     @Id
@@ -28,6 +36,12 @@ public class TeamMember {
     private String email;
 
     private String mobile;
+
+    @Column(name = "invitation_status")
+    private String invitationStatus;
+
+    @Column(name = "invited_by")
+    private Long invitedBy;
 
     private String gender;
 
@@ -48,6 +62,7 @@ public class TeamMember {
     private Team team;
 
     // 🔹 OPTIONAL: LINK TO USER (advanced)
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -89,6 +104,22 @@ public class TeamMember {
 
     public void setMobile(String mobile) {
         this.mobile = mobile;
+    }
+
+    public String getInvitationStatus() {
+        return invitationStatus;
+    }
+
+    public void setInvitationStatus(String invitationStatus) {
+        this.invitationStatus = invitationStatus;
+    }
+
+    public Long getInvitedBy() {
+        return invitedBy;
+    }
+
+    public void setInvitedBy(Long invitedBy) {
+        this.invitedBy = invitedBy;
     }
 
     public String getGender() {

@@ -1,38 +1,49 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { createApplication, getProblemById } from "../services/api";
+import { useEffect, useMemo, useState } from "react";
+import { createApplication, getProblemById, getTeamByLeaderId, getTeamMemberTeam } from "../services/api";
+import { getStoredTeam, getStoredUser } from "../utils/session";
 import "./application.css";
 
 function Application() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const currentRole = localStorage.getItem("role");
+  const currentUser = getStoredUser();
+  const currentRole = currentUser?.role || localStorage.getItem("role");
 
   const [solution, setSolution] = useState("");
   const [file, setFile] = useState(null);
   const [team, setTeam] = useState(null);
   const [problem, setProblem] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [technologyStack, setTechnologyStack] = useState("");
+  const [githubLink, setGithubLink] = useState("");
+  const [demoLink, setDemoLink] = useState("");
+  const [error, setError] = useState("");
 
-  // Load team safely
   useEffect(() => {
-    const savedTeam = localStorage.getItem("team");
+    const loadTeam = async () => {
+      const savedTeam = getStoredTeam();
+      if (savedTeam) {
+        setTeam(savedTeam);
+        return;
+      }
 
-    if (savedTeam) {
+      if (!currentUser?.userId) {
+        return;
+      }
+
       try {
-        const parsed = JSON.parse(savedTeam);
-
-        // ✅ ensure members always exists
-        if (!parsed.members) {
-          parsed.members = [];
-        }
-
-        setTeam(parsed);
-      } catch (e) {
-        console.error("Invalid team data", e);
+        const teamResponse = currentRole === "TEAM_LEAD"
+          ? await getTeamByLeaderId(currentUser.userId)
+          : await getTeamMemberTeam(currentUser.userId);
+        setTeam(teamResponse.data);
+      } catch (loadError) {
+        console.error(loadError);
       }
     }
-  }, []);
+
+    loadTeam();
+  }, [currentUser?.userId, currentRole]);
 
   useEffect(() => {
     if (!id) {
@@ -44,6 +55,10 @@ function Application() {
       .catch(() => setProblem(null));
   }, [id]);
 
+  const wordCount = useMemo(() => {
+    return solution.trim().length === 0 ? 0 : solution.trim().split(/\s+/).length;
+  }, [solution]);
+
   const handleFileChange = (e) => {
     const selected = e.target.files[0];
 
@@ -51,8 +66,13 @@ function Application() {
 
     const name = selected.name.toLowerCase();
 
-    if (!name.endsWith(".ppt") && !name.endsWith(".pptx")) {
-      alert("Only PPT or PPTX files allowed");
+    if (!name.endsWith(".ppt") && !name.endsWith(".pptx") && !name.endsWith(".pdf")) {
+      alert("Only PPT, PPTX, or PDF files allowed");
+      return;
+    }
+
+    if (selected.size > 20 * 1024 * 1024) {
+      alert("File size must be 20MB or smaller");
       return;
     }
 
@@ -65,23 +85,30 @@ function Application() {
       return;
     }
 
-    if (!team) {
-      alert("Please create a team first");
+    if (!currentUser?.userId) {
+      navigate("/login");
       return;
     }
 
-    if (solution.trim() === "") {
-      alert("Please enter Abstract");
+    if (!team) {
+      alert("Please create a team first");
+      navigate("/create-team");
+      return;
+    }
+
+    if (wordCount < 200) {
+      setError("Abstract must be at least 200 words");
       return;
     }
 
     if (!file) {
-      alert("Upload PPT");
+      setError("Upload PPT or PDF");
       return;
     }
 
     try {
       setLoading(true);
+      setError("");
 
       const formData = new FormData();
       formData.append(
@@ -91,6 +118,9 @@ function Application() {
           problemId: parseInt(id, 10),
           abstractText: solution.trim(),
           submissionVersion: "v1.0",
+          technologyStack: technologyStack.trim(),
+          githubLink: githubLink.trim(),
+          demoLink: demoLink.trim(),
         })
       );
       formData.append("file", file);
@@ -98,14 +128,14 @@ function Application() {
       await createApplication(formData);
 
       alert("Application Submitted Successfully ✅");
-      navigate("/my-applications");
+      navigate("/dashboard");
     } catch (error) {
       console.error(error);
       const message =
         error?.response?.data?.message ||
         error?.response?.data ||
         "Server Error ❌";
-      alert(typeof message === "string" ? message : "Server Error ❌");
+      setError(typeof message === "string" ? message : "Server Error ❌");
     } finally {
       setLoading(false);
     }
@@ -122,44 +152,68 @@ function Application() {
 
       {problem && (
         <div className="teamInfoBox">
-          <h3>Problem: {problem.problemTitle || problem.title}</h3>
-          <p>{problem.problemDescription || problem.description}</p>
+          <h3>Problem Details</h3>
+          <p><strong>Problem ID:</strong> {problem.problemId || id}</p>
+          <p><strong>Title:</strong> {problem.problemTitle || problem.title}</p>
+          <p><strong>Organization:</strong> {problem.organizationName || problem.org || "MSME"}</p>
+          <p><strong>Category:</strong> {problem.domain || problem.category}</p>
+          <p><strong>Theme:</strong> {problem.difficultyLevel || problem.theme}</p>
         </div>
       )}
 
-      {/* TEAM INFO */}
       {team ? (
         <div className="teamInfoBox">
-          <h3>Selected Team: {team.teamName || "No Name"}</h3>
-          <p>Total Members: {team.members ? team.members.length : 0}</p>
+          <h3>Team Overview</h3>
+          <p><strong>Team Name:</strong> {team.teamName || "No Name"}</p>
+          <p><strong>Team Leader:</strong> {currentUser?.name || "N/A"}</p>
+          <p><strong>Team Members:</strong> {team.members ? team.members.length : 0}</p>
         </div>
       ) : (
-        <p style={{ color: "red" }}>
-          No team found. Please create a team first.
-        </p>
+        <p style={{ color: "red" }}>No team found. Please create a team first.</p>
       )}
 
-      {/* ABSTRACT */}
       <div className="solutionBox">
-        <h3>Abstract</h3>
-
+        <h3>Idea Abstract / Solution Overview</h3>
         <textarea
-          placeholder="Enter Abstract"
+          placeholder="Enter your solution overview"
           value={solution}
           onChange={(e) => setSolution(e.target.value)}
         />
+        <p>Word Count: {wordCount} / 6000</p>
       </div>
 
-      {/* FILE UPLOAD */}
+      <div className="solutionBox">
+        <h3>Technology Stack</h3>
+        <input
+          type="text"
+          placeholder="Python, TensorFlow, IoT Sensors"
+          value={technologyStack}
+          onChange={(e) => setTechnologyStack(e.target.value)}
+        />
+        <h3 style={{ marginTop: 18 }}>GitHub Repository Link</h3>
+        <input
+          type="url"
+          placeholder="https://github.com/..."
+          value={githubLink}
+          onChange={(e) => setGithubLink(e.target.value)}
+        />
+        <h3 style={{ marginTop: 18 }}>Prototype Demo Link</h3>
+        <input
+          type="url"
+          placeholder="Google Drive or YouTube link"
+          value={demoLink}
+          onChange={(e) => setDemoLink(e.target.value)}
+        />
+      </div>
+
       <div className="uploadWrapper">
-        <h3>Upload PPT</h3>
-
-        <input type="file" accept=".ppt,.pptx" onChange={handleFileChange} />
-
-        {file && <p>Selected: {file.name}</p>}
+        <h3>Upload Presentation</h3>
+        <input type="file" accept=".ppt,.pptx,.pdf" onChange={handleFileChange} />
+        {file && <p>{file.name} uploaded successfully.</p>}
       </div>
 
-      {/* SUBMIT */}
+      {error && <p style={{ color: "#b00020" }}>{error}</p>}
+
       <button className="submitBtn" onClick={submitForm} disabled={loading}>
         {loading ? "Submitting..." : "Submit Application"}
       </button>

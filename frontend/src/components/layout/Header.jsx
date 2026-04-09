@@ -1,7 +1,18 @@
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import logo from "../../images/ts-msme.jpg";
+import NotificationBell from "./NotificationBell";
+import { clearSession, getStoredUser } from "../../utils/session";
 
 function Header() {
+  const navigate = useNavigate();
+  const currentUser = getStoredUser();
+
+  const logout = () => {
+    clearSession();
+    navigate("/");
+  };
+
   return (
     <>
       {/* Top Government Strip */}
@@ -16,9 +27,21 @@ function Header() {
           />
 
           <div className="gov-right">
-            <Link to="/login" className="login-btn">
-              Login <span className="login-icon">👤</span>
-            </Link>
+            <NotificationBell />
+            {currentUser ? (
+              <>
+                <Link to="/profile" className="login-btn">
+                  Profile
+                </Link>
+                <button type="button" className="login-btn" onClick={logout}>
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link to="/login" className="login-btn">
+                Login <span className="login-icon">👤</span>
+              </Link>
+            )}
           </div>
 
         </div>
@@ -40,7 +63,7 @@ function Header() {
             </li>
 
             <li>
-              <Link to="/about">About TS-MSME</Link>
+              <Link to="/about">About Us</Link>
             </li>
 
             <li>
