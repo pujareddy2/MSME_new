@@ -11,8 +11,12 @@ This repository now runs as an integrated full-stack system:
 ### For Windows users
 Double-click and run: [`START_LOCAL.bat`](START_LOCAL.bat)
 
+Safe backend-only start (prevents port 8080 conflicts): [`START_BACKEND_SAFE.bat`](START_BACKEND_SAFE.bat)
+
 ### For Mac/Linux users
 Run in terminal: `bash START_LOCAL.sh`
+
+Safe backend-only start (prevents port 8080 conflicts): `bash START_BACKEND_SAFE.sh`
 
 ### For Detailed Step-by-Step Instructions
 See: [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) (11 parts, 40-minute setup)
@@ -145,14 +149,54 @@ Fallback defaults currently present in `application.properties`:
 
 ### 1. Start backend
 
-From backend folder:
+Recommended (safe, auto-handles port 8080 conflict):
+
+Windows:
 
 ```powershell
-Set-Location .\backend
-$env:DB_USERNAME="root"
-$env:DB_PASSWORD="your_mysql_password"
-.\mvnw.cmd spring-boot:run
+.\START_BACKEND_SAFE.bat
 ```
+
+Mac/Linux:
+
+```bash
+bash START_BACKEND_SAFE.sh
+```
+
+Windows (PowerShell):
+
+```powershell
+# Check if backend is already running
+Invoke-WebRequest -Uri "http://localhost:8080/api/problems" -UseBasicParsing | Select-Object -ExpandProperty StatusCode
+
+# If you get 200, backend is already running. Do not start a second instance.
+# If port conflict occurs, free 8080 and start once:
+netstat -ano | findstr :8080
+taskkill /PID <PID_NUMBER> /F
+
+$env:DB_USERNAME="root"
+$env:DB_PASSWORD="puja"  # use your MySQL password
+& "C:\Desktop\MSME\backend\mvnw.cmd" -f "C:\Desktop\MSME\backend\pom.xml" spring-boot:run
+```
+
+Mac/Linux (bash/zsh):
+
+```bash
+# Check if backend is already running
+curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8080/api/problems
+
+# If you get 200, backend is already running. Do not start a second instance.
+# If port conflict occurs, free 8080 and start once:
+lsof -i :8080
+kill -9 <PID_NUMBER>
+
+cd backend
+export DB_USERNAME="root"
+export DB_PASSWORD="puja"   # use your MySQL password
+./mvnw spring-boot:run
+```
+to check  backedn s running or not "Invoke-WebRequest -Uri "http://localhost:8080/api/problems" -UseBasicParsing | Select-Object -ExpandProperty StatusCode"      
+
 
 Backend runs at: `http://localhost:8080`
 
@@ -164,6 +208,10 @@ $env:REACT_APP_API_BASE_URL="http://localhost:8080/api"
 npm install
 npm start
 ```
+
+Important:
+- Do not run placeholder values like "your_mysql_password" literally.
+- If your MySQL password is different, set that exact value in `DB_PASSWORD`.
 
 Frontend runs at: `http://localhost:3000`
 
@@ -256,6 +304,12 @@ Expected key checks:
 - Check MySQL is running
 - Check DB credentials env vars
 - Check port 8080 is free
+- If you see `Port 8080 was already in use`, stop old process and start only one backend instance:
+
+```powershell
+netstat -ano | findstr :8080
+taskkill /PID <PID_NUMBER> /F
+```
 
 ### Frontend cannot call backend
 - Confirm backend URL is reachable
