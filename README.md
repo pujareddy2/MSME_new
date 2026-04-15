@@ -6,6 +6,30 @@ This repository now runs as an integrated full-stack system:
 - Backend: Spring Boot REST API in `backend/`
 - Database: MySQL (`msme_portal`)
 
+## 🚀 Quick Start (For Immediate Setup)
+
+### For Windows users
+Double-click and run: [`START_LOCAL.bat`](START_LOCAL.bat)
+
+### For Mac/Linux users
+Run in terminal: `bash START_LOCAL.sh`
+
+### For Detailed Step-by-Step Instructions
+See: [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) (11 parts, 40-minute setup)
+
+---
+
+## 📚 Choose Your Guide
+
+| Need | Time | Link |
+|------|------|------|
+| **Just run it now** | 5 min | [QUICKSTART.md](QUICKSTART.md) |
+| **I'm setting up on another laptop** | 40 min | [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) |
+| **I need production deployment steps** | 1 hour | [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md#part-7-production-deployment) |
+| **Check if prereqs installed** | 2 min | Run `CHECK_SETUP.bat` |
+
+---
+
 ## Integration Status (Important Answer)
 
 ### Is frontend + backend + database integrated?
@@ -116,23 +140,22 @@ Fallback defaults currently present in `application.properties`:
 
 ## Local Run Guide (Step-by-Step)
 
-## 1. Start backend
+**For detailed instructions with every step, see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)**
 
-From repository root:
+### 1. Start backend
+
+From backend folder:
 
 ```powershell
 Set-Location .\backend
-$env:DB_USERNAME="your_mysql_user"
+$env:DB_USERNAME="root"
 $env:DB_PASSWORD="your_mysql_password"
 .\mvnw.cmd spring-boot:run
 ```
 
-Backend runs at:
-- `http://localhost:8080`
+Backend runs at: `http://localhost:8080`
 
-## 2. Start frontend
-
-Open a second terminal:
+### 2. Start frontend (new terminal)
 
 ```powershell
 Set-Location .\frontend
@@ -141,8 +164,7 @@ npm install
 npm start
 ```
 
-Frontend runs at:
-- `http://localhost:3000`
+Frontend runs at: `http://localhost:3000`
 
 ---
 
