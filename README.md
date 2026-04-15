@@ -21,11 +21,12 @@ See: [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) (11 parts, 40-minute setup)
 
 ## 📚 Choose Your Guide
 
-| Need | Time | Link |
-|------|------|------|
-| **Just run it now** | 5 min | [QUICKSTART.md](QUICKSTART.md) |
-| **I'm setting up on another laptop** | 40 min | [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) |
-| **I need production deployment steps** | 1 hour | [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md#part-7-production-deployment) |
+| Scenario | Time | Link |
+|----------|------|------|
+| **Clone on new laptop & run** | 1-1.5 hrs | [CLONE_AND_RUN.md](CLONE_AND_RUN.md) ⭐ START HERE |
+| **Just run it now on this laptop** | 5 min | [QUICKSTART.md](QUICKSTART.md) |
+| **Detailed reference guide** | 40 min | [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) |
+| **Production deployment** | 1 hour | [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md#part-7-production-deployment) |
 | **Check if prereqs installed** | 2 min | Run `CHECK_SETUP.bat` |
 
 ---
