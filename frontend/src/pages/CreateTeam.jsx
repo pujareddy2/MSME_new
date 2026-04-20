@@ -5,6 +5,7 @@ import { getStoredTeam, getStoredUser, saveSession } from "../utils/session";
 import "./application.css";
 
 function CreateTeam() {
+  const MAX_MEMBERS = 5; // Includes team leader column.
   const [teamName, setTeamName] = useState("");
   const navigate = useNavigate();
   const currentRole = localStorage.getItem("role");
@@ -21,6 +22,41 @@ function CreateTeam() {
     },
   ]);
 
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const normalizeMobile = (value) => {
+    let digits = value.replace(/\D/g, "");
+
+    // Strip common country/area prefixes instead of accepting them as-is.
+    if (digits.length === 12 && digits.startsWith("91")) {
+      digits = digits.slice(2);
+    }
+    if (digits.length === 11 && digits.startsWith("0")) {
+      digits = digits.slice(1);
+    }
+
+    return digits.slice(0, 10);
+  };
+
+  const memberEmailError = (member) => {
+    if (member.email.trim() === "") {
+      return "Email is required.";
+    }
+    if (!isValidEmail(member.email)) {
+      return "Enter a valid email (example@domain.com).";
+    }
+    return "";
+  };
+
+  const memberMobileError = (member) => {
+    if (member.mobile.trim() === "") {
+      return "Mobile number is required.";
+    }
+    if (!/^\d{10}$/.test(member.mobile.trim())) {
+      return "Enter a valid 10-digit mobile number.";
+    }
+    return "";
+  };
+
   useEffect(() => {
     const storedTeam = getStoredTeam();
     const pendingTeamName = localStorage.getItem("pendingTeamName");
@@ -35,8 +71,7 @@ function CreateTeam() {
   }, [teamName]);
 
   const addMember = () => {
-    if (members.length >= 5) {
-      alert("Maximum team size reached.");
+    if (members.length >= MAX_MEMBERS) {
       return;
     }
 
@@ -56,7 +91,7 @@ function CreateTeam() {
 
   const handleChange = (index, field, value) => {
     const temp = [...members];
-    temp[index][field] = value;
+    temp[index][field] = field === "mobile" ? normalizeMobile(value) : value;
     setMembers(temp);
   };
 
@@ -66,10 +101,7 @@ function CreateTeam() {
         m.name.trim() === "" ||
         m.email.trim() === "" ||
         m.mobile.trim() === "" ||
-        m.gender === "" ||
-        m.college.trim() === "" ||
-        m.course.trim() === "" ||
-        m.rollno.trim() === ""
+        m.gender === ""
       ) {
         return false;
       }
@@ -85,12 +117,14 @@ function CreateTeam() {
       const email = member.email.trim().toLowerCase();
       const rollNumber = member.rollno.trim().toLowerCase();
 
-      if (emails.has(email) || rollNumbers.has(rollNumber)) {
+      if (emails.has(email) || (rollNumber !== "" && rollNumbers.has(rollNumber))) {
         return true;
       }
 
       emails.add(email);
-      rollNumbers.add(rollNumber);
+      if (rollNumber !== "") {
+        rollNumbers.add(rollNumber);
+      }
     }
 
     return false;
@@ -115,7 +149,19 @@ function CreateTeam() {
     }
 
     if (!allMembersFilled()) {
-      alert("Fill all member details");
+      alert("Fill required member details (Name, Email, Mobile, Gender).");
+      return;
+    }
+
+    const invalidEmail = members.some((member) => memberEmailError(member) !== "");
+    if (invalidEmail) {
+      alert("Please correct invalid email format.");
+      return;
+    }
+
+    const invalidMobile = members.some((member) => memberMobileError(member) !== "");
+    if (invalidMobile) {
+      alert("Please correct invalid mobile numbers.");
       return;
     }
 
@@ -143,7 +189,14 @@ function CreateTeam() {
 
     } catch (error) {
       console.error(error);
-      alert(error?.response?.data?.message || "Error saving team ❌");
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.detail ||
+        error?.response?.data?.error ||
+        error?.message ||
+        "Error saving team ❌";
+
+      alert(backendMessage);
     }
   };
 
@@ -202,6 +255,9 @@ function CreateTeam() {
                     handleChange(index, "email", e.target.value)
                   }
                 />
+                {memberEmailError(m) && (
+                  <div className="inlineError">{memberEmailError(m)}</div>
+                )}
               </td>
             ))}
           </tr>
@@ -213,10 +269,14 @@ function CreateTeam() {
                 <input
                   placeholder="Mobile"
                   value={m.mobile}
+                  inputMode="numeric"
                   onChange={(e) =>
                     handleChange(index, "mobile", e.target.value)
                   }
                 />
+                {memberMobileError(m) && (
+                  <div className="inlineError">{memberMobileError(m)}</div>
+                )}
               </td>
             ))}
           </tr>
@@ -286,13 +346,19 @@ function CreateTeam() {
         </tbody>
       </table>
 
-      <button className="addBtn" onClick={addMember}>
-        + Add Member
-      </button>
+      <div className="teamActionRow">
+        <button className="addBtn" onClick={addMember} disabled={members.length >= MAX_MEMBERS}>
+          + Add Member
+        </button>
 
-      <button className="submitBtn" onClick={submitTeam}>
-        Save Team
-      </button>
+        <button className="submitBtn" onClick={submitTeam}>
+          Save Team
+        </button>
+      </div>
+
+      {members.length >= MAX_MEMBERS && (
+        <p className="memberLimitMsg">Maximum 5 members reached (including leader).</p>
+      )}
     </div>
   );
 }

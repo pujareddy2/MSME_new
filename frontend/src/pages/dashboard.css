@@ -79,6 +79,10 @@
   margin-bottom: 22px;
 }
 
+.summary-grid.two-cards {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .summary-card {
   background: white;
   border-radius: 14px;
@@ -130,6 +134,22 @@
   padding: 8px;
   border-radius: 6px;
   margin-bottom: 5px;
+}
+
+.activity-list {
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.activity-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.activity-time {
+  color: #6a6f85;
 }
 
 .no-team {

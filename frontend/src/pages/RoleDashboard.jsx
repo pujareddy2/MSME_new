@@ -61,7 +61,7 @@ function RoleDashboard({ role }) {
     if (resolvedRole === "TEAM_MEMBER") {
       return [
         { label: "Team Members", value: team?.members?.length || 0 },
-        ...common,
+        { label: "Applications", value: applications.length },
       ];
     }
 
@@ -72,9 +72,22 @@ function RoleDashboard({ role }) {
       ];
     }
 
-    if (resolvedRole === "JUDGE" || resolvedRole === "EVALUATOR") {
+    if (resolvedRole === "EVALUATOR") {
       return [
-        { label: "Pending Reviews", value: applications.length },
+        { label: "Pending Evaluation", value: applications.filter((application) => {
+          const status = (application?.submissionStatus || "").toLowerCase();
+          return status !== "evaluated" && status !== "judged";
+        }).length },
+        ...common,
+      ];
+    }
+
+    if (resolvedRole === "JUDGE") {
+      return [
+        { label: "Pending Judging", value: applications.filter((application) => {
+          const status = (application?.submissionStatus || "").toLowerCase();
+          return status === "evaluated";
+        }).length },
         ...common,
       ];
     }
@@ -83,7 +96,7 @@ function RoleDashboard({ role }) {
       { label: "Team Members", value: team?.members?.length || 0 },
       ...common,
     ];
-  }, [resolvedRole, team, applications.length, notifications.length]);
+  }, [resolvedRole, team, applications, notifications.length]);
 
   const primaryAction = () => {
     if (resolvedRole === "TEAM_MEMBER") {
@@ -96,8 +109,13 @@ function RoleDashboard({ role }) {
       return;
     }
 
-    if (resolvedRole === "JUDGE" || resolvedRole === "EVALUATOR") {
+    if (resolvedRole === "EVALUATOR") {
       navigate("/evaluator");
+      return;
+    }
+
+    if (resolvedRole === "JUDGE") {
+      navigate("/judge-dashboard");
       return;
     }
 
@@ -133,8 +151,12 @@ function RoleDashboard({ role }) {
     sidebarButtons.push({ label: "Mentor Notes", action: () => navigate("/profile") });
   }
 
-  if (resolvedRole === "JUDGE" || resolvedRole === "EVALUATOR") {
+  if (resolvedRole === "EVALUATOR") {
     sidebarButtons.push({ label: "Evaluation", action: () => navigate("/evaluator") });
+  }
+
+  if (resolvedRole === "JUDGE") {
+    sidebarButtons.push({ label: "Judging", action: () => navigate("/judge-dashboard") });
   }
 
   if (resolvedRole === "EVENT_HEAD" || resolvedRole === "ADMIN") {
@@ -149,7 +171,7 @@ function RoleDashboard({ role }) {
     <div className="dashboard-shell">
       <aside className="dashboard-sidebar">
         <div>
-          <p className="sidebar-eyebrow">MSME Hackathon</p>
+          <p className="sidebar-eyebrow">Hackathon</p>
           <h2 className="dashboard-title">{resolvedRole.replaceAll("_", " ")}</h2>
         </div>
 
@@ -170,7 +192,7 @@ function RoleDashboard({ role }) {
           </div>
         </div>
 
-        <div className="summary-grid">
+        <div className={`summary-grid ${resolvedRole === "TEAM_MEMBER" ? "two-cards" : ""}`}>
           {summaryCards.map((card) => (
             <div key={card.label} className="summary-card">
               <span>{card.label}</span>

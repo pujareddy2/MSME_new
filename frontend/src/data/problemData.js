@@ -22,7 +22,7 @@ max:100
 
 {
 id:3,
-title:"AI Based MSME Market Prediction",
+title:"AI Based Hackathon Market Prediction",
 category:"Software",
 theme:"Artificial Intelligence",
 deadline:"2025-07-25",
@@ -32,7 +32,7 @@ max:100
 
 {
 id:4,
-title:"Blockchain for MSME Supply Chain Transparency",
+title:"Blockchain for Hackathon Supply Chain Transparency",
 category:"Software",
 theme:"Cyber Security",
 deadline:"2025-07-28",
@@ -52,7 +52,7 @@ max:100
 
 {
 id:6,
-title:"AI Powered Financial Risk Assessment for MSMEs",
+title:"AI Powered Financial Risk Assessment for Hackathons",
 category:"Software",
 theme:"FinTech",
 deadline:"2025-07-20",
@@ -62,7 +62,7 @@ max:100
 
 {
 id:7,
-title:"Automated MSME Loan Eligibility System",
+title:"Automated Hackathon Loan Eligibility System",
 category:"Software",
 theme:"FinTech",
 deadline:"2025-07-21",
@@ -72,7 +72,7 @@ max:100
 
 {
 id:8,
-title:"AI Chatbot for MSME Government Schemes",
+title:"AI Chatbot for Hackathon Government Schemes",
 category:"Software",
 theme:"Artificial Intelligence",
 deadline:"2025-07-23",
@@ -102,7 +102,7 @@ max:100
 
 {
 id:11,
-title:"Digital Platform for MSME Vendor Discovery",
+title:"Digital Platform for Hackathon Vendor Discovery",
 category:"Software",
 theme:"E-Commerce",
 deadline:"2025-07-27",
@@ -172,7 +172,7 @@ max:100
 
 {
 id:18,
-title:"AI Based MSME Product Recommendation System",
+title:"AI Based Hackathon Product Recommendation System",
 category:"Software",
 theme:"E-Commerce",
 deadline:"2025-07-24",
@@ -202,7 +202,7 @@ max:100
 
 {
 id:21,
-title:"Digital Inventory System for MSMEs",
+title:"Digital Inventory System for Hackathons",
 category:"Software",
 theme:"E-Commerce",
 deadline:"2025-07-27",
@@ -252,7 +252,7 @@ max:100
 
 {
 id:26,
-title:"Digital Marketplace for Rural MSMEs",
+title:"Digital Marketplace for Rural Hackathons",
 category:"Software",
 theme:"E-Commerce",
 deadline:"2025-07-22",
@@ -292,7 +292,7 @@ max:100
 
 {
 id:30,
-title:"MSME Export Analytics Dashboard",
+title:"Hackathon Export Analytics Dashboard",
 category:"Software",
 theme:"FinTech",
 deadline:"2025-07-26",
@@ -392,7 +392,7 @@ max:100
 
 {
 id:40,
-title:"Smart MSME Business Analytics Platform",
+title:"Smart Hackathon Business Analytics Platform",
 category:"Software",
 theme:"FinTech",
 deadline:"2025-07-26",

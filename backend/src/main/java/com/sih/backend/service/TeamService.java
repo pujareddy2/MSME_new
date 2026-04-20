@@ -95,16 +95,13 @@ public class TeamService {
             if (member.getName() == null || member.getName().trim().isEmpty()
                     || member.getEmail() == null || member.getEmail().trim().isEmpty()
                     || member.getMobile() == null || member.getMobile().trim().isEmpty()
-                    || member.getGender() == null || member.getGender().trim().isEmpty()
-                    || member.getCollege() == null || member.getCollege().trim().isEmpty()
-                    || member.getCourse() == null || member.getCourse().trim().isEmpty()
-                    || member.getRollno() == null || member.getRollno().trim().isEmpty()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "All team member fields are required");
+                    || member.getGender() == null || member.getGender().trim().isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name, email, mobile and gender are required for each team member");
             }
 
             String email = normalize(member.getEmail());
             String rollNumber = normalize(member.getRollno());
-            if (!emails.add(email) || !rollNumbers.add(rollNumber)) {
+            if (!emails.add(email) || (!rollNumber.isEmpty() && !rollNumbers.add(rollNumber))) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Duplicate team member details are not allowed");
             }
         }
@@ -142,9 +139,9 @@ public class TeamService {
             teamMember.setEmail(memberRequest.getEmail());
             teamMember.setMobile(memberRequest.getMobile());
             teamMember.setGender(memberRequest.getGender());
-            teamMember.setCollege(memberRequest.getCollege());
-            teamMember.setCourse(memberRequest.getCourse());
-            teamMember.setRollNumber(memberRequest.getRollno());
+            teamMember.setCollege(memberRequest.getCollege() == null ? null : memberRequest.getCollege().trim());
+            teamMember.setCourse(memberRequest.getCourse() == null ? null : memberRequest.getCourse().trim());
+            teamMember.setRollNumber(memberRequest.getRollno() == null ? null : memberRequest.getRollno().trim());
             teamMember.setCreatedAt(new Timestamp(System.currentTimeMillis()));
             teamMember.setTeam(savedTeam);
             teamMember.setInvitationStatus("INVITED");
@@ -154,12 +151,15 @@ public class TeamService {
 
             notificationService.createNotification(memberUser.getUserId(),
                     "You have been added to team " + savedTeam.getTeamName() + " by Team Leader " + leader.getFullName() + ".");
+
+                notificationService.createNotification(leader.getUserId(),
+                    "Member added: " + memberRequest.getName().trim() + " (" + memberRequest.getEmail().trim().toLowerCase(Locale.ROOT) + ") to team " + savedTeam.getTeamName() + ".");
         }
 
         savedTeam.getMembers().clear();
         savedTeam.getMembers().addAll(savedMembers);
         notificationService.createNotification(leader.getUserId(),
-                "Team created successfully. Invitations have been sent to team members.");
+            "Team created successfully: " + savedTeam.getTeamName() + ". Invitations have been sent to team members.");
         return savedTeam;
     }
 

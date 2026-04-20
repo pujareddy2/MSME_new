@@ -8,12 +8,12 @@ const ContactSection = () => {
         <div className="contact-left">
           <h2>Contact Us</h2>
           <p>
-            For queries related to TS_Msme ,
+            For queries related to TS_Hackathon ,
             guidelines or technical assistance, reach out to us.
           </p>
 
           <div className="contact-info">
-            <p><strong>Email:</strong> support@ts_msme.gov.in</p>
+            <p><strong>Email:</strong> support@ts_hackathon.gov.in</p>
             <p><strong>Phone:</strong> +91 11 2958 1000</p>
             <p><strong>Address:</strong> AICTE Headquarters, New Delhi, India</p>
           </div>

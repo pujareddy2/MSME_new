@@ -55,7 +55,7 @@ problemId: Number(id),
 problemTitle: title,
 problemDescription: description,
 domain: category,
-organizationName: "MSME",
+	organizationName: "Hackathon",
 difficultyLevel: theme,
 submissionDeadline: deadline,
 }).then(() => {

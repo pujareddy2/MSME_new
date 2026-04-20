@@ -54,6 +54,27 @@ public class Application {
     @Column(name = "demo_link")
     private String demoLink;
 
+    @Column(name = "ai_score")
+    private Integer aiScore;
+
+    @Column(name = "ai_remarks", columnDefinition = "TEXT")
+    private String aiRemarks;
+
+    @Column(name = "manual_score")
+    private Integer manualScore;
+
+    @Column(name = "manual_remarks", columnDefinition = "TEXT")
+    private String manualRemarks;
+
+    @Column(name = "judge_score")
+    private Integer judgeScore;
+
+    @Column(name = "judged_by")
+    private String judgedBy;
+
+    @Column(name = "evaluated_at")
+    private Timestamp evaluatedAt;
+
     @ManyToOne
     @JoinColumn(name = "team_id")
     private Team team;
@@ -147,6 +168,74 @@ public class Application {
 
     public void setDemoLink(String demoLink) {
         this.demoLink = demoLink;
+    }
+
+    public Integer getAiScore() {
+        return aiScore;
+    }
+
+    public void setAiScore(Integer aiScore) {
+        this.aiScore = aiScore;
+    }
+
+    public String getAiRemarks() {
+        return aiRemarks;
+    }
+
+    public void setAiRemarks(String aiRemarks) {
+        this.aiRemarks = aiRemarks;
+    }
+
+    public Integer getManualScore() {
+        return manualScore;
+    }
+
+    public void setManualScore(Integer manualScore) {
+        this.manualScore = manualScore;
+    }
+
+    public String getManualRemarks() {
+        return manualRemarks;
+    }
+
+    public void setManualRemarks(String manualRemarks) {
+        this.manualRemarks = manualRemarks;
+    }
+
+    public String getJudgedBy() {
+        return judgedBy;
+    }
+
+    public void setJudgedBy(String judgedBy) {
+        this.judgedBy = judgedBy;
+    }
+
+    public Integer getJudgeScore() {
+        return judgeScore;
+    }
+
+    public void setJudgeScore(Integer judgeScore) {
+        this.judgeScore = judgeScore;
+    }
+
+    public Double getFinalScore() {
+        if (aiScore == null || manualScore == null) {
+            return null;
+        }
+
+        return Math.round((aiScore * 0.3 + manualScore * 0.7) * 100.0) / 100.0;
+    }
+
+    public Timestamp getEvaluatedAt() {
+        return evaluatedAt;
+    }
+
+    public Timestamp getTimestamp() {
+        return evaluatedAt;
+    }
+
+    public void setEvaluatedAt(Timestamp evaluatedAt) {
+        this.evaluatedAt = evaluatedAt;
     }
 
     public Team getTeam() {

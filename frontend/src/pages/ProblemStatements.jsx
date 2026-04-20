@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import problemData from "../data/problemData";
-import { getApplications, getProblems } from "../services/api";
+import { createActivityLog, getApplications, getProblems } from "../services/api";
 import { getStoredTeam, getStoredUser } from "../utils/session";
 import "./problemstatements.css";
 
@@ -88,12 +88,26 @@ function ProblemStatements() {
 		navigate(`/apply/${problemId}`);
 	};
 
+	const handleProblemSelection = (problem) => {
+		const problemId = problem.id || problem.problemId;
+		const title = problem.title || problem.problemTitle || `PS${problemId}`;
+
+		if (currentUser?.role === "TEAM_LEAD" && currentUser?.userId) {
+			createActivityLog({
+				userId: currentUser.userId,
+				message: `Problem selected: ${title}`,
+			}).catch(() => undefined);
+		}
+
+		navigate(`/problems/${problemId}`);
+	};
+
 	return (
 		<div className="ps-page">
-			<h1 className="ps-title">TS-MSME Problem Statements</h1>
+			<h1 className="ps-title">Problem Statements</h1>
 
 			<div className="top-actions">
-				<a href="/MSME_Template.pptx" download className="template-btn">
+				<a href="/Hackathon_Template.pptx" download className="template-btn">
 					Download PPT Template
 				</a>
 
@@ -102,45 +116,46 @@ function ProblemStatements() {
 				</button>
 			</div>
 
-			<div className="filters">
-				<div className="filter-box">
-					<label>Category</label>
-					<select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
-						<option value="">All</option>
-						<option value="Software">Software</option>
-						<option value="Hardware">Hardware</option>
-						<option value="Miscellaneous">Miscellaneous</option>
-					</select>
-				</div>
-
-				<div className="filter-box">
-					<label>Theme</label>
-					<select value={themeFilter} onChange={(e) => setThemeFilter(e.target.value)}>
-						<option value="">All</option>
-						<option value="Artificial Intelligence">Artificial Intelligence</option>
-						<option value="Smart Education">Smart Education</option>
-						<option value="Health Tech">Health Tech</option>
-						<option value="Agriculture">Agriculture</option>
-						<option value="Sustainable Development">Sustainable Development</option>
-					</select>
-				</div>
-			</div>
-
 			<div className="table-controls">
-				<div className="entries-box">
-					Show
-					<select value={entries} onChange={(e) => setEntries(Number(e.target.value))}>
-						<option value={10}>10</option>
-						<option value={25}>25</option>
-						<option value={50}>50</option>
-						<option value={100}>100</option>
-					</select>
-					entries
+				<div className="controls-left">
+					<div className="control-inline entries-box">
+						<label htmlFor="entries-select">Show</label>
+						<select id="entries-select" value={entries} onChange={(e) => setEntries(Number(e.target.value))}>
+							<option value={10}>10</option>
+							<option value={25}>25</option>
+							<option value={50}>50</option>
+							<option value={100}>100</option>
+						</select>
+						<span>entries</span>
+					</div>
+
+					<div className="control-inline filter-box">
+						<label htmlFor="category-filter">Category</label>
+						<select id="category-filter" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+							<option value="">All</option>
+							<option value="Software">Software</option>
+							<option value="Hardware">Hardware</option>
+							<option value="Miscellaneous">Miscellaneous</option>
+						</select>
+					</div>
+
+					<div className="control-inline filter-box">
+						<label htmlFor="theme-filter">Theme</label>
+						<select id="theme-filter" value={themeFilter} onChange={(e) => setThemeFilter(e.target.value)}>
+							<option value="">All</option>
+							<option value="Artificial Intelligence">Artificial Intelligence</option>
+							<option value="Smart Education">Smart Education</option>
+							<option value="Health Tech">Health Tech</option>
+							<option value="Agriculture">Agriculture</option>
+							<option value="Sustainable Development">Sustainable Development</option>
+						</select>
+					</div>
 				</div>
 
-				<div className="search-box">
-					Search:
+				<div className="control-inline search-box">
+					<label htmlFor="problem-search">Search</label>
 					<input
+						id="problem-search"
 						type="text"
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
@@ -174,8 +189,8 @@ function ProblemStatements() {
 							return (
 								<tr key={problemId}>
 									<td>{index + 1}</td>
-									<td>{problem.organizationName || problem.org || "MSME"}</td>
-									<td className="problem-link" onClick={() => navigate(`/problems/${problemId}`)}>
+									<td>{problem.organizationName || problem.org || "Hackathon"}</td>
+									<td className="problem-link" onClick={() => handleProblemSelection(problem)}>
 										{problem.title || problem.problemTitle}
 									</td>
 									<td>{problem.category || problem.domain}</td>

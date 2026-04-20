@@ -1,6 +1,7 @@
 package com.sih.backend.service;
 
 import com.sih.backend.dto.AuthResponse;
+import com.sih.backend.dto.ForgotPasswordRequest;
 import com.sih.backend.dto.LoginRequest;
 import com.sih.backend.dto.TeamLeaderRegistrationRequest;
 import com.sih.backend.model.Team;
@@ -15,17 +16,21 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.Timestamp;
+import java.util.regex.Pattern;
 
 @Service
 public class AuthService {
 
     private final UserRepository userRepository;
     private final TeamRepository teamRepository;
+    private final NotificationService notificationService;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
 
-    public AuthService(UserRepository userRepository, TeamRepository teamRepository) {
+    public AuthService(UserRepository userRepository, TeamRepository teamRepository, NotificationService notificationService) {
         this.userRepository = userRepository;
         this.teamRepository = teamRepository;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -90,6 +95,51 @@ public class AuthService {
             response.setTeamName(user.getTeam().getTeamName());
         }
         return response;
+    }
+
+    @Transactional
+    public String forgotPassword(ForgotPasswordRequest request) {
+        if (request == null
+                || request.getEmail() == null || request.getEmail().trim().isEmpty()
+                || request.getCurrentPassword() == null || request.getCurrentPassword().trim().isEmpty()
+                || request.getNewPassword() == null || request.getNewPassword().trim().isEmpty()
+                || request.getConfirmNewPassword() == null || request.getConfirmNewPassword().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "All fields are required");
+        }
+
+        String email = request.getEmail().trim().toLowerCase();
+        String currentPassword = request.getCurrentPassword().trim();
+        String newPassword = request.getNewPassword().trim();
+        String confirmNewPassword = request.getConfirmNewPassword().trim();
+
+        if (!EMAIL_PATTERN.matcher(email).matches()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email format");
+        }
+
+        if (!currentPassword.matches("\\d{10}")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Current password must be a 10-digit phone number");
+        }
+
+        if (newPassword.length() < 8) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New password must be at least 8 characters");
+        }
+
+        if (!newPassword.equals(confirmNewPassword)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passwords do not match");
+        }
+
+        User user = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or current password"));
+
+        if (user.getPasswordHash() == null || !passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or current password");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        notificationService.createNotification(user.getUserId(), "Password updated successfully.");
+        return "Password updated successfully";
     }
 
     private void validateRegistration(TeamLeaderRegistrationRequest request) {

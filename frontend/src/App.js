@@ -2,9 +2,11 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
+import Judge from "./pages/Judge";
 import Evaluate from "./pages/Evaluate";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
 import RegisterTeamLeader from "./pages/RegisterTeamLeader";
 
 import ProblemStatement from "./pages/ProblemStatements";
@@ -13,7 +15,10 @@ import ProblemDetails from "./pages/ProblemDetails";
 import Application from "./pages/Application";
 import Confirmation from "./pages/confirmation";
 
+import JudgeDashboard from "./pages/JudgeDashboard";
+import JudgeReport from "./pages/JudgeReport";
 import EvaluatorDashboard from "./pages/EvaluatorDashboard";
+import EvaluationReport from "./pages/EvaluationReport";
 import AddProblem from "./pages/AddProblem";
 
 // ✅ NEW IMPORTS
@@ -41,6 +46,7 @@ function App() {
 
           {/* Login */}
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/register-team-lead" element={<RegisterTeamLeader />} />
 
           {/* ✅ Dashboard */}
@@ -50,7 +56,6 @@ function App() {
           <Route path="/event-head-dashboard" element={<RoleDashboard role="EVENT_HEAD" />} />
           <Route path="/admin-dashboard" element={<RoleDashboard role="ADMIN" />} />
           <Route path="/spoc-dashboard" element={<RoleDashboard role="COLLEGE_SPOC" />} />
-          <Route path="/judge-dashboard" element={<RoleDashboard role="JUDGE" />} />
 
           {/* Information Pages */}
           <Route path="/about" element={<AboutSection />} />
@@ -72,8 +77,16 @@ function App() {
           {/* ✅ My Applications */}
           <Route path="/my-applications" element={<MyApplications />} />
 
-          {/* Evaluator */}
+          {/* Judge routes */}
+          <Route path="/judge-dashboard" element={<JudgeDashboard />} />
+          <Route path="/judge/:id" element={<Judge />} />
+          <Route path="/feedback/:id" element={<Judge />} />
+          <Route path="/judge/report/:id" element={<JudgeReport />} />
+
+          {/* Evaluator routes */}
           <Route path="/evaluator" element={<EvaluatorDashboard />} />
+          <Route path="/evaluate/:id" element={<Evaluate />} />
+          <Route path="/evaluation-report/:id" element={<EvaluationReport />} />
 
           {/* Shared role pages */}
           <Route path="/profile" element={<Profile />} />
@@ -81,7 +94,6 @@ function App() {
 
           {/* Add Problem Statement */}
           <Route path="/add-problem" element={<AddProblem />} />
-          <Route path="/evaluate" element={<Evaluate />} />
         </Routes>
       </main>
 

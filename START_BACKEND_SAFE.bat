@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 
 echo.
 echo ========================================
-echo MSME Backend Safe Start (Windows)
+echo Hackathon Backend Safe Start (Windows)
 echo ========================================
 echo.
 
@@ -12,7 +12,7 @@ set "BACKEND_DIR=%ROOT_DIR%backend"
 
 if not exist "%BACKEND_DIR%\pom.xml" (
   echo ERROR: Could not find backend\pom.xml
-  echo Run this script from the MSME root folder.
+  echo Run this script from the Hackathon root folder.
   pause
   exit /b 1
 )

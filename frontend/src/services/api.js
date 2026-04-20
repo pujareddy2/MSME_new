@@ -11,8 +11,13 @@ const api = axios.create({
 
 export const login = (data) => api.post("/auth/login", data);
 export const registerTeamLeader = (data) => api.post("/auth/register/team-lead", data);
+export const forgotPassword = (data) => api.post("/auth/forgot-password", data);
 
 export const getApplications = () => api.get("/applications");
+export const getApplicationById = (id) => api.get(`/applications/${id}`);
+export const submitJudging = (id, data) => api.put(`/applications/${id}/judging`, data);
+export const submitEvaluation = (id, data) => api.put(`/applications/${id}/evaluation`, data);
+export const getSubmissionViewUrl = (id) => `${API_BASE_URL}/applications/${id}/submission-file`;
 export const createApplication = (formData) =>
 	axios.post(`${API_BASE_URL}/applications`, formData);
 
@@ -27,6 +32,7 @@ export const getProblemById = (id) => api.get(`/problems/${id}`);
 export const createProblem = (data) => api.post("/problems", data);
 
 export const getNotifications = (userId) => api.get(`/notifications/${userId}`);
+export const createActivityLog = (data) => api.post("/notifications/activity", data);
 export const getProfile = (userId) => api.get(`/profile/${userId}`);
 export const getTeamMemberTeam = (userId) => api.get(`/team-member/team/${userId}`);
 export const getTeamMemberApplications = (teamId) =>

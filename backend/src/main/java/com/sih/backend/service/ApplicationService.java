@@ -2,6 +2,8 @@ package com.sih.backend.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sih.backend.dto.ApplicationCreateRequest;
+import com.sih.backend.dto.EvaluationRequest;
+import com.sih.backend.dto.JudgingRequest;
 import com.sih.backend.model.Application;
 import com.sih.backend.model.ProblemStatement;
 import com.sih.backend.model.Team;
@@ -33,20 +35,28 @@ public class ApplicationService {
     private final TeamRepository teamRepository;
     private final ProblemStatementRepository problemStatementRepository;
     private final ObjectMapper objectMapper;
+    private final NotificationService notificationService;
 
     public ApplicationService(
             ApplicationRepository applicationRepository,
             TeamRepository teamRepository,
             ProblemStatementRepository problemStatementRepository,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            NotificationService notificationService) {
         this.applicationRepository = applicationRepository;
         this.teamRepository = teamRepository;
         this.problemStatementRepository = problemStatementRepository;
         this.objectMapper = objectMapper;
+        this.notificationService = notificationService;
     }
 
     public List<Application> getAllApplications() {
         return applicationRepository.findAll();
+    }
+
+    public Application getApplicationById(Long id) {
+        return applicationRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
     }
 
     @Transactional
@@ -87,7 +97,7 @@ public class ApplicationService {
         application.setSubmissionVersion(request.getSubmissionVersion() == null || request.getSubmissionVersion().trim().isEmpty()
                 ? "v1.0"
                 : request.getSubmissionVersion().trim());
-        application.setSubmissionStatus("Submitted");
+        application.setSubmissionStatus("SUBMITTED");
         application.setTechnologyStack(request.getTechnologyStack());
         application.setGithubLink(request.getGithubLink());
         application.setDemoLink(request.getDemoLink());
@@ -95,6 +105,102 @@ public class ApplicationService {
         application.setProblem(problemStatement);
 
         storePresentationFile(application, file);
+
+        Application savedApplication = applicationRepository.save(application);
+
+        if (team.getLeader() != null && team.getLeader().getUserId() != null) {
+            String problemTitle = problemStatement.getProblemTitle() != null && !problemStatement.getProblemTitle().isBlank()
+                ? problemStatement.getProblemTitle()
+                : "Problem #" + problemStatement.getProblemId();
+
+            notificationService.createNotification(
+                team.getLeader().getUserId(),
+                "Application submitted for " + problemTitle + " by team " + team.getTeamName() + ".");
+        }
+
+        return savedApplication;
+    }
+
+    @Transactional
+    public Application submitJudging(Long applicationId, JudgingRequest request) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
+
+        if ("JUDGED".equalsIgnoreCase(application.getSubmissionStatus()) && application.getJudgeScore() != null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Judging has already been completed for this application");
+        }
+
+        boolean canProceed = "EVALUATED".equalsIgnoreCase(application.getSubmissionStatus())
+                || ("JUDGED".equalsIgnoreCase(application.getSubmissionStatus()) && application.getJudgeScore() == null);
+
+        if (!canProceed) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Application must be evaluated before judging");
+        }
+
+        if (request.getJudgedBy() == null || request.getJudgedBy().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Judge name is required");
+        }
+
+        if (request.getManualScore() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Judge score is required");
+        }
+
+        if (request.getManualScore() < 0 || request.getManualScore() > 100) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Judge score must be between 0 and 100");
+        }
+
+        application.setJudgedBy(request.getJudgedBy().trim());
+        application.setJudgeScore(request.getManualScore());
+        application.setEvaluatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+        application.setSubmissionStatus("JUDGED");
+
+        Application saved = applicationRepository.save(application);
+
+        if (saved.getTeam() != null && saved.getTeam().getLeader() != null && saved.getTeam().getLeader().getUserId() != null) {
+            String problemTitle = saved.getProblem() != null && saved.getProblem().getProblemTitle() != null && !saved.getProblem().getProblemTitle().isBlank()
+                    ? saved.getProblem().getProblemTitle()
+                    : "Problem #" + (saved.getProblem() != null ? saved.getProblem().getProblemId() : "N/A");
+
+            notificationService.createNotification(
+                    saved.getTeam().getLeader().getUserId(),
+                    "Judging completed for " + problemTitle + " (Team: " + saved.getTeam().getTeamName() + ").");
+        }
+
+        return saved;
+    }
+
+    @Transactional
+    public Application submitEvaluation(Long applicationId, EvaluationRequest request) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
+
+        if ("EVALUATED".equalsIgnoreCase(application.getSubmissionStatus())
+            || "JUDGED".equalsIgnoreCase(application.getSubmissionStatus())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Evaluation has already been completed for this application");
+        }
+
+        if (request.getAiScore() == null || request.getAiScore() < 0 || request.getAiScore() > 100) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "AI score must be between 0 and 100");
+        }
+
+        if (request.getAiRemarks() == null || request.getAiRemarks().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "AI remarks are required");
+        }
+
+        if (request.getManualScore() == null || request.getManualScore() < 0 || request.getManualScore() > 100) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Manual score must be between 0 and 100");
+        }
+
+        if (request.getManualRemarks() == null || request.getManualRemarks().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Manual remarks are required");
+        }
+
+        application.setAiScore(request.getAiScore());
+        application.setAiRemarks(request.getAiRemarks().trim());
+        application.setManualScore(request.getManualScore());
+        application.setManualRemarks(request.getManualRemarks().trim());
+        application.setSubmissionStatus("EVALUATED");
+        application.setEvaluatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
 
         return applicationRepository.save(application);
     }

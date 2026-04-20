@@ -1,17 +1,17 @@
 #!/bin/bash
 
-# MSME Full Stack Startup Script for Mac/Linux
+# Hackathon Full Stack Startup Script for Mac/Linux
 # This script starts both backend and frontend simultaneously
 
 echo ""
 echo "========================================"
-echo "MSME Portal Full Stack Startup"
+echo "Hackathon Portal Full Stack Startup"
 echo "========================================"
 echo ""
 
 # Check if running from correct directory
 if [ ! -d "backend" ] || [ ! -d "frontend" ]; then
-    echo "ERROR: Run this script from the MSME root directory (where backend/ and frontend/ folders are)"
+    echo "ERROR: Run this script from the Hackathon root directory (where backend/ and frontend/ folders are)"
     exit 1
 fi
 

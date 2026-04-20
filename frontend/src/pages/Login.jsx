@@ -22,8 +22,13 @@ function Login() {
       return;
     }
 
-    if (userRole === "JUDGE" || userRole === "EVALUATOR") {
+    if (userRole === "EVALUATOR") {
       navigate("/evaluator");
+      return;
+    }
+
+    if (userRole === "JUDGE") {
+      navigate("/judge-dashboard");
       return;
     }
 
@@ -113,7 +118,7 @@ function Login() {
     <div className="login-container-page">
 
       <h1 className="login-title">
-        TS-MSME Portal Login
+        Portal Login
       </h1>
 
       <div className="login-box">
@@ -154,9 +159,13 @@ function Login() {
 
           {message && <p style={{ color: "#b00020", marginTop: 0 }}>{message}</p>}
 
-          <p className="forgot">
+          <button
+            type="button"
+            className="forgot"
+            onClick={() => navigate("/forgot-password")}
+          >
             Forgot Your Password?
-          </p>
+          </button>
 
           <button
             type="submit"

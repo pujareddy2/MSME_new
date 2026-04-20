@@ -1,4 +1,4 @@
-# Complete Full Stack Setup Guide for MSME Portal
+# Complete Full Stack Setup Guide for Hackathon Portal
 ## Running on Another Laptop (Windows/Mac/Linux)
 
 This guide covers how to set up and run the entire integrated system from scratch.
@@ -83,9 +83,9 @@ All should return valid versions. If not, reinstall.
 # Navigate to where you want the project
 cd C:\Users\YourUsername\Desktop
 
-# Clone the MSME portal
-git clone https://github.com/your-org/MSME
-cd MSME
+# Clone the Hackathon portal
+git clone https://github.com/your-org/Hackathon
+cd Hackathon
 ```
 
 Or if no git, download as ZIP, extract, and navigate to folder.
@@ -93,7 +93,7 @@ Or if no git, download as ZIP, extract, and navigate to folder.
 ### Step 2.2: Verify Folder Structure
 
 ```
-MSME/
+Hackathon/
   backend/           ← Spring Boot API
   frontend/          ← React web app
   README.md
@@ -135,7 +135,7 @@ mysql -u root -p
 Inside MySQL CLI, run:
 
 ```sql
-CREATE DATABASE msme_portal;
+CREATE DATABASE hackathon_portal;
 EXIT;
 ```
 
@@ -144,7 +144,7 @@ EXIT;
 ```powershell
 mysql -u root -p
 SHOW DATABASES;
-# Should list: msme_portal
+# Should list: hackathon_portal
 EXIT;
 ```
 
@@ -155,7 +155,7 @@ EXIT;
 ### Step 4.1: Navigate to Backend
 
 ```powershell
-cd C:\Users\YourUsername\Desktop\MSME\backend
+cd C:\Users\YourUsername\Desktop\Hackathon\backend
 ```
 
 ### Step 4.2: Set Environment Variables
@@ -236,7 +236,7 @@ Open a **new terminal** (keep first one running for backend).
 ### Step 5.2: Navigate to Frontend
 
 ```powershell
-cd C:\Users\YourUsername\Desktop\MSME\frontend
+cd C:\Users\YourUsername\Desktop\Hackathon\frontend
 ```
 
 ### Step 5.3: Set Frontend Environment Variable
@@ -288,7 +288,7 @@ If not, manually open browser and go to `http://localhost:3000`
    - Name: `Test Leader`
    - Email: `testlead@example.com`
    - Phone: `9876543210`
-   - College ID: `MSME-001`
+  - College ID: `HACKATHON-001`
    - Password: `TestPass123`
    - Confirm: `TestPass123`
 3. Click **Register**
@@ -406,7 +406,7 @@ Creates `backend/target/backend-0.0.1-SNAPSHOT.jar`
 **Problem:** Database doesn't exist
 - Solution: Create it again
   ```sql
-  CREATE DATABASE msme_portal;
+  CREATE DATABASE hackathon_portal;
   ```
 
 ### Frontend won't start
@@ -455,7 +455,7 @@ Creates `backend/target/backend-0.0.1-SNAPSHOT.jar`
 
 ```properties
 # Database
-spring.datasource.url=jdbc:mysql://localhost:3306/msme_portal
+spring.datasource.url=jdbc:mysql://localhost:3306/hackathon_portal
 spring.datasource.username=${DB_USERNAME:puja}
 spring.datasource.password=${DB_PASSWORD:puja}
 
@@ -481,7 +481,7 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:808
 
 **Terminal 1 - Backend:**
 ```powershell
-cd MSME\backend
+cd Hackathon\backend
 $env:DB_USERNAME="root"
 $env:DB_PASSWORD="yourpass"
 .\mvnw.cmd spring-boot:run
@@ -489,7 +489,7 @@ $env:DB_PASSWORD="yourpass"
 
 **Terminal 2 - Frontend:**
 ```powershell
-cd MSME\frontend
+cd Hackathon\frontend
 $env:REACT_APP_API_BASE_URL="http://localhost:8080/api"
 npm start
 ```
@@ -504,7 +504,7 @@ npm start
 
 ```powershell
 mysql -u root -p
-USE msme_portal;
+USE hackathon_portal;
 SELECT * FROM users;
 SELECT * FROM teams;
 SELECT * FROM applications;

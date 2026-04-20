@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { FaRegBell } from "react-icons/fa";
 import { getNotifications } from "../../services/api";
 import { getStoredUser } from "../../utils/session";
 
@@ -38,12 +39,17 @@ function NotificationBell() {
           border: "none",
           background: "transparent",
           cursor: "pointer",
-          fontSize: 18,
+          fontSize: 20,
           position: "relative",
-          color: "#4b275e",
+          color: "#1f6fb8",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          transition: "transform 0.2s ease, color 0.2s ease",
         }}
+        aria-label="Notifications"
       >
-        🔔
+        <FaRegBell />
         {notifications.length > 0 && (
           <span style={{ position: "absolute", top: -6, right: -6, background: "#F57C00", color: "white", borderRadius: 999, fontSize: 11, padding: "2px 6px" }}>
             {notifications.length}

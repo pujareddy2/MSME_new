@@ -1,6 +1,7 @@
 package com.sih.backend.controller;
 
 import com.sih.backend.dto.AuthResponse;
+import com.sih.backend.dto.ForgotPasswordRequest;
 import com.sih.backend.dto.LoginRequest;
 import com.sih.backend.dto.TeamLeaderRegistrationRequest;
 import com.sih.backend.service.AuthService;
@@ -32,5 +33,10 @@ public class AuthController {
     @PostMapping("/login")
     public AuthResponse login(@RequestBody LoginRequest request) {
         return authService.login(request);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        return ResponseEntity.ok(authService.forgotPassword(request));
     }
 }

@@ -1,4 +1,4 @@
-// src/components/EvaluateButton.jsx
+// Legacy compatibility module; prefer JudgeButton naming in new code.
 
 import { useState } from 'react';
 
@@ -91,7 +91,7 @@ export default function EvaluateButton({
   const [error,     setError]     = useState('');
   const [dots,      setDots]      = useState('.');
 
-  async function handleEvaluate() {
+  async function handleJudge() {
     setLoading(true);
     setError('');
     const interval = setInterval(
@@ -118,7 +118,7 @@ Solution: ${abstract}`;
       setSummary(parsed.summary || '');
       setShowModal(true);
     } catch (e) {
-      setError(`Evaluation failed: ${e.message}`);
+      setError(`Judging failed: ${e.message}`);
     }
     clearInterval(interval);
     setLoading(false);
@@ -136,14 +136,14 @@ Solution: ${abstract}`;
       <div style={{ fontFamily: "'DM Sans', sans-serif" }}>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
 
-          <button onClick={handleEvaluate} disabled={loading} style={{
+          <button onClick={handleJudge} disabled={loading} style={{
             background: loading ? 'linear-gradient(135deg,#1e293b,#0f172a)'
                                 : 'linear-gradient(135deg,#6366f1,#4f46e5)',
             color: '#fff', border: 'none', borderRadius: '10px',
             padding: '11px 26px', fontWeight: 700, fontSize: '14px',
             cursor: loading ? 'not-allowed' : 'pointer',
           }}>
-            {loading ? `Analysing${dots}` : 'Evaluate'}
+            {loading ? `Analysing${dots}` : 'Judge'}
           </button>
 
           {scores && (

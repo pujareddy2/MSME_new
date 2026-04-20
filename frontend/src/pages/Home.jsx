@@ -1,6 +1,7 @@
 import HeroSection from "../sections/HeroSection";
 import AboutSection from "../sections/AboutSection";
 import ThemesSection from "../sections/ThemesSection";
+import { FaTableColumns, FaMagnifyingGlass, FaListCheck, FaBell } from "react-icons/fa6";
 import "../App.css";
 
 function Home() {
@@ -14,7 +15,7 @@ function Home() {
           <p>Core numbers that make the hackathon ecosystem feel national-scale.</p>
         </div>
         <div className="home-card-grid stats-grid">
-          <div className="home-card stat-card"><strong>26 Lakh+</strong><span>MSME ecosystem reach</span></div>
+          <div className="home-card stat-card"><strong>26 Lakh+</strong><span>Hackathon ecosystem reach</span></div>
           <div className="home-card stat-card"><strong>100+</strong><span>Problem statements</span></div>
           <div className="home-card stat-card"><strong>7</strong><span>Role-based user journeys</span></div>
         </div>
@@ -25,13 +26,29 @@ function Home() {
       <section className="home-features">
         <div className="home-section-header">
           <h2>Features</h2>
-          <p>Built for team leaders, evaluators, mentors, judges, and SPOCs.</p>
+          <p>Built for team leaders, judges, mentors, and SPOCs.</p>
         </div>
         <div className="home-card-grid feature-grid">
-          <div className="home-card"><h3>Unified Dashboards</h3><p>Role-aware dashboards keep each participant on the right workflow.</p></div>
-          <div className="home-card"><h3>Live Problem Browsing</h3><p>Search, filter, and apply from one structured problem statement experience.</p></div>
-          <div className="home-card"><h3>Submission Tracking</h3><p>See application status, uploaded files, and recent activity in one place.</p></div>
-          <div className="home-card"><h3>Notifications</h3><p>Round updates, mentor notes, and results can surface centrally.</p></div>
+          <div className="home-card feature-card">
+            <div className="feature-icon-wrap"><FaTableColumns /></div>
+            <h3>Unified Dashboards</h3>
+            <p>Role-aware dashboards keep each participant on the right workflow.</p>
+          </div>
+          <div className="home-card feature-card">
+            <div className="feature-icon-wrap"><FaMagnifyingGlass /></div>
+            <h3>Live Problem Browsing</h3>
+            <p>Search, filter, and apply from one structured problem statement experience.</p>
+          </div>
+          <div className="home-card feature-card">
+            <div className="feature-icon-wrap"><FaListCheck /></div>
+            <h3>Submission Tracking</h3>
+            <p>See application status, uploaded files, and recent activity in one place.</p>
+          </div>
+          <div className="home-card feature-card">
+            <div className="feature-icon-wrap"><FaBell /></div>
+            <h3>Notifications</h3>
+            <p>Round updates, mentor notes, and results can surface centrally.</p>
+          </div>
         </div>
       </section>
 

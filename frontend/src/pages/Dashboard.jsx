@@ -54,6 +54,26 @@ function Dashboard() {
     loadDashboard();
   }, [currentUser?.userId, currentUser?.role]);
 
+  const formatActivityTime = (timestamp) => {
+    if (!timestamp) {
+      return "";
+    }
+
+    const date = new Date(timestamp);
+    if (Number.isNaN(date.getTime())) {
+      return "";
+    }
+
+    return date.toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
   const summaryCards = useMemo(() => [
     { label: "Team Members", value: team?.members?.length || 0 },
     { label: "Applications", value: applications.length },
@@ -66,13 +86,13 @@ function Dashboard() {
     <div className="dashboard-shell">
       <aside className="dashboard-sidebar">
         <div>
-          <p className="sidebar-eyebrow">MSME Hackathon</p>
+          <p className="sidebar-eyebrow">Hackathon</p>
           <h2 className="dashboard-title">{currentUser?.role || "Dashboard"}</h2>
         </div>
 
         <button onClick={() => navigate("/")}>Home</button>
         <button onClick={() => navigate("/problems")}>Problem Statements</button>
-        {allowedToApply && <button onClick={() => navigate("/create-team")}>Create Team</button>}
+        {allowedToApply && <button onClick={() => navigate("/create-team")}>Add Members</button>}
         {allowedToApply && <button onClick={() => navigate("/my-applications")}>My Applications</button>}
         {!allowedToApply && <button onClick={() => navigate("/team-member-dashboard")}>Team Member View</button>}
         <button onClick={() => navigate("/profile")}>Profile</button>
@@ -133,23 +153,17 @@ function Dashboard() {
           <div className="team-card">
             <h3>Recent Activity</h3>
             {notifications.length > 0 ? (
-              notifications.slice(0, 5).map((notification) => (
-                <div key={notification.notificationId} className="member-item">
-                  {notification.message}
-                </div>
-              ))
+              <div className="activity-list">
+                {notifications.map((notification) => (
+                  <div key={notification.notificationId} className="member-item activity-item">
+                    <div>{notification.message}</div>
+                    <small className="activity-time">{formatActivityTime(notification.createdAt)}</small>
+                  </div>
+                ))}
+              </div>
             ) : (
-              <p className="no-team">No recent activity</p>
+              <p className="no-team">No activity yet</p>
             )}
-          </div>
-        </div>
-
-        <div className="team-card">
-          <h3>Quick Actions</h3>
-          <div className="dashboard-buttons">
-            {allowedToApply && <button onClick={() => navigate("/create-team")}>Create Team</button>}
-            <button onClick={() => navigate("/problems")}>View Problems</button>
-            <button onClick={() => navigate("/my-applications")}>My Applications</button>
           </div>
         </div>
 

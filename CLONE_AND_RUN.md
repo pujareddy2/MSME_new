@@ -151,8 +151,8 @@ Open **Command Prompt/Terminal** in that location.
 
 If you have Git installed:
 ```powershell
-git clone https://github.com/your-organization/MSME.git
-cd MSME
+git clone https://github.com/your-organization/Hackathon.git
+cd Hackathon
 ```
 
 ### 2.3 Clone Without Git (If Git Not Available)
@@ -160,13 +160,13 @@ cd MSME
 1. Go to GitHub repository URL
 2. Click **Code** → **Download ZIP**
 3. Extract ZIP to your chosen location
-4. Open extracted folder named **MSME**
+4. Open extracted folder named **Hackathon**
 
 ### 2.4 Verify Folder Structure
 
 You should now see:
 ```
-MSME/
+Hackathon/
   ├── backend/
   ├── frontend/
   ├── README.md
@@ -185,7 +185,7 @@ MSME/
 
 ### 3.1 Windows Users Only
 
-In **MSME** folder, double-click:
+In **Hackathon** folder, double-click:
 ```
 CHECK_SETUP.bat
 ```
@@ -202,7 +202,7 @@ If any show ✗, go back and install that component.
 
 ### 3.2 Mac/Linux Users
 
-Open **Terminal** in MSME folder:
+Open **Terminal** in Hackathon folder:
 ```bash
 bash CHECK_SETUP.bat    # Will work on Mac/Linux too
 ```
@@ -236,7 +236,7 @@ mysql>
 
 Type this command:
 ```sql
-CREATE DATABASE msme_portal;
+CREATE DATABASE hackathon_portal;
 ```
 
 Press **Enter**.
@@ -254,7 +254,7 @@ EXIT;
 
 ### 5.1 Windows Users
 
-In MSME folder, double-click:
+In Hackathon folder, double-click:
 ```
 START_LOCAL.bat
 ```
@@ -276,7 +276,7 @@ Tomcat started on port 8080
 
 ### 5.2 Mac/Linux Users
 
-Open **Terminal** in MSME folder:
+Open **Terminal** in Hackathon folder:
 ```bash
 bash START_LOCAL.sh
 ```
@@ -294,7 +294,7 @@ Tomcat started on port 8080
 
 ### 5.3 Manual Windows (If START_LOCAL.bat doesn't work)
 
-Open **Command Prompt** in MSME\backend folder:
+Open **Command Prompt** in Hackathon\backend folder:
 ```powershell
 $env:DB_USERNAME="root"
 $env:DB_PASSWORD="puja"
@@ -311,9 +311,9 @@ Wait for same "Started" message.
 
 **Do NOT use the terminal from Step 5!** Open a **new** one.
 
-Navigate to MSME folder:
+Navigate to Hackathon folder:
 ```powershell
-cd MSME
+cd Hackathon
 ```
 
 ### 6.2 Windows Users
@@ -349,7 +349,7 @@ Same as Windows - wait 30-40 seconds for browser to open.
 
 ### 7.1 Browser Opens at http://localhost:3000
 
-You should see **MSME Hackathon Portal** homepage.
+You should see **Hackathon Portal** homepage.
 
 ### 7.2 Register as Team Leader
 
@@ -358,7 +358,7 @@ You should see **MSME Hackathon Portal** homepage.
    - **Name:** `Test User`
    - **Email:** `test@example.com`
    - **Phone:** `9876543210`
-   - **College ID:** `MSME-001`
+   - **College ID:** `HACKATHON-001`
    - **Password:** `Test123456`
    - **Confirm Password:** `Test123456`
 3. Click **Register**
@@ -496,7 +496,7 @@ Just repeat **STEP 5** and **STEP 6**.
 mysql -u root -p
 # Password: puja
 
-USE msme_portal;
+USE hackathon_portal;
 SELECT * FROM users;
 SELECT * FROM teams;
 SELECT * FROM applications;
@@ -505,7 +505,7 @@ SELECT * FROM applications;
 ### Directory Structure
 
 ```
-MSME/
+Hackathon/
 ├── backend/
 │   ├── src/main/java/       (Java code)
 │   ├── src/main/resources/  (Configs)
@@ -524,7 +524,7 @@ MSME/
 
 ```powershell
 # Navigate to folder
-cd MSME
+cd Hackathon
 
 # Start backend
 cd backend
@@ -549,8 +549,8 @@ Type in terminal where service is running
 ## Summary
 
 ✅ **Prerequisites installed:** Java, Node.js, MySQL  
-✅ **Repository cloned:** MSME folder exists  
-✅ **Database created:** msme_portal  
+✅ **Repository cloned:** Hackathon folder exists  
+✅ **Database created:** hackathon_portal  
 ✅ **Backend running:** Port 8080  
 ✅ **Frontend running:** Port 3000  
 ✅ **Full stack integrated:** Tested and working  

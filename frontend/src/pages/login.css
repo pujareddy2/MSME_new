@@ -134,12 +134,13 @@ select {
 
 .forgot {
   color: blue;
-
   margin-top: 10px;
-
   font-size: 15px;
-
   cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+  text-decoration: underline;
 }
 
 /* Footer */
@@ -174,4 +175,40 @@ h1 {
   box-sizing: border-box;
   border-radius: 4px;
   border: 1px solid #ccc;
+}
+
+.field-error {
+  color: #b00020;
+  text-align: left;
+  margin: -6px 0 10px;
+  font-size: 13px;
+}
+
+.field-hint {
+  text-align: left;
+  margin: -6px 0 8px;
+  color: #6a6f85;
+  font-size: 12px;
+}
+
+.form-success {
+  color: #0a6b63;
+  margin-top: 0;
+}
+
+.form-error {
+  color: #b00020;
+  margin-top: 0;
+}
+
+.link-btn {
+  width: 100%;
+  margin-top: 12px;
+  border: 1px solid #d0d7e2;
+  background: #ffffff;
+  color: #2e6bd6;
+  padding: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
 }

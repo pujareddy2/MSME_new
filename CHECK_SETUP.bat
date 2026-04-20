@@ -1,5 +1,5 @@
 @echo off
-REM MSME Setup Validation Script for Windows
+REM Hackathon Setup Validation Script for Windows
 REM This script checks all prerequisites before running the project
 
 setlocal enabledelayedexpansion
@@ -7,7 +7,7 @@ setlocal enabledelayedexpansion
 cls
 echo.
 echo ========================================
-echo MSME Portal Setup Validator
+echo Hackathon Portal Setup Validator
 echo ========================================
 echo.
 echo This script will check if all required

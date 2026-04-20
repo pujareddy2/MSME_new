@@ -134,3 +134,64 @@ border-bottom:1px solid #eee;
 .college-table tr:hover{
 background:#f8fafc;
 }
+
+.evaluator-container {
+width: 100%;
+max-width: 1200px;
+margin: 0 auto;
+padding: 32px 24px 44px;
+}
+
+.title {
+text-align: center;
+margin-bottom: 8px;
+}
+
+.subtitle {
+text-align: center;
+margin: 0 0 18px;
+color: #334155;
+}
+
+.eval-table-wrap {
+width: 92%;
+margin: 0 auto;
+}
+
+.eval-actions-cell {
+display: flex;
+gap: 8px;
+align-items: center;
+}
+
+.eval-btn {
+background: #0284c7;
+color: white;
+border: none;
+padding: 7px 14px;
+border-radius: 6px;
+cursor: pointer;
+}
+
+.eval-btn:hover {
+background: #0369a1;
+}
+
+.eval-btn:disabled,
+.eval-btn-done {
+background: #64748b;
+cursor: not-allowed;
+}
+
+.report-btn {
+background: #4b2e83;
+color: white;
+border: none;
+padding: 7px 14px;
+border-radius: 6px;
+cursor: pointer;
+}
+
+.report-btn:hover {
+background: #3b2368;
+}

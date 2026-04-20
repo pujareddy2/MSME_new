@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import logo from "../../images/ts-msme.jpg";
+import logo from "../../images/portal-logo.jpg";
 import NotificationBell from "./NotificationBell";
 import { clearSession, getStoredUser } from "../../utils/session";
 
@@ -22,7 +22,7 @@ function Header() {
 
           <img
             src={logo}
-            alt="TS MSME Logo"
+            alt="Portal Logo"
             className="sih-logo"
           />
 
@@ -53,7 +53,7 @@ function Header() {
         <div className="nav-container">
 
           <h2 className="brand">
-            TS-MSME Innovation Portal
+            Innovation Portal
           </h2>
 
           <ul className="nav-links">

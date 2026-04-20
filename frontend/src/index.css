@@ -240,6 +240,19 @@ section {
   text-align: center;
 }
 
+.about-container h2 {
+  margin-bottom: 18px;
+}
+
+.about p,
+.about-highlight {
+  font-size: 19px;
+  text-align: justify;
+  text-justify: inter-word;
+  line-height: 1.85;
+  margin-bottom: 14px;
+}
+
 .section-title {
   font-size: 36px;
   color: var(--primary-green);
@@ -296,7 +309,7 @@ section {
 }
 
 .themes-sub {
-  font-size: 16px;
+  font-size: 19px;
   color: #4d4a5a;
   margin-bottom: 40px;
 }
@@ -324,12 +337,13 @@ section {
 .theme-card {
   min-width: 280px;
   background: rgb(105, 159, 206);
-  padding: 25px;
+  padding: 0;
   border-radius: 14px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
+  transition: transform 0.24s ease, box-shadow 0.24s ease;
   text-align: center;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .theme-card:hover {
@@ -338,22 +352,25 @@ section {
 }
 
 .theme-card img {
-  width: 60px;
-  height: 110px;
+  width: 100%;
+  height: 210px;
   object-fit: cover;
-  border-radius: 12px;
-  margin-bottom: 15px;
+  display: block;
+}
+
+.theme-card-content {
+  padding: 16px 18px 20px;
 }
 
 .theme-card h3 {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 700;
   color: #1b0b6d;
   margin-bottom: 8px;
 }
 
 .theme-card p {
-  font-size: 14px;
+  font-size: 16px;
   color: #555;
   line-height: 1.5;
 }
@@ -380,6 +397,36 @@ section {
 
 .arrow:hover {
   background: #08042a;
+}
+
+.home-card,
+.event-card,
+.theme-card,
+.faq-card,
+.guideline-item,
+.template-btn,
+.add-problem-btn,
+.login-btn,
+.hero-btn,
+.contact-form button,
+.arrow,
+.apply-btn,
+.view-btn {
+  transition: transform 0.24s ease, box-shadow 0.24s ease, filter 0.24s ease;
+}
+
+.faq-card:hover,
+.guideline-item:hover,
+.template-btn:hover,
+.add-problem-btn:hover,
+.login-btn:hover,
+.hero-btn:hover,
+.contact-form button:hover,
+.arrow:hover,
+.apply-btn:hover,
+.view-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 22px rgba(29, 66, 109, 0.14);
 }
 /* ===================================== */
 /* GUIDELINES */
