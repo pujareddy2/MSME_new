@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaRegBell } from "react-icons/fa";
-import { getNotifications } from "../../services/api";
+import { getNotifications, markNotificationRead } from "../../services/api";
 import { getStoredUser } from "../../utils/session";
 
 function NotificationBell() {
@@ -10,6 +10,8 @@ function NotificationBell() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function loadNotifications() {
       if (!currentUser?.userId) {
         return;
@@ -17,14 +19,44 @@ function NotificationBell() {
 
       try {
         const response = await getNotifications(currentUser.userId);
-        setNotifications(response.data || []);
+        if (!cancelled) {
+          setNotifications(response.data || []);
+        }
       } catch {
-        setNotifications([]);
+        if (!cancelled) {
+          setNotifications([]);
+        }
       }
     }
 
     loadNotifications();
+    const timer = setInterval(loadNotifications, 15000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
   }, [currentUser?.userId]);
+
+  const unreadCount = notifications.filter((item) => !item.isRead).length;
+
+  const onItemClick = async (item) => {
+    if (item.isRead) {
+      return;
+    }
+
+    try {
+      await markNotificationRead(item.id || item.notificationId);
+      setNotifications((prev) =>
+        prev.map((entry) =>
+          (entry.id || entry.notificationId) === (item.id || item.notificationId)
+            ? { ...entry, isRead: true }
+            : entry
+        )
+      );
+    } catch {
+      // no-op
+    }
+  };
 
   if (!currentUser?.userId) {
     return null;
@@ -50,9 +82,9 @@ function NotificationBell() {
         aria-label="Notifications"
       >
         <FaRegBell />
-        {notifications.length > 0 && (
+        {unreadCount > 0 && (
           <span style={{ position: "absolute", top: -6, right: -6, background: "#F57C00", color: "white", borderRadius: 999, fontSize: 11, padding: "2px 6px" }}>
-            {notifications.length}
+            {unreadCount}
           </span>
         )}
       </button>
@@ -62,9 +94,23 @@ function NotificationBell() {
           <div style={{ padding: 14, borderBottom: "1px solid #eee", fontWeight: 700 }}>Notifications</div>
           <div style={{ maxHeight: 280, overflowY: "auto" }}>
             {notifications.length > 0 ? (
-              notifications.slice(0, 6).map((item) => (
-                <div key={item.notificationId} style={{ padding: 12, borderBottom: "1px solid #f2f2f2", fontSize: 14 }}>
+              notifications.slice(0, 10).map((item) => (
+                <div
+                  key={item.id || item.notificationId}
+                  onClick={() => onItemClick(item)}
+                  style={{
+                    padding: 12,
+                    borderBottom: "1px solid #f2f2f2",
+                    fontSize: 14,
+                    cursor: "pointer",
+                    background: item.isRead ? "#fff" : "#f4fbff",
+                    fontWeight: item.isRead ? 400 : 600,
+                  }}
+                >
                   {item.message}
+                  <div style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>
+                    {(item.type || "GENERAL").replace(/_/g, " ")}
+                  </div>
                 </div>
               ))
             ) : (

@@ -9,4 +9,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 	boolean existsByTeam_TeamIdAndProblem_ProblemId(Long teamId, Long problemId);
 
 	List<Application> findByTeam_TeamId(Long teamId);
+
+	List<Application> findByProblem_ProblemId(Long problemId);
 }

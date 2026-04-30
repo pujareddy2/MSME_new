@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import logo from "../../images/portal-logo.jpg";
+// TODO: Add final logo here later
 import NotificationBell from "./NotificationBell";
 import { clearSession, getStoredUser } from "../../utils/session";
 
@@ -20,11 +20,8 @@ function Header() {
       <div className="gov-strip">
         <div className="gov-container">
 
-          <img
-            src={logo}
-            alt="Portal Logo"
-            className="sih-logo"
-          />
+          {/* logo placeholder - removed for now to allow final branding to be added later */}
+          <div className="platform-logo" aria-hidden="true">&nbsp;</div>
 
           <div className="gov-right">
             <NotificationBell />

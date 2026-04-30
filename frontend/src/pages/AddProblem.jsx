@@ -12,8 +12,8 @@ const [id,setId] = useState("");
 const [title,setTitle] = useState("");
 const [category,setCategory] = useState("");
 const [theme,setTheme] = useState("");
-const [deadline,setDeadline] = useState("");
 const [description,setDescription] = useState("");
+const [status, setStatus] = useState("ACTIVE");
 
 const handleSubmit = (e) => {
 
@@ -24,43 +24,19 @@ alert("Only ADMIN or EVENT_HEAD can add problem statements");
 return;
 }
 
-if(id==="" || title==="" || category==="" || theme==="" || deadline===""){
+if(id==="" || title==="" || category==="" || theme===""){
 alert("Please fill all fields");
 return;
 }
-
-/* Get existing problems */
-
-const existing =
-JSON.parse(localStorage.getItem("addedProblems")) || [];
-
-/* Create new problem */
-
-const newProblem = {
-id:Number(id),
-title:title,
-category:category,
-theme:theme,
-deadline:deadline,
-description:description,
-submissions:0
-};
-
-/* Save */
-
-existing.push(newProblem);
 
 createProblem({
 problemId: Number(id),
 problemTitle: title,
 problemDescription: description,
 domain: category,
-	organizationName: "Hackathon",
-difficultyLevel: theme,
-submissionDeadline: deadline,
+theme: theme,
+status,
 }).then(() => {
-localStorage.setItem("addedProblems",JSON.stringify(existing));
-
 alert("Problem Statement Added Successfully");
 
 /* Redirect back */
@@ -135,15 +111,11 @@ onChange={(e)=>setTheme(e.target.value)}
 </div>
 
 <div className="form-row">
-
-<label>Deadline</label>
-
-<input
-type="date"
-value={deadline}
-onChange={(e)=>setDeadline(e.target.value)}
-/>
-
+<label>Status</label>
+<select value={status} onChange={(e) => setStatus(e.target.value)}>
+<option value="ACTIVE">ACTIVE</option>
+<option value="INACTIVE">INACTIVE</option>
+</select>
 </div>
 
 <div className="form-row">

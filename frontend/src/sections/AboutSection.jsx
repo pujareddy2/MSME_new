@@ -2,16 +2,15 @@ function AboutSection() {
   return (
     <section id="about" className="about">
       <div className="about-container">
-        <h2>What is TG-Hackathon?</h2>
+        <h2>About the Platform</h2>
 
         <p className="about-highlight">
-          Hackathon
+          Innovation Program
         </p>
 
         <p>
-          By focusing on job creation and digital transformation, TG-Hackathon empowers entrepreneurs—particularly 
-           women and marginalized groups—to turn local ventures
-              into global competitors.
+          By focusing on job creation, MSME support, and digital transformation, this platform empowers entrepreneurs—
+          including women and marginalized groups—to turn local ventures into sustainable businesses and create new employment opportunities.
         </p>
 
 

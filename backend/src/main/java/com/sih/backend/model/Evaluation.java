@@ -15,8 +15,26 @@ public class Evaluation {
     @Column(name = "evaluation_status")
     private String evaluationStatus;
 
-    @Column(name = "comments")
+    @Column(name = "comments", columnDefinition = "LONGTEXT")
     private String comments;
+
+    @Column(name = "ai_scores", columnDefinition = "LONGTEXT")
+    private String aiScoresJson;
+
+    @Column(name = "ai_remark", columnDefinition = "LONGTEXT")
+    private String aiRemark;
+
+    @Column(name = "human_scores", columnDefinition = "LONGTEXT")
+    private String humanScoresJson;
+
+    @Column(name = "human_remark", columnDefinition = "LONGTEXT")
+    private String humanRemark;
+
+    @Column(name = "total_score")
+    private Double totalScore;
+
+    @Column(name = "report_payload", columnDefinition = "LONGTEXT")
+    private String reportPayload;
 
     @Column(name = "created_at")
     private Timestamp createdAt;
@@ -73,6 +91,54 @@ public class Evaluation {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getAiScoresJson() {
+        return aiScoresJson;
+    }
+
+    public void setAiScoresJson(String aiScoresJson) {
+        this.aiScoresJson = aiScoresJson;
+    }
+
+    public String getAiRemark() {
+        return aiRemark;
+    }
+
+    public void setAiRemark(String aiRemark) {
+        this.aiRemark = aiRemark;
+    }
+
+    public String getHumanScoresJson() {
+        return humanScoresJson;
+    }
+
+    public void setHumanScoresJson(String humanScoresJson) {
+        this.humanScoresJson = humanScoresJson;
+    }
+
+    public String getHumanRemark() {
+        return humanRemark;
+    }
+
+    public void setHumanRemark(String humanRemark) {
+        this.humanRemark = humanRemark;
+    }
+
+    public Double getTotalScore() {
+        return totalScore;
+    }
+
+    public void setTotalScore(Double totalScore) {
+        this.totalScore = totalScore;
+    }
+
+    public String getReportPayload() {
+        return reportPayload;
+    }
+
+    public void setReportPayload(String reportPayload) {
+        this.reportPayload = reportPayload;
     }
 
     public Application getApplication() {

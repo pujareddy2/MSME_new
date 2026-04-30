@@ -1,168 +1,118 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { getApplications } from "../services/api";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { getJudgeEvaluations, unwrapApiData } from "../services/api";
 import "./judging.css";
 
 function JudgeDashboard() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [submissions, setSubmissions] = useState([]);
+  const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [toastMessage, setToastMessage] = useState(location.state?.toast || "");
-
   const currentRole = localStorage.getItem("role");
-  const isAllowed = currentRole === "JUDGE";
+  const isAllowed = currentRole === "JUDGE" || currentRole === "ADMIN";
 
-  const normalizeSubmission = useCallback((app) => {
-    const aiScore = app?.aiScore ?? null;
-    const judgeScore = app?.judgeScore ?? null;
-    const statusText = (app?.submissionStatus || "").toLowerCase();
-    const isEligibleForJudge = statusText === "evaluated" || statusText === "judged";
-
-    const submissionId = app?.applicationId || app?.id;
-    const teamName = app?.team?.teamName || "N/A";
-    const problemId = app?.problem?.problemId || app?.problem?.id || "N/A";
-
-    return {
-      id: submissionId,
-      teamName,
-      teamId: app?.team?.teamId || app?.teamId || null,
-      leader: app?.team?.leader?.fullName || "N/A",
-      problemId,
-      problemStatement: app?.problem?.problemTitle || app?.problem?.title || "N/A",
-      abstract: app?.abstractText || "",
-      aiScore,
-      judgeScore,
-      finalScore: aiScore !== null && judgeScore !== null
-        ? Math.round((aiScore * 0.3 + judgeScore * 0.7) * 100) / 100
-        : null,
-      remarks: app?.manualRemarks || "",
-      judgedBy: app?.judgedBy || "",
-      timestamp: app?.evaluatedAt || app?.timestamp || null,
-      status: isEligibleForJudge ? (judgeScore === null ? "Not Justified" : "Justified") : "SUBMITTED",
-      canJudge: isEligibleForJudge,
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        setLoading(true);
+        const response = await getJudgeEvaluations();
+        if (!cancelled) {
+          const data = unwrapApiData(response) || [];
+          setRows(data);
+        }
+      } catch (error) {
+        console.error(error);
+        if (!cancelled) setRows([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    load();
+    return () => {
+      cancelled = true;
     };
   }, []);
 
-  const loadApplications = useCallback(async () => {
-    try {
-      setLoading(true);
-      const response = await getApplications();
-      const rows = (response.data || []).map(normalizeSubmission);
-      setSubmissions(rows);
-    } catch (error) {
-      console.error(error);
-      setSubmissions([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [normalizeSubmission]);
+  const sortedRows = useMemo(
+    () => [...rows].sort((a, b) => Number(b.totalScore || 0) - Number(a.totalScore || 0)),
+    [rows]
+  );
 
-  useEffect(() => {
-    loadApplications();
-
-    const refreshTimer = setInterval(() => {
-      loadApplications();
-    }, 30000);
-
-    return () => clearInterval(refreshTimer);
-  }, [loadApplications]);
-
-  useEffect(() => {
-    if (!toastMessage) {
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setToastMessage("");
-      navigate(location.pathname, { replace: true, state: {} });
-    }, 2800);
-
-    return () => clearTimeout(timer);
-  }, [toastMessage, navigate, location.pathname]);
-
-  const filteredSubmissions = useMemo(() => {
-    return submissions.filter((submission) => submission.canJudge);
-  }, [submissions]);
-
-  if (!isAllowed) {
-    return <p style={{ padding: "80px" }}>Access restricted</p>;
-  }
+  if (!isAllowed) return <p style={{ padding: "80px" }}>Access restricted</p>;
 
   return (
-    <div className="judging-dashboard-container">
-      <div className="judging-dashboard-head">
-        <div className="judging-title-block">
-          <h2 className="judging-page-title">Judge Dashboard</h2>
-          <p className="judging-page-subtitle">Review evaluated submissions and justify with judge score.</p>
-        </div>
-
-        <div className="judging-toolbar">
-          <button type="button" className="judging-refresh-btn" onClick={loadApplications}>
-            Refresh
-          </button>
-        </div>
+    <div className="judging-dashboard-container judge-dashboard-container">
+      <div className="ps-top-box">
+        <h2 className="judging-page-title" style={{ marginBottom: 8 }}>Judge Dashboard</h2>
+        <p className="judging-page-subtitle" style={{ marginTop: 0 }}>
+          Final review workspace with exact evaluator report data, sorted by score for decision support.
+        </p>
       </div>
-
-      {toastMessage && <div className="judging-toast">{toastMessage}</div>}
 
       <div className="judging-table-shell">
         <div className="judging-table-wrap">
-          <table className="judging-table">
+          <table className="judging-table judge-table">
             <thead>
               <tr>
                 <th>Problem ID</th>
-                <th>Team Name</th>
-                <th>Problem Statement</th>
-                <th>AI Score</th>
-                <th>Judge Score</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>Problem Title</th>
+                <th>Team</th>
+                <th>Submission Data</th>
+                <th>Evaluation Data</th>
+                <th>Final Score</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan="7">Loading submissions...</td>
-                </tr>
-              ) : filteredSubmissions.length === 0 ? (
-                <tr>
-                  <td colSpan="7">No submissions available for this filter.</td>
-                </tr>
+                <tr><td colSpan="7">Loading evaluations...</td></tr>
+              ) : sortedRows.length === 0 ? (
+                <tr><td colSpan="7">No evaluated submissions available.</td></tr>
               ) : (
-                filteredSubmissions.map((submission) => {
-                  return (
-                    <tr key={submission.id}>
-                      <td>{submission.problemId}</td>
-                      <td>{submission.teamName}</td>
-                      <td>{submission.problemStatement}</td>
-                      <td className="score-ai">{submission.aiScore ?? "-"}</td>
-                      <td className="score-manual">{submission.judgeScore ?? "-"}</td>
-                      <td>
-                        <span className={`status-badge ${submission.judgeScore === null ? "status-not-justified" : "status-justified"}`}>
-                          {submission.status}
+                sortedRows.map((row) => {
+                    const judgeStatus = (row.finalDecision || "PENDING") === "PENDING" ? "Pending" : "Reviewed";
+                    const judgeStatusClass = judgeStatus === "Pending" ? "status-pending" : "status-judged";
+                    return (
+                  <tr key={row.submissionId}>
+                    <td>{row.problemId}</td>
+                    <td>{row.problemTitle}</td>
+                    <td>
+                      <div className="table-title-stack">
+                        <strong>{row.teamName}</strong>
+                        <span>Team ID: {row.teamId}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="table-title-stack">
+                        <span>{row.abstractText ? `${row.abstractText.slice(0, 80)}...` : "N/A"}</span>
+                        <span>PPT: {row.pptLink || "N/A"}</span>
+                        <span>GitHub: {row.githubLink || "N/A"}</span>
+                        <span>Demo: {row.demoLink || "N/A"}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="table-title-stack">
+                        <span>AI: {row.aiTotalScore || 0}/10</span>
+                        <span>Human: {row.humanTotalScore || 0}/10</span>
+                        <span>
+                          Judge Status:
+                          {" "}
+                          <span className={`status-badge ${judgeStatusClass}`}>{judgeStatus}</span>
                         </span>
-                      </td>
-                      <td className="judging-actions-cell">
-                        {submission.judgeScore === null ? (
-                          <button
-                            className="action-btn action-judge"
-                            onClick={() => navigate(`/feedback/${submission.id}`)}
-                          >
-                            Evaluate
-                          </button>
-                        ) : (
-                          <button
-                            className="action-btn action-report"
-                            onClick={() => navigate(`/judge/report/${submission.id}`)}
-                          >
-                            View Report
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })
+                      </div>
+                    </td>
+                    <td className="score-manual"><strong>{row.totalScore || 0}</strong></td>
+                    <td className="judging-actions-cell">
+                      <button className="action-btn action-report" onClick={() => navigate(`/evaluation-report/${row.submissionId}`)}>
+                        View Report
+                      </button>
+                      <button className="action-btn action-judge" onClick={() => navigate(`/feedback/${row.submissionId}`)}>
+                        {judgeStatus === "Pending" ? "Finalize" : "Completed"}
+                      </button>
+                    </td>
+                  </tr>
+                    );
+                  })
               )}
             </tbody>
           </table>

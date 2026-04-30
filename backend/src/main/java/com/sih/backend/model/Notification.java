@@ -18,17 +18,19 @@ public class Notification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "notification_id")
-    private Long notificationId;
+    private Long id;
 
     @Column(columnDefinition = "TEXT")
     private String message;
 
+    @Column(name = "type")
+    private String type;
+
     @Column(name = "is_read")
     private Boolean isRead = Boolean.FALSE;
 
-    @Column(name = "created_at")
-    private Timestamp createdAt;
+    @Column(name = "timestamp")
+    private Timestamp timestamp;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -36,17 +38,17 @@ public class Notification {
 
     @PrePersist
     public void prePersist() {
-        if (createdAt == null) {
-            createdAt = new Timestamp(System.currentTimeMillis());
+        if (timestamp == null) {
+            timestamp = new Timestamp(System.currentTimeMillis());
         }
     }
 
-    public Long getNotificationId() {
-        return notificationId;
+    public Long getId() {
+        return id;
     }
 
-    public void setNotificationId(Long notificationId) {
-        this.notificationId = notificationId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getMessage() {
@@ -57,6 +59,14 @@ public class Notification {
         this.message = message;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public Boolean getIsRead() {
         return isRead;
     }
@@ -65,12 +75,12 @@ public class Notification {
         isRead = read;
     }
 
-    public Timestamp getCreatedAt() {
-        return createdAt;
+    public Timestamp getTimestamp() {
+        return timestamp;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
+    public void setTimestamp(Timestamp timestamp) {
+        this.timestamp = timestamp;
     }
 
     public User getUser() {

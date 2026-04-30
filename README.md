@@ -1,10 +1,10 @@
-# Hackathon Portal (Full Stack)
+# MSME Innovation Platform (Full Stack)
 
 This repository now runs as an integrated full-stack system:
 
 - Frontend: React application in `frontend/`
-- Backend: Spring Boot REST API in `backend/`
-- Database: MySQL (`hackathon_portal`)
+-- Backend: Spring Boot REST API in `backend/`
+-- Database: MySQL (`msme_portal`)
 
 ## 🚀 Quick Start (For Immediate Setup)
 
@@ -96,7 +96,7 @@ So deployment works cleanly after setting environment variables correctly for:
 ## Project Structure
 
 ```
-Hackathon/
+Platform/
   backend/
     src/main/java/com/sih/backend/
     src/main/resources/application.properties
@@ -125,7 +125,7 @@ Install these first:
 ### 1. Create database
 
 ```sql
-CREATE DATABASE hackathon_portal;
+CREATE DATABASE msme_portal;
 ```
 
 ### 2. Backend DB config
@@ -176,7 +176,7 @@ taskkill /PID <PID_NUMBER> /F
 
 $env:DB_USERNAME="root"
 $env:DB_PASSWORD="puja"  # use your MySQL password
-& "C:\Desktop\Hackathon\backend\mvnw.cmd" -f "C:\Desktop\Hackathon\backend\pom.xml" spring-boot:run
+& "C:\Desktop\Platform\backend\mvnw.cmd" -f "C:\Desktop\Platform\backend\pom.xml" spring-boot:run
 ```
 
 Mac/Linux (bash/zsh):

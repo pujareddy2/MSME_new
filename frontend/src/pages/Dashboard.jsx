@@ -86,7 +86,7 @@ function Dashboard() {
     <div className="dashboard-shell">
       <aside className="dashboard-sidebar">
         <div>
-          <p className="sidebar-eyebrow">Hackathon</p>
+          <p className="sidebar-eyebrow">Platform</p>
           <h2 className="dashboard-title">{currentUser?.role || "Dashboard"}</h2>
         </div>
 
@@ -155,9 +155,9 @@ function Dashboard() {
             {notifications.length > 0 ? (
               <div className="activity-list">
                 {notifications.map((notification) => (
-                  <div key={notification.notificationId} className="member-item activity-item">
+                  <div key={notification.id || notification.notificationId} className="member-item activity-item">
                     <div>{notification.message}</div>
-                    <small className="activity-time">{formatActivityTime(notification.createdAt)}</small>
+                    <small className="activity-time">{formatActivityTime(notification.timestamp || notification.createdAt)}</small>
                   </div>
                 ))}
               </div>
@@ -171,7 +171,7 @@ function Dashboard() {
           <h3>Notifications</h3>
           {notifications.length > 0 ? (
             notifications.map((notification) => (
-              <div key={notification.notificationId} className="member-item">
+              <div key={notification.id || notification.notificationId} className="member-item">
                 {notification.message}
               </div>
             ))

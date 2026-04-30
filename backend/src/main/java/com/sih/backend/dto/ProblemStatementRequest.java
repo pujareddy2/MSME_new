@@ -1,15 +1,12 @@
 package com.sih.backend.dto;
 
-import java.sql.Date;
-
 public class ProblemStatementRequest {
     private Long problemId;
     private String problemTitle;
     private String problemDescription;
     private String domain;
-    private String organizationName;
-    private String difficultyLevel;
-    private Date submissionDeadline;
+    private String theme;
+    private String status;
 
     public Long getProblemId() {
         return problemId;
@@ -43,27 +40,19 @@ public class ProblemStatementRequest {
         this.domain = domain;
     }
 
-    public String getOrganizationName() {
-        return organizationName;
+    public String getTheme() {
+        return theme;
     }
 
-    public void setOrganizationName(String organizationName) {
-        this.organizationName = organizationName;
+    public void setTheme(String theme) {
+        this.theme = theme;
     }
 
-    public String getDifficultyLevel() {
-        return difficultyLevel;
+    public String getStatus() {
+        return status;
     }
 
-    public void setDifficultyLevel(String difficultyLevel) {
-        this.difficultyLevel = difficultyLevel;
-    }
-
-    public Date getSubmissionDeadline() {
-        return submissionDeadline;
-    }
-
-    public void setSubmissionDeadline(Date submissionDeadline) {
-        this.submissionDeadline = submissionDeadline;
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

@@ -4,7 +4,7 @@ set -e
 
 echo
 echo "========================================"
-echo "Hackathon Backend Safe Start (Mac/Linux)"
+echo "MSME Innovation Platform Backend Safe Start (Mac/Linux)"
 echo "========================================"
 echo
 
@@ -13,7 +13,7 @@ BACKEND_DIR="$ROOT_DIR/backend"
 
 if [[ ! -f "$BACKEND_DIR/pom.xml" ]]; then
   echo "ERROR: Could not find backend/pom.xml"
-  echo "Run this script from the Hackathon root folder."
+  echo "Run this script from the project root folder."
   exit 1
 fi
 

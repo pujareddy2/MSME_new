@@ -1,0 +1,10 @@
+package com.sih.backend.repository;
+
+import com.sih.backend.model.Judge;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface JudgeRepository extends JpaRepository<Judge, Long> {
+    Optional<Judge> findByUser_UserId(Long userId);
+}

@@ -3,7 +3,7 @@
 This file is a single place to check login accounts currently stored in database.
 
 Last verified from DB (for listed accounts): 2026-04-20
-Database: hackathon_portal
+Database: msme_portal
 
 ## 1. Login Form Inputs
 Use these values in login page:
@@ -51,10 +51,10 @@ Stored users:
 
 | user_id | name | email | phone | status | password |
 |---|---|---|---|---|---|
-| 11 | Evaluator User | evaluator@hackathon.local | 9000000001 | ACTIVE | 8004254595 |
+| 11 | Evaluator User | evaluator@platform.local | 9000000001 | ACTIVE | 8004254595 |
 
 Login usage:
-- Email/Phone: evaluator@hackathon.local or 9000000001
+- Email/Phone: evaluator@platform.local or 9000000001
 - Role: EVALUATOR
 - Password: 8004254595
 
@@ -63,10 +63,10 @@ Stored users:
 
 | user_id | name | email | phone | status | password |
 |---|---|---|---|---|---|
-| 12 | Judge User | judge@hackathon.local | 9000000002 | ACTIVE | 8004254595 |
+| 12 | Judge User | judge@platform.local | 9000000002 | ACTIVE | 8004254595 |
 
 Login usage:
-- Email/Phone: judge@hackathon.local or 9000000002
+- Email/Phone: judge@platform.local or 9000000002
 - Role: JUDGE
 - Password: 8004254595
 
@@ -75,10 +75,10 @@ Stored users:
 
 | user_id | name | email | phone | status | password |
 |---|---|---|---|---|---|
-| 13 | Mentor User | mentor@hackathon.local | 9000000003 | ACTIVE | 8004254595 |
+| 13 | Mentor User | mentor@platform.local | 9000000003 | ACTIVE | 8004254595 |
 
 Login usage:
-- Email/Phone: mentor@hackathon.local or 9000000003
+- Email/Phone: mentor@platform.local or 9000000003
 - Role: MENTOR
 - Password: 8004254595
 
@@ -87,10 +87,10 @@ Stored users:
 
 | user_id | name | email | phone | status | password |
 |---|---|---|---|---|---|
-| 14 | Event Head User | eventhead@hackathon.local | 9000000004 | ACTIVE | 8004254595 |
+| 14 | Event Head User | eventhead@platform.local | 9000000004 | ACTIVE | 8004254595 |
 
 Login usage:
-- Email/Phone: eventhead@hackathon.local or 9000000004
+- Email/Phone: eventhead@platform.local or 9000000004
 - Role: EVENT_HEAD
 - Password: 8004254595
 
@@ -99,10 +99,10 @@ Stored users:
 
 | user_id | name | email | phone | status | password |
 |---|---|---|---|---|---|
-| 15 | College SPOC User | spoc@hackathon.local | 9000000005 | ACTIVE | 8004254595 |
+| 15 | College SPOC User | spoc@platform.local | 9000000005 | ACTIVE | 8004254595 |
 
 Login usage:
-- Email/Phone: spoc@hackathon.local or 9000000005
+- Email/Phone: spoc@platform.local or 9000000005
 - Role: COLLEGE_SPOC
 - Password: 8004254595
 
@@ -111,10 +111,10 @@ Stored users:
 
 | user_id | name | email | phone | status | password |
 |---|---|---|---|---|---|
-| 16 | Admin User | admin@hackathon.local | 9000000006 | ACTIVE | 8004254595 |
+| 16 | Admin User | admin@platform.local | 9000000006 | ACTIVE | 8004254595 |
 
 Login usage:
-- Email/Phone: admin@hackathon.local or 9000000006
+- Email/Phone: admin@platform.local or 9000000006
 - Role: ADMIN
 - Password: 8004254595
 
@@ -136,8 +136,8 @@ Seed script file:
 ## 4. DB Verification Commands
 List all users:
 
-"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -ppuja -D hackathon_portal -e "SELECT user_id, full_name, email, phone_number, role_name, account_status FROM users ORDER BY role_name, user_id;"
+"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -ppuja -D msme_portal -e "SELECT user_id, full_name, email, phone_number, role_name, account_status FROM users ORDER BY role_name, user_id;"
 
 Count by role:
 
-"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -ppuja -D hackathon_portal -e "SELECT role_name, COUNT(*) AS user_count FROM users GROUP BY role_name ORDER BY role_name;"
+"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -ppuja -D msme_portal -e "SELECT role_name, COUNT(*) AS user_count FROM users GROUP BY role_name ORDER BY role_name;"

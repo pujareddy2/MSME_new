@@ -4,6 +4,7 @@ import com.sih.backend.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
+import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 	Optional<User> findByEmailIgnoreCase(String email);
@@ -13,4 +14,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	boolean existsByEmailIgnoreCase(String email);
 
 	boolean existsByPhoneNumberIgnoreCase(String phoneNumber);
+
+	List<User> findByRoleNameIgnoreCase(String roleName);
 }

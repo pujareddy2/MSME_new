@@ -151,8 +151,8 @@ Open **Command Prompt/Terminal** in that location.
 
 If you have Git installed:
 ```powershell
-git clone https://github.com/your-organization/Hackathon.git
-cd Hackathon
+git clone https://github.com/your-organization/Platform.git
+cd Platform
 ```
 
 ### 2.3 Clone Without Git (If Git Not Available)
@@ -160,21 +160,21 @@ cd Hackathon
 1. Go to GitHub repository URL
 2. Click **Code** → **Download ZIP**
 3. Extract ZIP to your chosen location
-4. Open extracted folder named **Hackathon**
+4. Open extracted folder named **Platform** (or the repository name used by your organization)
 
 ### 2.4 Verify Folder Structure
 
 You should now see:
 ```
-Hackathon/
-  ├── backend/
-  ├── frontend/
-  ├── README.md
-  ├── DEPLOYMENT_GUIDE.md
-  ├── QUICKSTART.md
-  ├── START_LOCAL.bat
-  ├── START_LOCAL.sh
-  └── CHECK_SETUP.bat
+Platform/  (or the repository folder name you downloaded)
+   ├── backend/
+   ├── frontend/
+   ├── README.md
+   ├── DEPLOYMENT_GUIDE.md
+   ├── QUICKSTART.md
+   ├── START_LOCAL.bat
+   ├── START_LOCAL.sh
+   └── CHECK_SETUP.bat
 ```
 
 ✅ If yes, repository cloned successfully!
@@ -185,7 +185,7 @@ Hackathon/
 
 ### 3.1 Windows Users Only
 
-In **Hackathon** folder, double-click:
+In the project folder, double-click:
 ```
 CHECK_SETUP.bat
 ```
@@ -202,7 +202,7 @@ If any show ✗, go back and install that component.
 
 ### 3.2 Mac/Linux Users
 
-Open **Terminal** in Hackathon folder:
+Open **Terminal** in the project folder:
 ```bash
 bash CHECK_SETUP.bat    # Will work on Mac/Linux too
 ```
@@ -236,7 +236,7 @@ mysql>
 
 Type this command:
 ```sql
-CREATE DATABASE hackathon_portal;
+CREATE DATABASE msme_portal;
 ```
 
 Press **Enter**.
@@ -254,7 +254,7 @@ EXIT;
 
 ### 5.1 Windows Users
 
-In Hackathon folder, double-click:
+In the project folder, double-click:
 ```
 START_LOCAL.bat
 ```
@@ -276,7 +276,7 @@ Tomcat started on port 8080
 
 ### 5.2 Mac/Linux Users
 
-Open **Terminal** in Hackathon folder:
+Open **Terminal** in the project folder:
 ```bash
 bash START_LOCAL.sh
 ```
@@ -294,7 +294,7 @@ Tomcat started on port 8080
 
 ### 5.3 Manual Windows (If START_LOCAL.bat doesn't work)
 
-Open **Command Prompt** in Hackathon\backend folder:
+Open **Command Prompt** in the project backend folder (e.g., Platform\backend):
 ```powershell
 $env:DB_USERNAME="root"
 $env:DB_PASSWORD="puja"
@@ -311,9 +311,9 @@ Wait for same "Started" message.
 
 **Do NOT use the terminal from Step 5!** Open a **new** one.
 
-Navigate to Hackathon folder:
+Navigate to the project folder (example uses `Platform`):
 ```powershell
-cd Hackathon
+cd Platform
 ```
 
 ### 6.2 Windows Users
@@ -349,7 +349,7 @@ Same as Windows - wait 30-40 seconds for browser to open.
 
 ### 7.1 Browser Opens at http://localhost:3000
 
-You should see **Hackathon Portal** homepage.
+You should see the platform homepage.
 
 ### 7.2 Register as Team Leader
 
@@ -358,7 +358,7 @@ You should see **Hackathon Portal** homepage.
    - **Name:** `Test User`
    - **Email:** `test@example.com`
    - **Phone:** `9876543210`
-   - **College ID:** `HACKATHON-001`
+   - **College ID:** `PLATFORM-001` (example)
    - **Password:** `Test123456`
    - **Confirm Password:** `Test123456`
 3. Click **Register**
@@ -496,7 +496,7 @@ Just repeat **STEP 5** and **STEP 6**.
 mysql -u root -p
 # Password: puja
 
-USE hackathon_portal;
+   USE msme_portal;
 SELECT * FROM users;
 SELECT * FROM teams;
 SELECT * FROM applications;
@@ -505,7 +505,7 @@ SELECT * FROM applications;
 ### Directory Structure
 
 ```
-Hackathon/
+Platform/  (or your project folder name)
 ├── backend/
 │   ├── src/main/java/       (Java code)
 │   ├── src/main/resources/  (Configs)
@@ -517,14 +517,14 @@ Hackathon/
 │   ├── node_modules/        (Dependencies)
 │   └── package.json         (npm config)
 └── uploads/                 (File uploads)
-    └── applications/
+   └── applications/
 ```
 
 ### Common Commands
 
 ```powershell
 # Navigate to folder
-cd Hackathon
+cd Platform
 
 # Start backend
 cd backend
@@ -549,8 +549,8 @@ Type in terminal where service is running
 ## Summary
 
 ✅ **Prerequisites installed:** Java, Node.js, MySQL  
-✅ **Repository cloned:** Hackathon folder exists  
-✅ **Database created:** hackathon_portal  
+✅ **Repository cloned:** Project folder exists  
+✅ **Database created:** msme_portal  
 ✅ **Backend running:** Port 8080  
 ✅ **Frontend running:** Port 3000  
 ✅ **Full stack integrated:** Tested and working  

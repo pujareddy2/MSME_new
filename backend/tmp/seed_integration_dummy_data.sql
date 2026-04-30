@@ -1,7 +1,7 @@
--- Integration dummy data seed for Hackathon portal
+-- Integration dummy data seed for MSME Innovation Platform
 -- Safe/idempotent script for judge/report/activity integration checks.
 -- Run with:
--- "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -ppuja -D hackathon_portal < backend\tmp\seed_integration_dummy_data.sql
+-- "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -ppuja -D msme_portal < backend\tmp\seed_integration_dummy_data.sql
 
 -- 1) Ensure judging columns exist for judge/report flow (version-safe).
 SET @has_ai_score := (
@@ -49,7 +49,7 @@ SET @target_application_id := (
 
 UPDATE applications
 SET ai_score = COALESCE(ai_score, 78),
-    ai_remarks = COALESCE(ai_remarks, 'AI suggests the solution is feasible with moderate implementation complexity and strong Hackathon impact.'),
+    ai_remarks = COALESCE(ai_remarks, 'AI suggests the solution is feasible with moderate implementation complexity and strong platform impact.'),
     manual_score = COALESCE(manual_score, 82),
     manual_remarks = COALESCE(manual_remarks, 'Manual review confirms clear problem understanding, practical stack choice, and a deployable scope.'),
     evaluated_at = COALESCE(evaluated_at, NOW()),

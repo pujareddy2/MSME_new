@@ -1,8 +1,9 @@
 package com.sih.backend.model;
 
 import jakarta.persistence.*;
-import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "problem_statements")
@@ -15,19 +16,16 @@ public class ProblemStatement {
     @Column(name = "problem_title")
     private String problemTitle;
 
-    @Column(name = "problem_description")
+    @Column(name = "problem_description", columnDefinition = "LONGTEXT")
     private String problemDescription;
 
     private String domain;
 
-    @Column(name = "organization_name")
-    private String organizationName;
+    @Column(name = "theme")
+    private String theme;
 
-    @Column(name = "difficulty_level")
-    private String difficultyLevel;
-
-    @Column(name = "submission_deadline")
-    private Date submissionDeadline;
+    @Column(name = "status")
+    private String status;
 
     @Column(name = "created_at")
     private Timestamp createdAt;
@@ -41,6 +39,12 @@ public class ProblemStatement {
     @ManyToOne
     @JoinColumn(name = "created_by_admin_id")
     private User createdBy;
+
+    @OneToMany(mappedBy = "problem")
+    private List<Application> applications = new ArrayList<>();
+
+    @OneToMany(mappedBy = "problem")
+    private List<Team> teams = new ArrayList<>();
 
     // ---------------- GETTERS & SETTERS ----------------
 
@@ -76,28 +80,20 @@ public class ProblemStatement {
         this.domain = domain;
     }
 
-    public String getOrganizationName() {
-        return organizationName;
+    public String getTheme() {
+        return theme;
     }
 
-    public void setOrganizationName(String organizationName) {
-        this.organizationName = organizationName;
+    public void setTheme(String theme) {
+        this.theme = theme;
     }
 
-    public String getDifficultyLevel() {
-        return difficultyLevel;
+    public String getStatus() {
+        return status;
     }
 
-    public void setDifficultyLevel(String difficultyLevel) {
-        this.difficultyLevel = difficultyLevel;
-    }
-
-    public Date getSubmissionDeadline() {
-        return submissionDeadline;
-    }
-
-    public void setSubmissionDeadline(Date submissionDeadline) {
-        this.submissionDeadline = submissionDeadline;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public Timestamp getCreatedAt() {
@@ -122,5 +118,21 @@ public class ProblemStatement {
 
     public void setCreatedBy(User createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public List<Application> getApplications() {
+        return applications;
+    }
+
+    public void setApplications(List<Application> applications) {
+        this.applications = applications;
+    }
+
+    public List<Team> getTeams() {
+        return teams;
+    }
+
+    public void setTeams(List<Team> teams) {
+        this.teams = teams;
     }
 }

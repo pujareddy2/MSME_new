@@ -1,165 +1,166 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { getApplications } from "../services/api";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { getApplications, getProblems } from "../services/api";
 import "./judging.css";
 
-const EVALUATION_REQUIREMENTS = [
-	"Problem understanding and relevance",
-	"Solution feasibility",
-	"Innovation and uniqueness",
-	"Scalability and implementation clarity",
-	"Presentation quality",
-];
-
 function EvaluatorDashboard() {
-	const navigate = useNavigate();
-	const location = useLocation();
-	const [submissions, setSubmissions] = useState([]);
-	const [loading, setLoading] = useState(true);
-	const [filter, setFilter] = useState("all");
-	const [toastMessage, setToastMessage] = useState(location.state?.toast || "");
+  const navigate = useNavigate();
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("all");
+  const currentRole = localStorage.getItem("role");
+  const isAllowed = currentRole === "EVALUATOR" || currentRole === "JUDGE" || currentRole === "ADMIN";
 
-	const currentRole = localStorage.getItem("role");
-	const isAllowed = currentRole === "EVALUATOR";
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        setLoading(true);
+        const [appsRes, problemsRes] = await Promise.all([getApplications(), getProblems()]);
+        if (cancelled) return;
 
-	const normalizeSubmission = useCallback((app) => {
-		const statusText = (app?.submissionStatus || "").toLowerCase();
-		const isEvaluated = statusText === "evaluated" || statusText === "judged";
+        const apps = Array.isArray(appsRes?.data) ? appsRes.data : [];
+        const problems = Array.isArray(problemsRes?.data) ? problemsRes.data : [];
+        const problemMap = new Map(problems.map((p) => [String(p.problemId), p]));
 
-		return {
-			id: app?.applicationId || app?.id,
-			problemId: app?.problem?.problemId || app?.problem?.id || "N/A",
-			problemStatement: app?.problem?.problemTitle || app?.problem?.title || "N/A",
-			teamName: app?.team?.teamName || "N/A",
-			leader: app?.team?.leader?.fullName || "N/A",
-			aiScore: app?.aiScore ?? "-",
-			manualScore: app?.manualScore ?? "-",
-			status: isEvaluated ? "Evaluated" : "Pending",
-		};
-	}, []);
+        const normalized = apps.map((app) => {
+          const submissionId = app.applicationId || app.id;
+          const problemId = app.problem?.problemId || app.problemId;
+          const problem = problemMap.get(String(problemId)) || app.problem || {};
+          const status = (app.submissionStatus || "SUBMITTED").toUpperCase();
+          return {
+            submissionId,
+            problemId: problem.problemId || problemId,
+            problemTitle: problem.problemTitle || "N/A",
+            teamId: app.team?.teamId || app.teamId,
+            teamName: app.team?.teamName || "N/A",
+            totalSubmissions: 0,
+            evaluatedCount: 0,
+            pendingCount: 0,
+            status,
+            isEvaluated: status === "EVALUATED" || status === "JUDGED",
+          };
+        });
 
-	const loadApplications = useCallback(async () => {
-		try {
-			setLoading(true);
-			const response = await getApplications();
-			setSubmissions((response.data || []).map(normalizeSubmission));
-		} catch (error) {
-			console.error(error);
-			setSubmissions([]);
-		} finally {
-			setLoading(false);
-		}
-	}, [normalizeSubmission]);
+        const byProblem = normalized.reduce((acc, row) => {
+          const key = String(row.problemId);
+          acc[key] = acc[key] || { total: 0, evaluated: 0 };
+          acc[key].total += 1;
+          if (row.isEvaluated) acc[key].evaluated += 1;
+          return acc;
+        }, {});
 
-	useEffect(() => {
-		loadApplications();
-	}, [loadApplications]);
+        const enriched = normalized.map((row) => {
+          const stats = byProblem[String(row.problemId)] || { total: 0, evaluated: 0 };
+          return {
+            ...row,
+            totalSubmissions: stats.total,
+            evaluatedCount: stats.evaluated,
+            pendingCount: stats.total - stats.evaluated,
+          };
+        });
+        setRows(enriched);
+      } catch (error) {
+        console.error(error);
+        setRows([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-	useEffect(() => {
-		if (!toastMessage) {
-			return;
-		}
+  const filtered = useMemo(() => {
+    if (filter === "pending") return rows.filter((r) => !r.isEvaluated);
+    if (filter === "evaluated") return rows.filter((r) => r.isEvaluated);
+    return rows;
+  }, [rows, filter]);
 
-		const timer = setTimeout(() => {
-			setToastMessage("");
-			navigate(location.pathname, { replace: true, state: {} });
-		}, 2800);
+  if (!isAllowed) return <p style={{ padding: "80px" }}>Evaluator access only.</p>;
 
-		return () => clearTimeout(timer);
-	}, [toastMessage, navigate, location.pathname]);
+  return (
+    <div className="judging-dashboard-container evaluator-dashboard-container">
+      <div className="ps-top-box">
+        <h2 className="judging-page-title" style={{ marginBottom: 8 }}>Evaluator Dashboard</h2>
+        <p className="judging-page-subtitle" style={{ marginTop: 0 }}>
+          AI + Human evaluation workflow with instant report generation and judge-ready publishing.
+        </p>
+        <div className="judging-toolbar">
+          <select className="judging-filter" value={filter} onChange={(e) => setFilter(e.target.value)}>
+            <option value="all">All</option>
+            <option value="pending">Pending</option>
+            <option value="evaluated">Evaluated</option>
+          </select>
+          <button type="button" className="judging-refresh-btn" onClick={() => navigate("/evaluator")}>Refresh View</button>
+        </div>
+      </div>
 
-	const filteredSubmissions = useMemo(() => {
-		if (filter === "pending") {
-			return submissions.filter((submission) => submission.status === "Pending");
-		}
-		if (filter === "evaluated") {
-			return submissions.filter((submission) => submission.status === "Evaluated");
-		}
-		return submissions;
-	}, [filter, submissions]);
-
-	if (!isAllowed) {
-		return <p style={{ padding: "80px" }}>Evaluator access only.</p>;
-	}
-
-	return (
-		<div className="judging-dashboard-container">
-			<div className="judging-dashboard-head">
-				<div className="judging-title-block">
-					<h2 className="judging-page-title">TS-Hackathon Evaluation Dashboard</h2>
-					<p className="judging-page-subtitle">Review submitted problem statements with evaluation requirements before judging handoff.</p>
-				</div>
-
-				<div className="judging-toolbar">
-					<select className="judging-filter" value={filter} onChange={(event) => setFilter(event.target.value)}>
-						<option value="all">All</option>
-						<option value="pending">Pending</option>
-						<option value="evaluated">Evaluated</option>
-					</select>
-					<button type="button" className="judging-refresh-btn" onClick={loadApplications}>Refresh</button>
-				</div>
-			</div>
-
-			{toastMessage && <div className="judging-toast">{toastMessage}</div>}
-
-			<div className="judging-table-shell">
-				<div className="judging-table-wrap">
-					<table className="judging-table">
-						<thead>
-							<tr>
-								<th>Problem ID</th>
-								<th>Problem Statement</th>
-								<th>Team</th>
-								<th>Requirements</th>
-								<th>Status</th>
-								<th>Actions</th>
-							</tr>
-						</thead>
-						<tbody>
-							{loading ? (
-								<tr><td colSpan="6">Loading submissions...</td></tr>
-							) : filteredSubmissions.length === 0 ? (
-								<tr><td colSpan="6">No submissions found.</td></tr>
-							) : (
-								filteredSubmissions.map((submission) => {
-									const isEvaluated = submission.status === "Evaluated" || submission.status === "Judged";
-									return (
-										<tr key={submission.id}>
-											<td>{submission.problemId}</td>
-											<td>{submission.problemStatement}</td>
-											<td>{submission.teamName}</td>
-											<td>
-												<div className="requirements-mini-list">
-													{EVALUATION_REQUIREMENTS.map((item) => (
-														<span key={`${submission.id}-${item}`} className="requirement-chip">{item}</span>
-													))}
-												</div>
-											</td>
-											<td>
-												<span className={`status-badge ${isEvaluated ? "status-judged" : "status-pending"}`}>
-													{submission.status}
-												</span>
-											</td>
-											<td className="judging-actions-cell">
-												{!isEvaluated ? (
-													<button className="action-btn action-judge" onClick={() => navigate(`/evaluate/${submission.id}`)}>Evaluate</button>
-												) : (
-													<>
-														<button className="action-btn action-evaluated" onClick={() => alert("This application is already evaluated.")}>Evaluated</button>
-														<button className="action-btn action-report" onClick={() => navigate(`/evaluation-report/${submission.id}`)}>View Report</button>
-													</>
-												)}
-											</td>
-										</tr>
-									);
-								})
-							)}
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-	);
+      <div className="judging-table-shell">
+        <div className="judging-table-wrap">
+          <table className="judging-table evaluator-table">
+            <thead>
+              <tr>
+                <th>Problem ID</th>
+                <th>Problem Title</th>
+                <th>Team ID</th>
+                <th>Team Name</th>
+                <th>Analytics</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan="7">Loading submissions...</td></tr>
+              ) : filtered.length === 0 ? (
+                <tr><td colSpan="7">No submissions found.</td></tr>
+              ) : (
+                filtered.map((row) => (
+                  <tr key={row.submissionId}>
+                    <td>{row.problemId}</td>
+                    <td>{row.problemTitle}</td>
+                    <td>{row.teamId}</td>
+                    <td>{row.teamName}</td>
+                    <td>
+                      <div className="table-title-stack">
+                        <span>Total: {row.totalSubmissions}</span>
+                        <span>Evaluated: {row.evaluatedCount}</span>
+                        <span>Pending: {row.pendingCount}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span className={`status-badge ${row.isEvaluated ? "status-judged" : "status-pending"}`}>
+                        {row.isEvaluated ? "Evaluated" : "Pending"}
+                      </span>
+                    </td>
+                    <td className="judging-actions-cell">
+                      <button
+                        className="action-btn action-judge"
+                        onClick={() => navigate(`/evaluate/${row.submissionId}`)}
+                      >
+                        {row.isEvaluated ? "View Report" : "Evaluate"}
+                      </button>
+                      {row.isEvaluated && (
+                        <button
+                          className="action-btn action-report"
+                          onClick={() => navigate(`/evaluation-report/${row.submissionId}`)}
+                        >
+                          View Report
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default EvaluatorDashboard;

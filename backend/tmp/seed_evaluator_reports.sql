@@ -41,7 +41,7 @@ PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 UPDATE applications
 SET submission_status = 'Judged',
     ai_score = 74,
-    ai_remarks = 'AI judging indicates good alignment with the selected Hackathon problem and a practical baseline architecture.',
+    ai_remarks = 'AI judging indicates good alignment with the selected platform problem and a practical baseline architecture.',
     manual_score = 79,
     manual_remarks = 'Manual review confirms clear implementation path with acceptable delivery risk and good problem fit.',
     evaluated_at = COALESCE(evaluated_at, NOW())
@@ -51,7 +51,7 @@ WHERE id = 2 AND manual_score IS NULL;
 UPDATE applications
 SET submission_status = 'Judged',
     ai_score = 81,
-    ai_remarks = 'AI judging highlights strong feasibility and measurable value for Hackathon process optimization.',
+    ai_remarks = 'AI judging highlights strong feasibility and measurable value for platform process optimization.',
     manual_score = 84,
     manual_remarks = 'Manual remarks: solution has strong clarity, realistic milestones, and strong scalability potential.',
     evaluated_at = COALESCE(evaluated_at, NOW())

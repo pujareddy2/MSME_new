@@ -1,0 +1,215 @@
+{\rtf1\ansi\deff0{\fonttbl{\f0 Arial;}}\fs24
+\b MSME Innovation Platform - Complete System Analysis Report\b0\par\par
+\b 1. Repository Overview\b0\par
+This repository is a full-stack innovation platform portal. It supports user registration, team creation, problem statement browsing, application submission, AI-assisted evaluation, final judging, notifications, and role-based dashboards. The frontend communicates with Spring Boot REST APIs, and the backend persists data in MySQL using JPA entities.\par\par
+\b Project Purpose\b0\par
+The platform replaces manual tracking of participants, teams, submissions, and review results. It centralizes the entire workflow into role-based screens and backend APIs so a new user can understand and operate the system without offline coordination.\par\par
+\b Tech Stack\b0\par
+Frontend: React, react-router-dom, axios, bootstrap, react-icons.\par
+Backend: Spring Boot 3.3.2, Java 17, Spring Web, Spring Data JPA, BCrypt.\par
+Database: MySQL.\par
+AI integration: frontend-side LLM call from the evaluator page using frontend/src/utils/gemini.js.\par\par
+\b Project Structure\b0\par
+backend/: Spring Boot application, REST controllers, services, repositories, entities, seeding, and properties.\par
+frontend/: React pages, shared layout, API client, session storage helpers, and styling.\par
+root docs: README.md, QUICKSTART.md, CLONE_AND_RUN.md, DEPLOYMENT_GUIDE.md, LOGIN_DETAILS.md.\par\par
+\b 2. Folder and Module Responsibilities\b0\par
+The backend folder contains controllers, services, repositories, models, DTOs, and config. The frontend folder contains the router, role-based pages, dashboards, forms, API calls, session helpers, and shared layout. The tmp folder contains helper SQL and testing scripts. The startup scripts are used for local run support.\par\par
+\b 3. Role-Based System Analysis\b0\par
+\b A. Team Leader / Admin\b0\par
+\b Role purpose\b0\par
+The team leader is the core participant role. This user registers, logs in, creates a team, adds members, browses problems, submits applications, and checks notifications and application status. Admin and Event Head are content-management roles that create problem statements and manage the challenge catalog.\par\par
+\b Team Leader flow\b0\par
+1. Open login page and choose Register as Team Leader.\par
+2. Enter name, email, phone, password, confirm password, team name, and college ID.\par
+3. Frontend checks that the passwords match.\par
+4. Frontend sends POST /api/auth/register/team-lead.\par
+5. Backend checks required fields, unique email and phone, hashes the password using BCrypt, and creates a user with role TEAM_LEAD.\par
+6. Backend returns AuthResponse.\par
+7. Frontend stores session in localStorage and redirects to team creation.\par\par
+\b Login flow\b0\par
+1. Enter email or phone, password, and role on the login page.\par
+2. Frontend blocks empty submissions.\par
+3. Frontend sends POST /api/auth/login.\par
+4. Backend searches by email or phone, checks that selected role matches the stored role, and verifies password hash.\par
+5. On success, the frontend stores the returned profile and routes the user to the correct dashboard.\par\par
+\b Team creation flow\b0\par
+1. Open Create Team page after login or registration.\par
+2. Enter team name and member details in a table form.\par
+3. Member fields are name, email, mobile, gender, college, course, and roll number.\par
+4. Frontend validates email format, mobile number length, required fields, duplicate emails, and duplicate roll numbers.\par
+5. Frontend sends POST /api/teams with leaderId, teamName, and the list of members.\par
+6. Backend verifies leader role, one team per leader, unique team name, and valid member data.\par
+7. Backend creates the team, creates member user accounts with role TEAM_MEMBER, creates team member rows, and generates notifications.\par
+8. Frontend stores the created team and returns to dashboard.\par\par
+\b Problem browsing and application flow\b0\par
+1. Open problem statements page.\par
+2. Frontend fetches problems from GET /api/problems and application counts from GET /api/applications.\par
+3. Filters and search are applied on the client.\par
+4. Only TEAM_LEAD can proceed to apply.\par
+5. Open problem details or application form.\par
+6. Enter abstract, technology stack, GitHub link, demo link, and upload PPT/PPTX/PDF file.\par
+7. Frontend validates that the abstract is long enough and the file is of the allowed type and size.\par
+8. Frontend sends multipart POST /api/applications.\par
+9. Backend checks duplicate team/problem application, validates file, stores the upload in uploads/applications, inserts the application row, and creates a notification.\par\par
+\b Admin problem creation flow\b0\par
+1. Admin or Event Head logs in.\par
+2. The role is routed to add problem flow.\par
+3. Enter problem ID, title, category, theme, deadline, and description.\par
+4. Frontend restricts access to ADMIN or EVENT_HEAD.\par
+5. Frontend sends POST /api/problems.\par
+6. Backend checks for duplicate problem ID and inserts the new problem statement.\par\par
+\b Components used by Team Leader / Admin\b0\par
+Frontend pages: Login, RegisterTeamLeader, Dashboard, CreateTeam, ProblemStatements, ProblemDetails, Application, MyApplications, AddProblem, Profile, Header, NotificationBell.\par
+Backend controllers: AuthController, TeamController, ApplicationController, ProblemStatementController, NotificationController, ProfileController.\par
+Main APIs: POST /api/auth/register/team-lead, POST /api/auth/login, POST /api/teams, GET /api/teams/leader/{leaderId}, GET /api/problems, GET /api/problems/{id}, POST /api/problems, POST /api/applications.\par\par
+\b Database usage for Team Leader / Admin\b0\par
+users: stores the leader profile, role, password hash, college ID, account status, created time, and team link.\par
+teams: stores team name, created time, leader user ID, and links to problem and event.\par
+team_members: stores each invited member and links them to team and user records.\par
+problem_statements: stores published problems.\par
+applications: stores the submission, file path, scores, and review state.\par
+notifications: stores user activity and alerts.\par\par
+\b B. Team Member / Participant\b0\par
+\b Role purpose\b0\par
+The team member role exists so the team leader can provision additional participants into the same team. The member can view team information, profile data, notifications, and team applications, but cannot create teams or submit applications.\par\par
+\b Team Member flow\b0\par
+1. The team leader creates the team.\par
+2. Backend automatically creates a TEAM_MEMBER user for each invited person.\par
+3. The member logs in with email or phone, password, and role TEAM_MEMBER.\par
+4. Frontend sends the common POST /api/auth/login request.\par
+5. Backend checks the role and password hash.\par
+6. Frontend routes the member to the team-member dashboard or role dashboard.\par
+7. Dashboard loads team information using GET /api/team-member/team/{userId}.\par
+8. Dashboard loads applications using GET /api/team-member/applications?teamId=....\par
+9. Profile page uses GET /api/profile/{userId} and may also show the team and recent applications.\par
+10. Problem browsing is allowed, but application submission is blocked because only TEAM_LEAD can apply.\par\par
+\b Components used by Team Member\b0\par
+Frontend pages: Login, RoleDashboard, Dashboard, Profile, ProblemStatements, ProblemDetails, NotificationBell.\par
+Backend controllers: TeamMemberController, AuthService, ProfileController, NotificationController.\par
+APIs: POST /api/auth/login, GET /api/team-member/team/{userId}, GET /api/team-member/applications, GET /api/profile/{userId}, GET /api/notifications/{userId}.\par\par
+\b Database usage for Team Member\b0\par
+users: member identity, role TEAM_MEMBER, password hash, account status.\par
+team_members: detailed member profile, invitation status, and team association.\par
+teams: member team grouping and leader relation.\par
+applications: team submissions that the member can view.\par
+notifications: activity feed for member-related and team-related events.\par\par
+\b C. Evaluator / Judge\b0\par
+\b Role purpose\b0\par
+The evaluator is the first review stage. It examines the submission, may generate AI guidance, and stores AI and manual scoring. The judge is the final stage and stores the final judge score after the evaluation stage has already completed.\par\par
+\b Evaluator flow\b0\par
+1. Log in with role EVALUATOR.\par
+2. Frontend routes to /evaluator.\par
+3. Dashboard fetches applications from GET /api/applications and shows Pending or Evaluated status.\par
+4. Open /evaluate/{id}.\par
+5. Page loads the application, abstract, and submission preview.\par
+6. Page may call the external LLM wrapper to generate AI score and remarks.\par
+7. Enter manual score and manual remarks.\par
+8. Submit via PUT /api/applications/{id}/evaluation.\par
+9. Backend checks score ranges, required remarks, and duplicate evaluation prevention.\par
+10. Backend stores aiScore, aiRemarks, manualScore, manualRemarks, and marks the application EVALUATED.\par\par
+\b Judge flow\b0\par
+1. Log in with role JUDGE.\par
+2. Frontend routes to /judge-dashboard.\par
+3. Dashboard shows only applications that are evaluated or already judged.\par
+4. Open /feedback/{id}.\par
+5. Page loads the application, AI output, evaluator output, and submission preview.\par
+6. Enter judge score between 0 and 100.\par
+7. Submit via PUT /api/applications/{id}/judging.\par
+8. Backend checks that the application is in the correct stage and prevents repeat judging.\par
+9. Backend stores judge score, judgedBy, and marks the application JUDGED.\par
+10. Team leader gets a notification.\par\par
+\b Components used by Evaluator / Judge\b0\par
+Frontend pages: Login, EvaluatorDashboard, Evaluate, JudgeDashboard, Judge, EvaluationReport, JudgeReport, RoleDashboard.\par
+Backend controllers: ApplicationController, AuthController, NotificationController.\par
+APIs: GET /api/applications, GET /api/applications/{id}, PUT /api/applications/{id}/evaluation, PUT /api/applications/{id}/judging, GET /api/applications/{id}/submission-file.\par\par
+\b Database usage for Evaluator / Judge\b0\par
+applications: stores ai_score, ai_remarks, manual_score, manual_remarks, judge_score, judged_by, evaluated_at, and submission status.\par
+teams: provides team context.\par
+problem_statements: provides problem details.\par
+notifications: stores evaluation and judging-related alerts.\par
+Supporting review entities: evaluations, evaluation_scores, evaluation_criteria, judges, rounds exist in code but are not the active runtime path.\par\par
+\b 4. Frontend Component Analysis\b0\par
+The app router in frontend/src/App.js defines all major routes. Header and Footer surround the app. The Header shows login/logout, profile, and notification bell. NotificationBell reads notifications for the current user and shows the latest ones. Session helpers store user and team info in localStorage so the UI can route by role.\par\par
+\b Main frontend modules\b0\par
+frontend/src/services/api.js: axios client with API_BASE_URL environment fallback and endpoint wrappers.\par
+frontend/src/utils/session.js: save, retrieve, and clear session state.\par
+frontend/src/components/layout/Header.jsx: top navigation, login/logout, profile link.\par
+frontend/src/components/layout/NotificationBell.jsx: notification dropdown.\par
+frontend/src/utils/gemini.js: external LLM request wrapper.\par\par
+\b Important pages\b0\par
+Login: shared login for all roles.\par
+RegisterTeamLeader: team leader registration.\par
+Dashboard and RoleDashboard: role-specific dashboards.\par
+CreateTeam: team creation form.\par
+ProblemStatements and ProblemDetails: browse and inspect problems.\par
+Application: submission form with file upload.\par
+MyApplications: leader application list.\par
+AddProblem: admin problem publishing form.\par
+EvaluatorDashboard, Evaluate, JudgeDashboard, Judge: review workflow.\par
+EvaluationReport and JudgeReport: report pages.\par
+Profile: profile overview and team/application summary.\par\par
+\b 5. Backend API and Service Analysis\b0\par
+AuthController: registration, login, forgot password.\par
+TeamController: team create and lookup.\par
+TeamMemberController: member login and member-specific reads.\par
+ApplicationController: submit application, list applications, evaluation, judging, and submission file stream.\par
+ProblemStatementController: list and create problem statements.\par
+NotificationController: fetch notifications and create activity logs.\par
+ProfileController: fetch profile.\par\par
+\b Service behavior\b0\par
+AuthService: validates registration and login, hashes passwords, supports password reset, builds AuthResponse.\par
+TeamService: enforces one team per leader, validates member data, creates team and member records, creates notifications.\par
+ApplicationService: validates application payload, prevents duplicate team/problem submission, validates uploads, stores files, handles evaluation and judging state transitions.\par
+ProblemStatementService: retrieves and creates problems, checks duplicate problem IDs.\par
+NotificationService: creates and lists notifications in descending time order.\par\par
+\b 6. Database and Entity Analysis\b0\par
+users: user_id, full_name, email, phone_number, password_hash, role_name, college_id, account_status, created_at, role_id, supervisor_user_id, team_id.\par
+teams: team_id, team_name, created_at, leader_user_id, problem_id, event_id.\par
+team_members: member_id, name, email, mobile, invitation_status, invited_by, gender, college, course, roll_number, created_at, team_id, user_id, mentor_member_id.\par
+problem_statements: problem_id, problem_title, problem_description, domain, organization_name, difficulty_level, submission_deadline, created_at, parent_problem_id, created_by_admin_id.\par
+applications: id, abstract_text, submission_version, submission_status, submission_date, ppt_file_name, ppt_file_path, technology_stack, github_link, demo_link, ai_score, ai_remarks, manual_score, manual_remarks, judge_score, judged_by, evaluated_at, team_id, problem_id.\par
+notifications: notification_id, message, is_read, created_at, user_id.\par\par
+\b Relationship summary\b0\par
+Team leader User to Team: effectively one-to-one.\par
+Team to TeamMember: one-to-many.\par
+Team to Application: one-to-many.\par
+ProblemStatement to Application: one-to-many.\par
+User to Notification: one-to-many.\par
+Application review data: stored directly in the same application row.\par\par
+\b 7. AI and External Integration\b0\par
+The evaluator page can generate AI scoring suggestions by calling an external LLM endpoint through frontend/src/utils/gemini.js. The wrapper sends a system prompt and the application abstract and requirements. If the external call fails, the UI creates a fallback score suggestion locally. This AI usage is currently in the frontend, not in the backend.\par\par
+\b 8. Overall System Flow\b0\par
+1. Team leader registers or logs in.\par
+2. Team leader creates the team and adds members.\par
+3. Admin or Event Head publishes problem statements.\par
+4. Team leader browses problems and submits the application.\par
+5. Evaluator reviews the application and writes AI/manual scores.\par
+6. Judge reviews the evaluated application and writes the final judge score.\par
+7. Notifications and reports show the result of each stage.\par\par
+\b Full lifecycle\b0\par
+Registration -> Team creation -> Problem selection -> Application submission -> Evaluation -> Judging -> Report display -> Notification feed.\par\par
+\b 9. Data Flow Diagram\b0\par
+User -> Frontend -> API -> Backend -> Database -> Response -> UI.\par
+Frontend collects form data and role information. The API sends requests to the backend. The backend performs validation and business logic. Repositories write or read MySQL rows. The backend returns JSON responses or file streams. The frontend updates the screens and localStorage session data.\par\par
+\b 10. Key Strengths\b0\par
+Clear controller-service-repository layering.\par
+Complete role-based workflow coverage.\par
+Practical duplicate prevention and file validation.\par
+Environment-based frontend API URL support.\par
+Useful notifications and dashboards.\par\par
+\b 11. Missing or Incomplete Areas\b0\par
+No JWT or server-side session auth layer.\par
+Evaluation tables exist but are not the primary runtime path.\par
+Leaderboard is based on submission count, not quality.\par
+Automated tests are minimal.\par
+CORS is permissive and should be tightened for production.\par\par
+\b 12. Suggestions\b0\par
+Add JWT-based authentication and backend authorization guards.\par
+Move AI scoring into the backend to protect API keys and centralize behavior.\par
+Use Flyway or Liquibase for migration control.\par
+Normalize evaluation and judging data if that is the intended design.\par
+Add integration tests for registration, team creation, submission, evaluation, and judging.\par
+Tighten production CORS and add stronger validation annotations.\par\par
+\b End Note\b0\par
+This Word-ready RTF is the single report file for the workspace. It can be opened directly in Microsoft Word and saved as DOCX or exported to PDF.\par}

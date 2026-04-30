@@ -1,179 +1,233 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { getApplicationById, getSubmissionViewUrl, submitJudging } from "../services/api";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { finalizeJudgeDecision, getApplicationById, getSubmissionDetails, unwrapApiData } from "../services/api";
 import { getStoredUser } from "../utils/session";
 import "./judging.css";
 
 function Judge() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const user = getStoredUser();
+  const location = useLocation();
+  const currentUser = getStoredUser();
 
+  const [report, setReport] = useState(location.state?.submission || null);
   const [application, setApplication] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [judgeScoreInput, setJudgeScoreInput] = useState("");
+  const [finalDecision, setFinalDecision] = useState("APPROVED");
+  const [finalScore, setFinalScore] = useState("");
+  const [remarks, setRemarks] = useState("");
 
   useEffect(() => {
-    getApplicationById(id)
-      .then((response) => {
-        const app = response.data;
-        setApplication(app);
-        setJudgeScoreInput(app?.judgeScore !== null && app?.judgeScore !== undefined ? String(app.judgeScore) : "");
-      })
-      .catch(() => setApplication(null))
-      .finally(() => setLoading(false));
-  }, [id]);
+    let cancelled = false;
+
+    async function loadSubmission() {
+      try {
+        setLoading(true);
+
+        const [reportResponse, applicationResponse] = await Promise.all([
+          getSubmissionDetails(id).catch(() => null),
+          getApplicationById(id).catch(() => null),
+        ]);
+
+        if (cancelled) {
+          return;
+        }
+
+        const submission = location.state?.submission || unwrapApiData(reportResponse);
+        const applicationData = unwrapApiData(applicationResponse);
+
+        setReport(submission);
+        setApplication(applicationData);
+
+        const scoreSeed = submission?.judgeScore ?? submission?.totalScore ?? submission?.normalizedScore ?? applicationData?.judgeScore ?? "";
+        setFinalScore(scoreSeed === null || scoreSeed === undefined ? "" : String(scoreSeed));
+        setRemarks(submission?.judgeRemarks || submission?.overallReview || "");
+      } catch (error) {
+        console.error(error);
+        if (!cancelled) {
+          setReport(location.state?.submission || null);
+          setApplication(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadSubmission();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, location.state]);
 
   const status = useMemo(() => {
-    return (application?.submissionStatus || "").toLowerCase();
-  }, [application]);
+    return (report?.evaluationStatus || application?.evaluationStatus || application?.submissionStatus || "EVALUATED").toUpperCase();
+  }, [report, application]);
 
-  const isEvaluated = useMemo(() => {
-    return status === "evaluated" || status === "judged";
-  }, [status]);
-
-  const hasJudgeScore = useMemo(() => {
-    return application?.judgeScore !== null && application?.judgeScore !== undefined;
-  }, [application]);
-
-  const finalScore = useMemo(() => {
-    const ai = application?.aiScore;
-    const judgeScore = application?.judgeScore;
-    if (ai === null || ai === undefined || judgeScore === null || judgeScore === undefined) {
-      return null;
-    }
-    return Math.round((ai * 0.3 + judgeScore * 0.7) * 100) / 100;
-  }, [application]);
-
-  useEffect(() => {
-    if (!loading && hasJudgeScore) {
-      alert("Judging has already been completed for this application.");
-    }
-  }, [loading, hasJudgeScore]);
+  const criteriaRows = report?.criteriaScores || [];
+  const isJudged = status === "JUDGED" || Boolean(report?.finalDecision && report.finalDecision !== "PENDING");
 
   const handleCompleteJudging = async () => {
-    const scoreValue = judgeScoreInput.trim();
-    if (!scoreValue) {
+    if (!currentUser?.userId) {
+      alert("Judge session not found. Please log in again.");
+      navigate("/login");
+      return;
+    }
+
+    if (!finalScore) {
       alert("Please enter judge score.");
       return;
     }
 
-    if (!/^\d+(\.\d+)?$/.test(scoreValue)) {
-      alert("Judge score must be a valid number.");
-      return;
-    }
-
-    const numericScore = Number(scoreValue);
+    const numericScore = Number(finalScore);
     if (Number.isNaN(numericScore) || numericScore < 0 || numericScore > 100) {
       alert("Judge score must be between 0 and 100.");
       return;
     }
 
-    const status = (application?.submissionStatus || "").toLowerCase();
-    if (status === "judged" && hasJudgeScore) {
+    if ((remarks || "").trim() === "") {
+      alert("Judge remarks are required.");
+      return;
+    }
+
+    if (isJudged) {
       alert("This application has already been judged.");
-      return;
-    }
-
-    if (status !== "evaluated" && status !== "judged") {
-      alert("Only evaluated applications can be judged.");
-      return;
-    }
-
-    if (!window.confirm("Complete final judging for this application?")) {
       return;
     }
 
     try {
       setSubmitting(true);
-      await submitJudging(id, {
-        manualScore: Math.round(numericScore),
-        judgedBy: user?.name || user?.email || "Judge",
-        timestamp: new Date().toISOString(),
+
+      const response = await finalizeJudgeDecision({
+        submissionId: Number(id),
+        judgeUserId: currentUser.userId,
+        finalDecision,
+        finalScore: numericScore,
+        remarks: remarks.trim(),
       });
 
-      navigate("/judge-dashboard", {
-        state: { toast: "Judging completed successfully" },
+      const reportResponse = unwrapApiData(response);
+      navigate(`/judge/report/${id}`, {
+        state: { submission: reportResponse, fromJudge: true },
       });
     } catch (error) {
-      const backendMessage =
-        error?.response?.data?.message ||
-        error?.response?.data ||
-        "Unable to submit judging.";
-
-      alert(typeof backendMessage === "string" ? backendMessage : "Unable to submit judging.");
+      const backendMessage = error?.response?.data?.message || error?.message || "Unable to submit judgment.";
+      alert(backendMessage);
     } finally {
       setSubmitting(false);
     }
   };
 
   if (loading) {
-    return <p style={{ padding: "40px" }}>Loading application...</p>;
+    return <p className="workspace-loading">Loading application...</p>;
   }
 
-  if (!application) {
-    return <p style={{ padding: "40px" }}>Application not found.</p>;
+  if (!report && !application) {
+    return <p className="workspace-loading">Application not found.</p>;
   }
 
   return (
-    <div className="judge-page-wrap">
-      <div className="judge-card">
-        <h2 className="judge-card-title">Feedback Page</h2>
-
-        <div className="judge-meta-grid">
+    <div className={`judge-page-wrap judge-workspace-wrap ${isJudged ? "report-judged" : "report-evaluated"}`}>
+      <div className="judge-card judge-workflow-card">
+        <div className="workspace-header">
           <div>
-            <p className="meta-label">Team Name</p>
-            <p className="meta-value">{application.team?.teamName || "N/A"}</p>
+            <p className="workspace-eyebrow">Judge Workspace</p>
+            <h2 className="judge-card-title">Final Decision Panel</h2>
+            <p className="workspace-subtitle">Review the evaluator scores, compare AI context, and publish the final verdict.</p>
           </div>
-          <div>
-            <p className="meta-label">Problem ID</p>
-            <p className="meta-value">{application.problem?.problemId || application.problem?.id || "N/A"}</p>
+
+          <span className={`status-badge ${isJudged ? "status-judged" : "status-pending"}`}>{status}</span>
+        </div>
+
+        <div className="workspace-summary-grid">
+          <article className="workspace-summary-card">
+            <span>Team</span>
+            <strong>{report?.teamName || application?.team?.teamName || "N/A"}</strong>
+          </article>
+          <article className="workspace-summary-card">
+            <span>Problem</span>
+            <strong>{report?.problemTitle || application?.problem?.problemTitle || application?.problem?.title || "N/A"}</strong>
+          </article>
+          <article className="workspace-summary-card">
+            <span>Evaluator Score</span>
+            <strong>{report?.totalScore ?? report?.normalizedScore ?? "-"}</strong>
+          </article>
+          <article className="workspace-summary-card">
+            <span>AI Score</span>
+            <strong>{application?.aiScore ?? "-"}</strong>
+          </article>
+        </div>
+
+        <section className="judge-section-box report-hero-box">
+          <div className="report-meta-grid">
+            <div>
+              <p className="meta-label">Evaluator</p>
+              <p className="meta-value">{report?.evaluatorName || "N/A"}</p>
+            </div>
+            <div>
+              <p className="meta-label">Judge</p>
+              <p className="meta-value">{report?.judgeName || application?.judgedBy || "N/A"}</p>
+            </div>
+            <div>
+              <p className="meta-label">Submission ID</p>
+              <p className="meta-value">{report?.submissionId || application?.applicationId || application?.id || id}</p>
+            </div>
+            <div>
+              <p className="meta-label">Criteria</p>
+              <p className="meta-value">{criteriaRows.length}</p>
+            </div>
           </div>
-        </div>
+        </section>
 
-        <div className="judge-section-box">
-          <h4>Problem Statement</h4>
-          <p>{application.problem?.problemTitle || application.problem?.title || "N/A"}</p>
-        </div>
+        <section className="judge-section-box report-score-grid report-breakdown-box">
+          <h4>Evaluator Breakdown</h4>
+          {criteriaRows.length === 0 ? (
+            <p className="workspace-empty-state">No evaluator scores were returned by the backend.</p>
+          ) : (
+            <div className="report-breakdown-list">
+              {criteriaRows.map((criterion) => (
+                <article key={criterion.criteriaId} className="report-breakdown-card">
+                  <div>
+                    <strong>{criterion.criteriaName}</strong>
+                    <p>{criterion.description}</p>
+                  </div>
+                  <div className="report-breakdown-metrics">
+                    <span>Score: {criterion.scoreValue ?? "-"}</span>
+                    <span>Weighted: {criterion.weightedScore ?? "-"}</span>
+                    <span>{criterion.weightPercentage ?? 0}% weight</span>
+                  </div>
+                  {criterion.reviewComments && <p className="report-mini-note">{criterion.reviewComments}</p>}
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
 
-        <div className="judge-section-box">
-          <h4>Abstract</h4>
-          <p>{application.abstractText || "N/A"}</p>
-        </div>
+        <section className="judge-section-box report-ai-box">
+          <h4>AI Context</h4>
+          <p><b>AI Score:</b> {application?.aiScore ?? "-"}</p>
+          <p><b>AI Remarks:</b> {application?.aiRemarks || "N/A"}</p>
+        </section>
 
-        <div className="judge-section-box">
-          <h4>PPT Submission</h4>
-          <div className="ppt-actions-row">
-            <button
-              type="button"
-              className="action-btn action-view"
-              onClick={() => window.open(getSubmissionViewUrl(application.applicationId || application.id), "_blank")}
-            >
-              View Submission
-            </button>
-          </div>
-          <iframe
-            title="submission-preview"
-            src={getSubmissionViewUrl(application.applicationId || application.id)}
-            className="ppt-frame"
-          />
-        </div>
+        <section className="judge-section-box judge-manual-box">
+          <h4>Finalize Decision</h4>
+          <label className="field-label" htmlFor="judge-decision-select">Decision</label>
+          <select
+            id="judge-decision-select"
+            className="judge-input"
+            value={finalDecision}
+            onChange={(event) => setFinalDecision(event.target.value)}
+            disabled={isJudged || submitting}
+          >
+            <option value="APPROVED">APPROVED</option>
+            <option value="REJECTED">REJECTED</option>
+            <option value="CONDITIONAL">CONDITIONAL</option>
+          </select>
 
-        <div className="judge-section-box judge-score-box">
-          <h4>Evaluator Output</h4>
-          <p><b>AI Score:</b> {application.aiScore ?? "-"}</p>
-          <p><b>AI Remarks:</b> {application.aiRemarks || "-"}</p>
-          <p><b>Judge Score:</b> {application.judgeScore ?? "-"}</p>
-          <p><b>Manual Remarks:</b> {application.manualRemarks || "-"}</p>
-          <p><b>Final Score:</b> {finalScore ?? "-"}</p>
-          <p><b>Status:</b> {application?.judgeScore === null || application?.judgeScore === undefined ? "Not Justified" : "Justified"}</p>
-          <p><b>Judged By:</b> {application.judgedBy || "N/A"}</p>
-        </div>
-
-        <div className="judge-section-box judge-manual-box">
-          <h4>Judge Score Input</h4>
-          <label htmlFor="judge-score-input" className="meta-label">Enter Judge Score</label>
+          <label className="field-label" htmlFor="judge-score-input">Judge Score</label>
           <input
             id="judge-score-input"
             type="number"
@@ -181,26 +235,30 @@ function Judge() {
             max="100"
             step="1"
             className="judge-input"
-            value={judgeScoreInput}
-            onChange={(event) => setJudgeScoreInput(event.target.value)}
-            placeholder="Enter Judge Score"
+            value={finalScore}
+            onChange={(event) => setFinalScore(event.target.value)}
+            disabled={isJudged || submitting}
+            placeholder="Enter final score"
           />
-          <button
-            type="button"
-            className="action-btn action-judge"
-            onClick={handleCompleteJudging}
-            disabled={!isEvaluated || hasJudgeScore || submitting}
-            style={{ marginTop: 12 }}
-          >
-            {submitting ? "Saving..." : "Save Score"}
-          </button>
-        </div>
 
-        {!isEvaluated && <p className="lock-note">This application is not evaluated yet. Judge stage is enabled only after evaluator submission.</p>}
-        {hasJudgeScore && <p className="lock-note">Judging is already completed for this application.</p>}
+          <label className="field-label" htmlFor="judge-remarks-input">Remarks</label>
+          <textarea
+            id="judge-remarks-input"
+            className="judge-textarea"
+            value={remarks}
+            onChange={(event) => setRemarks(event.target.value)}
+            disabled={isJudged || submitting}
+            placeholder="Add the final decision remarks"
+          />
+        </section>
 
-        <div className="judge-actions-row">
+        {isJudged && <p className="lock-note workspace-complete-note">Judging has already been completed for this application.</p>}
+
+        <div className="judge-actions-row workspace-footer-actions">
           <button className="action-btn action-view" onClick={() => navigate("/judge-dashboard")}>Back to Dashboard</button>
+          <button className="action-btn action-judge" onClick={handleCompleteJudging} disabled={isJudged || submitting}>
+            {submitting ? "Saving..." : "Finalize Decision"}
+          </button>
         </div>
       </div>
     </div>

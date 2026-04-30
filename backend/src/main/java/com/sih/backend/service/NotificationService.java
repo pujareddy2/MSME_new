@@ -26,30 +26,43 @@ public class NotificationService {
     }
 
     public List<NotificationResponse> getNotifications(Long userId) {
-        return notificationRepository.findByUser_UserIdOrderByCreatedAtDesc(userId)
+        return notificationRepository.findByUser_UserIdOrderByTimestampDesc(userId)
                 .stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     public Notification createNotification(Long userId, String message) {
+        return createNotification(userId, message, "GENERAL");
+    }
+
+    public Notification createNotification(Long userId, String message, String type) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         Notification notification = new Notification();
         notification.setUser(user);
         notification.setMessage(message);
+        notification.setType(type == null || type.isBlank() ? "GENERAL" : type.trim().toUpperCase());
         notification.setIsRead(Boolean.FALSE);
-        notification.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        notification.setTimestamp(new Timestamp(System.currentTimeMillis()));
         return notificationRepository.save(notification);
+    }
+
+    public NotificationResponse markAsRead(Long notificationId) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Notification not found"));
+        notification.setIsRead(Boolean.TRUE);
+        return toResponse(notificationRepository.save(notification));
     }
 
     private NotificationResponse toResponse(Notification notification) {
         NotificationResponse response = new NotificationResponse();
-        response.setNotificationId(notification.getNotificationId());
+        response.setId(notification.getId());
         response.setMessage(notification.getMessage());
+        response.setType(notification.getType());
         response.setIsRead(notification.getIsRead());
-        response.setCreatedAt(notification.getCreatedAt());
+        response.setTimestamp(notification.getTimestamp());
         return response;
     }
 }

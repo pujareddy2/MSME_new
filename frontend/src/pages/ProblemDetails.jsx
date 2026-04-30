@@ -59,7 +59,7 @@ function ProblemDetails() {
 
           <tr>
             <td className="label">Organization</td>
-            <td>{problem.org || problem.organizationName || "Hackathon"}</td>
+            <td>{problem.org || problem.organizationName || "MSME Innovation Platform"}</td>
           </tr>
 
           <tr>

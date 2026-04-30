@@ -101,8 +101,9 @@ section {
   align-items: center;
 }
 
-.sih-logo {
+.platform-logo {
   height: 50px;
+  width: 180px;
 }
 
 .gov-right {

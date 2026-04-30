@@ -1,18 +1,18 @@
 @echo off
-REM Hackathon Full Stack Startup Script for Windows
+REM Platform Full Stack Startup Script for Windows
 REM This script starts both backend and frontend simultaneously
 
 setlocal enabledelayedexpansion
 
 echo.
 echo ========================================
-echo Hackathon Portal Full Stack Startup
+echo MSME Innovation Platform Full Stack Startup
 echo ========================================
 echo.
 
 REM Check if running from correct directory
 if not exist "backend" (
-    echo ERROR: Run this script from the Hackathon root directory (where backend/ and frontend/ folders are)
+    echo ERROR: Run this script from the project root directory (where backend/ and frontend/ folders are)
     pause
     exit /b 1
 )

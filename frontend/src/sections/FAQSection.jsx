@@ -5,16 +5,16 @@ function FAQSection() {
 
   const faqs = [
     {
-      q: "What is the Smart India Hackathon?",
-      a: "Smart India Hackathon is an initiative by the Government of India aimed at addressing pressing problems through student innovation."
-    },
-    {
-      q: "When did the Smart India Hackathon start?",
-      a: "SIH was launched in 2017 as a nationwide innovation initiative."
+      q: "What is the Innovation Platform?",
+      a: "This platform connects MSMEs, government bodies, and industry partners with innovators to solve real-world problems and generate employment opportunities."
     },
     {
       q: "Who can submit problem statements?",
-      a: "Government ministries, departments and industry partners can submit problem statements."
+      a: "Government ministries, departments, industry partners, and MSMEs can submit problem statements for collaboration."
+    },
+    {
+      q: "Who can participate?",
+      a: "Students, developers, startups, and professionals interested in solving MSME challenges can participate in platform initiatives."
     }
   ];
 

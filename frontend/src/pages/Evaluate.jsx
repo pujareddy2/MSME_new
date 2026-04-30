@@ -1,291 +1,249 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { getApplicationById, getApplications, getSubmissionViewUrl, submitEvaluation } from "../services/api";
-import { callGemini } from "../utils/gemini";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { getApplicationById, getEvaluationReport, getSubmissionViewUrl, runAiEvaluation, submitUnifiedEvaluationCompat, unwrapApiData } from "../services/api";
+import { getStoredUser } from "../utils/session";
 import "./judging.css";
 
-const EVALUATION_REQUIREMENTS = [
-	"Problem understanding and relevance",
-	"Solution feasibility",
-	"Innovation and uniqueness",
-	"Scalability and implementation clarity",
-	"Presentation quality",
+const criteriaList = [
+  "Innovation",
+  "Technical Implementation",
+  "Problem Relevance",
+  "Use of AI Tools",
+  "Feasibility",
+  "Scalability",
 ];
 
 function Evaluate() {
-	const { id } = useParams();
-	const navigate = useNavigate();
-	const location = useLocation();
-	const [application, setApplication] = useState(null);
-	const [loading, setLoading] = useState(true);
-	const [aiLoading, setAiLoading] = useState(false);
-	const [aiScore, setAiScore] = useState("");
-	const [aiRemarks, setAiRemarks] = useState("");
-	const [manualScore, setManualScore] = useState("");
-	const [manualRemarks, setManualRemarks] = useState("");
-	const [submitting, setSubmitting] = useState(false);
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const currentUser = getStoredUser();
+  const [application, setApplication] = useState(null);
+  const [aiScores, setAiScores] = useState({});
+  const [aiRemark, setAiRemark] = useState("");
+  const [humanScores, setHumanScores] = useState(Object.fromEntries(criteriaList.map((c) => [c, 0])));
+  const [humanRemark, setHumanRemark] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [runningAi, setRunningAi] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [alreadyEvaluated, setAlreadyEvaluated] = useState(false);
+  const [showFullAbstract, setShowFullAbstract] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
-	useEffect(() => {
-		let cancelled = false;
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        setLoading(true);
+        const appRes = await getApplicationById(id);
+        const app = unwrapApiData(appRes);
+        if (cancelled) return;
+        setApplication(app);
+        const status = (app?.submissionStatus || "").toUpperCase();
+        if (status === "EVALUATED" || status === "JUDGED") {
+          setAlreadyEvaluated(true);
+          navigate(`/evaluation-report/${id}`);
+          return;
+        }
+        await executeAiRun(id, cancelled);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [id, navigate]);
 
-		const applyApp = (app) => {
-			if (cancelled || !app) {
-				return;
-			}
+  const executeAiRun = async (submissionId, cancelled = false) => {
+    try {
+      setRunningAi(true);
+      const aiRes = await runAiEvaluation({ submissionId: Number(submissionId) });
+      const ai = unwrapApiData(aiRes) || {};
+      if (!cancelled) {
+        setAiScores(ai.aiScores || {});
+        setAiRemark(ai.aiRemark || "");
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      if (!cancelled) setRunningAi(false);
+    }
+  };
 
-			setApplication(app);
-			setAiScore(app?.aiScore ?? "");
-			setAiRemarks(app?.aiRemarks || "");
-			setManualScore(app?.manualScore ?? "");
-			setManualRemarks(app?.manualRemarks || "");
-		};
+  const aiTotal = useMemo(() => {
+    const values = Object.values(aiScores || {});
+    if (!values.length) return 0;
+    return (values.reduce((a, b) => a + Number(b || 0), 0) / values.length).toFixed(2);
+  }, [aiScores]);
 
-		const resolveFallback = async () => {
-			const response = await getApplications();
-			const rows = response?.data || [];
-			const numericId = Number(id);
+  const humanTotal = useMemo(() => {
+    const values = Object.values(humanScores || {});
+    if (!values.length) return 0;
+    return (values.reduce((a, b) => a + Number(b || 0), 0) / values.length).toFixed(2);
+  }, [humanScores]);
 
-			const normalized = rows.map((row, index) => ({
-				row,
-				index,
-				applicationId: Number(row?.applicationId || row?.id),
-				teamId: Number(row?.team?.teamId || row?.teamId),
-				problemId: Number(row?.problem?.problemId || row?.problem?.id),
-			}));
+  const finalScore = useMemo(() => {
+    const ai = Number(aiTotal || 0);
+    const human = Number(humanTotal || 0);
+    return ((ai * 0.4) + (human * 0.6)).toFixed(2);
+  }, [aiTotal, humanTotal]);
 
-			const byApplicationId = normalized.find((item) => item.applicationId === numericId)?.row;
-			if (byApplicationId) {
-				return byApplicationId;
-			}
+  const updateHuman = (criterion, value) => {
+    const normalized = value.replace(/[^0-9.]/g, "");
+    if (normalized === "") {
+      setHumanScores((prev) => ({ ...prev, [criterion]: 0 }));
+      return;
+    }
+    const parsed = Number(normalized);
+    if (Number.isNaN(parsed)) {
+      return;
+    }
+    const safe = Math.max(0, Math.min(10, parsed));
+    setHumanScores((prev) => ({ ...prev, [criterion]: Number(safe.toString()) }));
+  };
 
-			const byTeamId = normalized.find((item) => item.teamId === numericId)?.row;
-			if (byTeamId) {
-				return byTeamId;
-			}
+  const handleSubmit = async () => {
+    if (!currentUser?.userId) {
+      navigate("/login");
+      return;
+    }
 
-			const byProblemId = normalized.find((item) => item.problemId === numericId)?.row;
-			if (byProblemId) {
-				return byProblemId;
-			}
+    const hasAiInput =
+      Object.values(aiScores || {}).some((value) => Number(value || 0) > 0) ||
+      (aiRemark || "").trim() !== "";
+    const hasHumanInput =
+      Object.values(humanScores || {}).some((value) => Number(value || 0) > 0) ||
+      (humanRemark || "").trim() !== "";
 
-			if (!Number.isNaN(numericId) && numericId > 0 && numericId <= rows.length) {
-				return rows[numericId - 1];
-			}
+    if (!hasAiInput && !hasHumanInput) {
+      alert("Please provide at least one evaluation input (AI or Human) before submitting.");
+      return;
+    }
+    try {
+      setSubmitting(true);
+      setSuccessMessage("");
+      await submitUnifiedEvaluationCompat({
+        submissionId: Number(id),
+        evaluatorId: currentUser.userId,
+        aiScores,
+        aiRemark,
+        humanScores,
+        humanRemark: humanRemark.trim(),
+      });
+      const reportRes = await getEvaluationReport(Number(id));
+      const report = unwrapApiData(reportRes);
+      setSuccessMessage("Evaluation submitted successfully.");
+      navigate(`/evaluation-report/${id}`, { state: { report, toast: "Evaluation submitted successfully." } });
+    } catch (error) {
+      const message = error?.response?.data?.message || "Failed to submit evaluation.";
+      alert(message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-			return null;
-		};
+  if (loading || alreadyEvaluated) return <p className="workspace-loading">Loading evaluation workspace...</p>;
+  if (!application) return <p className="workspace-loading">Submission not found.</p>;
 
-		const load = async () => {
-			try {
-				setLoading(true);
+  return (
+    <div className="judge-page-wrap evaluation-workspace-wrap">
+      <div className="judge-card evaluation-workspace-card">
+        <div className="workspace-header">
+          <div>
+            <p className="workspace-eyebrow">Evaluation</p>
+            <h2 className="judge-card-title">AI + Human Evaluation</h2>
+          </div>
+        </div>
 
-				const stateApp = location?.state?.application;
-				if (stateApp && !cancelled) {
-					applyApp(stateApp);
-					return;
-				}
+        <section className="judge-section-box report-hero-box">
+          <div className="report-meta-grid">
+            <div><p className="meta-label">Problem ID</p><p className="meta-value">{application.problem?.problemId}</p></div>
+            <div><p className="meta-label">Problem Title</p><p className="meta-value">{application.problem?.problemTitle}</p></div>
+            <div><p className="meta-label">Team ID</p><p className="meta-value">{application.team?.teamId}</p></div>
+            <div><p className="meta-label">Team Name</p><p className="meta-value">{application.team?.teamName}</p></div>
+          </div>
+          <div className="submission-details-grid">
+            <div className="submission-labels">
+              <p><b>Abstract</b></p>
+              <p><b>GitHub Repo</b></p>
+              <p><b>PPT Link</b></p>
+              <p><b>Demo Link</b></p>
+            </div>
+            <div className="submission-values">
+              <div className="abstract-box">
+                <p className={showFullAbstract ? "abstract-full" : "abstract-clamped"}>
+                  {application.abstractText || "N/A"}
+                </p>
+                {application.abstractText && application.abstractText.length > 120 && (
+                  <button type="button" className="secondary-btn" onClick={() => setShowFullAbstract((v) => !v)}>
+                    {showFullAbstract ? "Read Less" : "Read More"}
+                  </button>
+                )}
+              </div>
+              <p>{application.githubLink ? <a href={application.githubLink} target="_blank" rel="noreferrer">{application.githubLink}</a> : "N/A"}</p>
+              <p><a href={getSubmissionViewUrl(application.applicationId || application.id)} target="_blank" rel="noreferrer">Open Submission</a></p>
+              <p>{application.demoLink ? <a href={application.demoLink} target="_blank" rel="noreferrer">{application.demoLink}</a> : "N/A"}</p>
+            </div>
+          </div>
+        </section>
 
-				try {
-					const response = await getApplicationById(id);
-					applyApp(response.data);
-				} catch {
-					const fallback = await resolveFallback();
-					if (fallback) {
-						applyApp(fallback);
-					} else if (!cancelled) {
-						setApplication(null);
-					}
-				}
-			} catch {
-				if (!cancelled) {
-					setApplication(null);
-				}
-			} finally {
-				if (!cancelled) {
-					setLoading(false);
-				}
-			}
-		};
+        <section className="judge-section-box report-ai-box">
+          <h4 className="ai-heading-center">AI Evaluation</h4>
+          <div className="ai-grid-rows">
+            <div className="ai-row ai-criteria-row">
+              {criteriaList.map((c) => (
+                <span key={c}>{c}</span>
+              ))}
+            </div>
+            <div className="ai-row ai-score-row">
+              {criteriaList.map((c) => (
+                <strong key={c}>{aiScores[c] ?? 0}</strong>
+              ))}
+            </div>
+          </div>
+          <p><b>AI Total:</b> {aiTotal}/10</p>
+          <p><b>AI Remarks:</b> {aiRemark || "Awaiting AI evaluation..."}</p>
+          <div style={{ marginTop: 10 }}>
+            <button className="action-btn action-view" onClick={() => executeAiRun(id)} disabled={runningAi}>
+              {runningAi ? "Running AI..." : "Run AI Evaluation"}
+            </button>
+          </div>
+        </section>
 
-		load();
+        <section className="judge-section-box judge-manual-box">
+          <h4>Human Evaluation</h4>
+          <div className="judge-form-grid">
+            {criteriaList.map((c) => (
+              <div key={c}>
+                <label className="field-label">{c} (0-10)</label>
+                <input className="judge-input" type="number" min="0" max="10" step="0.1" value={humanScores[c]} onChange={(e) => updateHuman(c, e.target.value)} />
+              </div>
+            ))}
+          </div>
+          <label className="field-label">Human Remarks</label>
+          <textarea className="judge-textarea" value={humanRemark} onChange={(e) => setHumanRemark(e.target.value)} />
+        </section>
 
-		return () => {
-			cancelled = true;
-		};
-	}, [id, location?.state]);
+        <section className="judge-section-box judge-score-box">
+          <h4>Final Score</h4>
+          <p><b>AI Score:</b> {aiTotal}/10</p>
+          <p><b>Human Score:</b> {humanTotal}/10</p>
+          <p><b>Final Score:</b> {finalScore}/10</p>
+        </section>
 
-	const isEvaluated = useMemo(() => {
-		const status = (application?.submissionStatus || "").toLowerCase();
-		return status === "evaluated" || status === "judged";
-	}, [application]);
-
-	const generateAiEvaluation = useCallback(async () => {
-		if (!application) {
-			return;
-		}
-
-		try {
-			setAiLoading(true);
-			const systemPrompt = "You are an expert innovation evaluator. Return valid JSON only with keys score and remarks. score must be 0-100.";
-			const userMessage = [
-				`Problem: ${application?.problem?.problemTitle || application?.problem?.title || "N/A"}`,
-				`Abstract: ${application?.abstractText || ""}`,
-				`Requirements: ${EVALUATION_REQUIREMENTS.join(", ")}`,
-			].join("\n");
-
-			const raw = await callGemini(systemPrompt, userMessage);
-			const clean = raw.replace(/```json|```/g, "").trim();
-			const parsed = JSON.parse(clean);
-
-			const score = Number(parsed?.score);
-			const bounded = Number.isNaN(score) ? "" : Math.max(0, Math.min(100, Math.round(score)));
-			setAiScore(bounded);
-			setAiRemarks(parsed?.remarks || "AI suggestion generated.");
-		} catch (error) {
-			const wordCount = (application?.abstractText || "").trim().split(/\s+/).filter(Boolean).length;
-			setAiScore(Math.max(35, Math.min(95, Math.round((wordCount / 80) * 100))));
-			setAiRemarks("AI assistant is unavailable. Fallback AI suggestion generated from abstract depth.");
-			console.error(error);
-		} finally {
-			setAiLoading(false);
-		}
-	}, [application]);
-
-	useEffect(() => {
-		if (!application || isEvaluated) {
-			return;
-		}
-
-		if ((application?.aiScore ?? null) !== null && (application?.aiRemarks || "").trim() !== "") {
-			return;
-		}
-
-		generateAiEvaluation();
-	}, [application, isEvaluated, generateAiEvaluation]);
-
-	useEffect(() => {
-		if (!loading && isEvaluated) {
-			alert("Evaluation has already been completed for this application.");
-		}
-	}, [loading, isEvaluated]);
-
-	const handleSubmitEvaluation = async () => {
-		if (isEvaluated) {
-			alert("This application is already evaluated.");
-			return;
-		}
-
-		const ai = Number(aiScore);
-		const manual = Number(manualScore);
-
-		if (Number.isNaN(ai) || ai < 0 || ai > 100) {
-			alert("AI score must be between 0 and 100.");
-			return;
-		}
-
-		if ((aiRemarks || "").trim() === "") {
-			alert("AI remarks are required.");
-			return;
-		}
-
-		if (Number.isNaN(manual) || manual < 0 || manual > 100) {
-			alert("Manual score must be between 0 and 100.");
-			return;
-		}
-
-		if ((manualRemarks || "").trim() === "") {
-			alert("Manual remarks are required.");
-			return;
-		}
-
-		try {
-			setSubmitting(true);
-			await submitEvaluation(id, {
-				aiScore: ai,
-				aiRemarks,
-				manualScore: manual,
-				manualRemarks,
-			});
-
-			navigate("/evaluator", { state: { toast: "Evaluation submitted successfully" } });
-		} catch (error) {
-			const backendMessage = error?.response?.data?.message || error?.response?.data || "Unable to submit evaluation.";
-			alert(typeof backendMessage === "string" ? backendMessage : "Unable to submit evaluation.");
-		} finally {
-			setSubmitting(false);
-		}
-	};
-
-	if (loading) {
-		return <p style={{ padding: "40px" }}>Loading application...</p>;
-	}
-
-	if (!application) {
-		return <p style={{ padding: "40px" }}>Application not found.</p>;
-	}
-
-	return (
-		<div className="judge-page-wrap">
-			<div className="judge-card">
-				<h2 className="judge-card-title">Evaluator Workspace</h2>
-
-				<div className="judge-section-box">
-					<h4>Problem Statement</h4>
-					<p>{application?.problem?.problemTitle || application?.problem?.title || "N/A"}</p>
-				</div>
-
-				<div className="judge-section-box">
-					<h4>Evaluation Requirements</h4>
-					<div className="requirements-mini-list">
-						{EVALUATION_REQUIREMENTS.map((item) => (
-							<span key={item} className="requirement-chip">{item}</span>
-						))}
-					</div>
-				</div>
-
-				<div className="judge-section-box">
-					<h4>Abstract</h4>
-					<p>{application.abstractText || "N/A"}</p>
-				</div>
-
-				<div className="judge-section-box">
-					<h4>Submission</h4>
-					<div className="ppt-actions-row">
-						<button type="button" className="action-btn action-view" onClick={() => window.open(getSubmissionViewUrl(application.applicationId || application.id), "_blank")}>
-							View Submission
-						</button>
-					</div>
-					<iframe title="submission-preview" src={getSubmissionViewUrl(application.applicationId || application.id)} className="ppt-frame" />
-				</div>
-
-				<div className="judge-form-grid">
-					<div className="judge-section-box judge-ai-box">
-						<h4>AI Evaluator</h4>
-						<button type="button" className="action-btn action-ai" disabled={isEvaluated || aiLoading} onClick={generateAiEvaluation}>
-							{aiLoading ? "Generating AI Evaluation..." : "Generate AI Evaluation"}
-						</button>
-						<input className="judge-input" type="number" min="0" max="100" value={aiScore} readOnly placeholder="AI Score" />
-						<textarea className="judge-textarea" value={aiRemarks} readOnly placeholder="AI Remarks" />
-					</div>
-
-					<div className="judge-section-box judge-manual-box">
-						<h4>Manual Evaluator</h4>
-						<input className="judge-input" type="number" min="0" max="100" value={manualScore} onChange={(event) => setManualScore(event.target.value)} disabled={isEvaluated} placeholder="Manual Score" />
-						<textarea className="judge-textarea" value={manualRemarks} onChange={(event) => setManualRemarks(event.target.value)} disabled={isEvaluated} placeholder="Manual Remarks" />
-					</div>
-				</div>
-
-				{isEvaluated && <p className="lock-note">Evaluation already completed. Duplicate evaluation is not allowed.</p>}
-
-				<div className="judge-actions-row">
-					<button className="action-btn action-view" onClick={() => navigate("/evaluator")}>Back to Dashboard</button>
-					<button className="action-btn action-judge" disabled={isEvaluated || submitting} onClick={handleSubmitEvaluation}>
-						{submitting ? "Submitting..." : "Submit Evaluation"}
-					</button>
-				</div>
-			</div>
-		</div>
-	);
+        <div className="judge-actions-row workspace-footer-actions">
+          <button className="action-btn action-view" onClick={() => navigate("/evaluator")}>Back to Dashboard</button>
+          <button className="action-btn action-judge" onClick={handleSubmit} disabled={submitting}>
+            {submitting ? "Submitting..." : "Submit Evaluation"}
+          </button>
+        </div>
+        {successMessage && <p className="workspace-complete-note">{successMessage}</p>}
+      </div>
+    </div>
+  );
 }
 
 export default Evaluate;

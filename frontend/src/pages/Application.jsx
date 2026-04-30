@@ -155,7 +155,7 @@ function Application() {
           <h3>Problem Details</h3>
           <p><strong>Problem ID:</strong> {problem.problemId || id}</p>
           <p><strong>Title:</strong> {problem.problemTitle || problem.title}</p>
-          <p><strong>Organization:</strong> {problem.organizationName || problem.org || "Hackathon"}</p>
+          <p><strong>Organization:</strong> {problem.organizationName || problem.org || "MSME Innovation Platform"}</p>
           <p><strong>Category:</strong> {problem.domain || problem.category}</p>
           <p><strong>Theme:</strong> {problem.difficultyLevel || problem.theme}</p>
         </div>

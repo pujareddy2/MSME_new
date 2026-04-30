@@ -115,7 +115,8 @@ public class ApplicationService {
 
             notificationService.createNotification(
                 team.getLeader().getUserId(),
-                "Application submitted for " + problemTitle + " by team " + team.getTeamName() + ".");
+                "Application submitted for " + problemTitle + " by team " + team.getTeamName() + ".",
+                "SUBMISSION_MADE");
         }
 
         return savedApplication;
@@ -163,7 +164,8 @@ public class ApplicationService {
 
             notificationService.createNotification(
                     saved.getTeam().getLeader().getUserId(),
-                    "Judging completed for " + problemTitle + " (Team: " + saved.getTeam().getTeamName() + ").");
+                    "Judging completed for " + problemTitle + " (Team: " + saved.getTeam().getTeamName() + ").",
+                    "EVALUATION_COMPLETED");
         }
 
         return saved;
@@ -202,7 +204,14 @@ public class ApplicationService {
         application.setSubmissionStatus("EVALUATED");
         application.setEvaluatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
 
-        return applicationRepository.save(application);
+        Application saved = applicationRepository.save(application);
+        if (saved.getTeam() != null && saved.getTeam().getLeader() != null && saved.getTeam().getLeader().getUserId() != null) {
+            notificationService.createNotification(
+                    saved.getTeam().getLeader().getUserId(),
+                    "New AI-based insight generated: " + request.getAiRemarks().trim(),
+                    "AI_INSIGHT");
+        }
+        return saved;
     }
 
     private void validatePresentation(MultipartFile file) {

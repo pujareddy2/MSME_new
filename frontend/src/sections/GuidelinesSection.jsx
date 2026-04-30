@@ -18,7 +18,7 @@ function GuidelinesSection() {
 
         <div className="guideline-item">
           <h3>Submission Format</h3>
-          <p>Teams must submit PPT and working prototype/demo as per official SIH format.</p>
+          <p>Teams must submit PPT and a working prototype/demo as per the platform's official submission format.</p>
         </div>
 
       </div>

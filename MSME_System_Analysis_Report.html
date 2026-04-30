@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MSME Innovation Platform - Complete System Analysis Report</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --ink: #1c2530;
+      --muted: #5d6976;
+      --brand: #0f4c81;
+      --brand2: #186f65;
+      --line: #d8e2ec;
+      --soft: #f7fbff;
+      --soft2: #eef6f4;
+      --accent: #edf4fb;
+      --warning: #fff7e9;
+      --warning-line: #f1d49f;
+      --table-head: #e9f2fb;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: Arial, Helvetica, sans-serif; line-height: 1.6; }
+    body { padding: 28px; }
+    .page { max-width: 1150px; margin: 0 auto; }
+    .cover {
+      background: linear-gradient(135deg, #f7fbff 0%, #eff7f5 100%);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 34px 36px;
+      margin-bottom: 26px;
+    }
+    .eyebrow { display: inline-block; padding: 4px 10px; border-radius: 999px; background: #eaf3ef; color: var(--brand2); font-size: 12px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; }
+    h1, h2, h3, h4 { line-height: 1.25; margin: 0 0 12px; }
+    h1 { color: var(--brand); font-size: 32px; margin-top: 10px; }
+    h2 { color: var(--brand); font-size: 22px; margin-top: 30px; padding-top: 10px; border-top: 2px solid var(--line); }
+    h3 { color: var(--brand2); font-size: 18px; margin-top: 20px; }
+    h4 { color: var(--ink); font-size: 16px; margin-top: 14px; }
+    p { margin: 0 0 12px; }
+    .box, .role-box, .note, .section-box {
+      border: 1px solid var(--line);
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin: 14px 0;
+    }
+    .role-box { background: var(--soft2); }
+    .note { background: var(--warning); border-color: var(--warning-line); }
+    ul, ol { margin: 8px 0 14px 24px; }
+    li { margin-bottom: 8px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 18px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: var(--table-head); color: #08315a; }
+    code {
+      background: #eef3f8;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.95em;
+    }
+    .toc {
+      columns: 2;
+      column-gap: 28px;
+      padding-left: 18px;
+    }
+    .toc li { break-inside: avoid; }
+    .flow { display: grid; gap: 10px; margin: 12px 0 18px; }
+    .flow-step {
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--brand);
+      background: #fbfdff;
+      border-radius: 10px;
+      padding: 10px 14px;
+    }
+    .small { color: var(--muted); font-size: 13px; }
+    .footer { margin-top: 32px; padding-top: 16px; border-top: 2px solid var(--line); color: var(--muted); font-size: 13px; }
+    .pill {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: #eef6ff;
+      color: var(--brand);
+      font-size: 12px;
+      font-weight: 700;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+    .endpoint { font-family: Consolas, Monaco, monospace; font-size: 13px; }
+    .tight p, .tight ul, .tight ol { margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="cover">
+      <span class="eyebrow">MSME Innovation Platform</span>
+      <h1>Complete System Analysis Report</h1>
+      <p><b>Scope:</b> Frontend, backend, database, APIs, role workflows, internal logic, shared components, AI integration, and end-to-end lifecycle.</p>
+      <p><b>Source basis:</b> Generated directly from the repository structure and code.</p>
+      <p><b>Primary stack:</b> React frontend, Spring Boot backend, MySQL database, and localStorage-based session handling.</p>
+    </div>
+
+    <h2>Table of Contents</h2>
+    <ol class="toc">
+      <li>Repository Overview</li>
+      <li>Project Purpose and Problem Solved</li>
+      <li>Technology Stack</li>
+      <li>Folder Structure and Module Responsibilities</li>
+      <li>Role Analysis: Team Leader / Admin</li>
+      <li>Role Analysis: Team Member / Participant</li>
+      <li>Role Analysis: Evaluator / Judge</li>
+      <li>Database and Entity Analysis</li>
+      <li>Frontend Component Analysis</li>
+      <li>Backend API and Service Analysis</li>
+      <li>AI and External Integration</li>
+      <li>Overall System Flow</li>
+      <li>Data Flow Diagram</li>
+      <li>Key Strengths, Gaps, and Suggestions</li>
+    </ol>
+
+    <h2>1. Repository Overview</h2>
+    <div class="section-box tight">
+      <p>This repository is a full-stack innovation platform portal. It supports user registration, team creation, problem statement browsing, application submission with file upload, AI-assisted evaluation, final judging, notifications, and role-based dashboards.</p>
+      <p>The frontend communicates with Spring Boot REST APIs, and the backend persists data in MySQL through JPA entities.</p>
+      <p>The implementation is designed for an innovation program workflow where a team leader forms a team, team members are provisioned, a solution is submitted, the submission is evaluated, and a judge finalizes the score.</p>
+    </div>
+
+    <h3>Project purpose</h3>
+    <ul>
+      <li>Manage an innovation workflow from team leader registration to final judging.</li>
+      <li>Allow team leaders to form teams and submit solutions against published problem statements.</li>
+      <li>Allow evaluators and judges to review the same submission in stages.</li>
+      <li>Keep track of activities, submissions, and notifications in a structured way.</li>
+    </ul>
+
+    <h3>Problem solved</h3>
+    <p>The platform replaces manual tracking of participants, teams, submissions, and review results. Instead of spreadsheets or offline coordination, the application centralizes the entire lifecycle into role-based pages and backend APIs.</p>
+
+    <h3>Application type</h3>
+    <p>It is a role-based platform management system for MSME-style innovation or competition workflows.</p>
+
+    <h3>Technology stack</h3>
+    <table>
+      <tr><th>Layer</th><th>Technology</th><th>Evidence</th></tr>
+      <tr><td>Frontend</td><td>React, react-router-dom, axios, bootstrap, react-icons</td><td>frontend/package.json, frontend/src/App.js</td></tr>
+      <tr><td>Backend</td><td>Spring Boot 3.3.2, Java 17, Spring Web, Spring Data JPA, BCrypt</td><td>backend/pom.xml</td></tr>
+      <tr><td>Database</td><td>MySQL</td><td>backend/src/main/resources/application.properties</td></tr>
+      <tr><td>AI integration</td><td>Frontend-side LLM call from the evaluator page using frontend/src/utils/gemini.js</td><td>frontend/src/pages/Evaluate.jsx</td></tr>
+    </table>
+
+    <h2>2. Folder Structure and Responsibilities</h2>
+    <table>
+      <tr><th>Folder / File Group</th><th>Responsibility</th></tr>
+      <tr><td>backend/</td><td>Spring Boot application, REST controllers, services, repositories, entities, DTOs, config, and startup seeding.</td></tr>
+      <tr><td>frontend/</td><td>React UI, routing, role-based pages, API client, session helpers, and shared layout.</td></tr>
+      <tr><td>README.md, QUICKSTART.md, CLONE_AND_RUN.md, DEPLOYMENT_GUIDE.md, LOGIN_DETAILS.md</td><td>Setup instructions, run guidance, deployment notes, and login reference.</td></tr>
+      <tr><td>START_LOCAL.bat, START_BACKEND_SAFE.bat</td><td>Windows startup scripts for local execution.</td></tr>
+      <tr><td>backend/tmp/</td><td>Helper SQL and test scripts for local setup and verification.</td></tr>
+      <tr><td>frontend/src/pages/</td><td>Page-level user flows for login, dashboards, submissions, evaluation, reports, and admin work.</td></tr>
+    </table>
+
+    <h2>3. Role Analysis: Team Leader / Admin</h2>
+    <div class="role-box">
+      <h3>A. Role purpose</h3>
+      <p><b>Team Leader</b> is the core participant role. This user registers, logs in, creates a team, adds members, browses problems, submits applications, and checks notifications and submission status.</p>
+      <p><b>Admin</b> and <b>Event Head</b> are content-management roles. They create and publish problem statements and manage the challenge catalog.</p>
+    </div>
+
+    <h3>B. Complete user flow</h3>
+    <div class="flow">
+      <div class="flow-step"><b>1. Registration.</b> User opens the login page and chooses Register as Team Leader. The form collects name, email, phone, password, confirm password, team name, and college ID.</div>
+      <div class="flow-step"><b>2. Client validation.</b> The frontend checks that passwords match before sending the request.</div>
+      <div class="flow-step"><b>3. API call.</b> The frontend sends <span class="endpoint">POST /api/auth/register/team-lead</span>.</div>
+      <div class="flow-step"><b>4. Backend processing.</b> The backend checks required fields, unique email and phone, hashes the password using BCrypt, and creates a user with role TEAM_LEAD.</div>
+      <div class="flow-step"><b>5. Response.</b> The backend returns an AuthResponse object with the profile data.</div>
+      <div class="flow-step"><b>6. Session and navigation.</b> The frontend stores session data in localStorage and redirects to team creation.</div>
+    </div>
+
+    <div class="flow">
+      <div class="flow-step"><b>Login.</b> User enters email or phone, password, and role on the login page. The frontend blocks empty submissions, then sends <span class="endpoint">POST /api/auth/login</span>. The backend searches by email or phone, checks that the selected role matches the stored role, and verifies the password hash. On success, the frontend stores the returned profile and routes the user to the correct dashboard.</div>
+      <div class="flow-step"><b>Team creation.</b> After registration or login, the team leader opens the Create Team page. The page allows a team name plus a table-style form for up to five members including the leader column. Member fields are name, email, mobile, gender, college, course, and roll number.</div>
+      <div class="flow-step"><b>Validation.</b> The frontend validates email format, mobile number length, required fields, duplicate emails, and duplicate roll numbers.</div>
+      <div class="flow-step"><b>API call.</b> The frontend sends <span class="endpoint">POST /api/teams</span> with leaderId, teamName, and the list of members.</div>
+      <div class="flow-step"><b>Backend processing.</b> The backend verifies leader role, one team per leader, unique team name, and valid member data. It creates the team, creates member user accounts with role TEAM_MEMBER, creates team member rows, and generates notifications.</div>
+      <div class="flow-step"><b>Result.</b> The frontend stores the created team and returns to dashboard.</div>
+    </div>
+
+    <div class="flow">
+      <div class="flow-step"><b>Problem browsing.</b> The team leader opens the problem statements page. The frontend fetches problems from <span class="endpoint">GET /api/problems</span> and application counts from <span class="endpoint">GET /api/applications</span>. Search, filters, and row limits are applied on the client side.</div>
+      <div class="flow-step"><b>Application submission.</b> The leader opens a problem and reaches the application form. The form collects abstract text, technology stack, GitHub link, demo link, and a file upload. The file must be PPT, PPTX, or PDF and within the 20 MB limit.</div>
+      <div class="flow-step"><b>Submission request.</b> The frontend sends multipart <span class="endpoint">POST /api/applications</span>.</div>
+      <div class="flow-step"><b>Backend processing.</b> The backend checks duplicate team/problem application, validates file type and size, stores the upload in uploads/applications, inserts the application row, and creates a notification.</div>
+      <div class="flow-step"><b>Admin problem creation.</b> Admin or Event Head logs in, enters problem ID, title, category, theme, deadline, and description, and sends <span class="endpoint">POST /api/problems</span>. The backend checks duplicate problem ID and inserts the new problem statement.</div>
+    </div>
+
+    <h3>C. Login and registration components</h3>
+    <table>
+      <tr><th>Component</th><th>Details</th></tr>
+      <tr><td>Login fields</td><td>Email/Phone, Password, Role</td></tr>
+      <tr><td>Registration fields</td><td>Name, Email, Phone, Password, Confirm Password, Team Name, College ID</td></tr>
+      <tr><td>Authentication method</td><td>No JWT. Session is stored in localStorage via AuthResponse.</td></tr>
+      <tr><td>Role-based navigation</td><td>TEAM_LEAD goes to dashboard/create team; ADMIN and EVENT_HEAD can access the add-problem flow.</td></tr>
+      <tr><td>Backend validation</td><td>Role must match stored user role; password verification uses BCrypt.</td></tr>
+    </table>
+
+    <h3>D. Components used by Team Leader / Admin</h3>
+    <table>
+      <tr><th>Frontend</th><th>Backend</th><th>APIs</th></tr>
+      <tr><td>Login, RegisterTeamLeader, Dashboard, CreateTeam, ProblemStatements, ProblemDetails, Application, MyApplications, AddProblem, Profile, Header, NotificationBell</td><td>AuthController, TeamController, ApplicationController, ProblemStatementController, NotificationController, ProfileController</td><td class="endpoint">POST /api/auth/register/team-lead, POST /api/auth/login, POST /api/teams, GET /api/teams/leader/{leaderId}, GET /api/problems, GET /api/problems/{id}, POST /api/problems, POST /api/applications</td></tr>
+    </table>
+
+    <h3>E. Database usage for Team Leader / Admin</h3>
+    <table>
+      <tr><th>Table</th><th>Purpose in this role</th></tr>
+      <tr><td>users</td><td>Stores the leader profile, role, password hash, college ID, account status, created time, and team link.</td></tr>
+      <tr><td>teams</td><td>Stores team name, created time, leader user ID, and links to problem and event.</td></tr>
+      <tr><td>team_members</td><td>Stores each invited member and links them to team and user records.</td></tr>
+      <tr><td>problem_statements</td><td>Stores published problems.</td></tr>
+      <tr><td>applications</td><td>Stores the submission, file path, scores, and review state.</td></tr>
+      <tr><td>notifications</td><td>Stores user activity and alerts.</td></tr>
+    </table>
+
+    <h3>F. Internal workflow logic</h3>
+    <div class="flow">
+      <div class="flow-step">Frontend form collects input and performs immediate validation.</div>
+      <div class="flow-step">Axios request sends JSON or multipart payload to backend REST endpoint.</div>
+      <div class="flow-step">Controller delegates to service layer.</div>
+      <div class="flow-step">Service layer enforces business rules and repository checks.</div>
+      <div class="flow-step">JPA repositories read or write MySQL data.</div>
+      <div class="flow-step">Service may create notifications or stored files as side effects.</div>
+      <div class="flow-step">Backend returns JSON response and frontend updates UI plus localStorage session state.</div>
+    </div>
+
+    <h3>G. Connectivity and integration</h3>
+    <ul>
+      <li>Team leaders create team members, which becomes the source of TEAM_MEMBER accounts.</li>
+      <li>Team leader submissions become the input set for evaluator and judge dashboards.</li>
+      <li>Notifications connect creation, submission, evaluation, and judging events back to the user dashboard.</li>
+      <li>Admin-created problem statements populate the browsing and application screens.</li>
+    </ul>
+
+    <h2>4. Role Analysis: Team Member / Participant</h2>
+    <div class="role-box">
+      <h3>A. Role purpose</h3>
+      <p>The team member role exists so the team leader can provision additional participants into the same team. The member can view team information, profile data, notifications, and team applications, but cannot create teams or submit applications.</p>
+    </div>
+
+    <h3>B. Complete user flow</h3>
+    <div class="flow">
+      <div class="flow-step">The team leader creates the team.</div>
+      <div class="flow-step">Backend automatically creates a TEAM_MEMBER user for each invited person.</div>
+      <div class="flow-step">The member logs in with email or phone, password, and role TEAM_MEMBER.</div>
+      <div class="flow-step">Frontend sends the shared <span class="endpoint">POST /api/auth/login</span> request.</div>
+      <div class="flow-step">Backend checks the role and password hash.</div>
+      <div class="flow-step">Frontend routes the member to the team-member dashboard or role dashboard.</div>
+      <div class="flow-step">Dashboard loads team information using <span class="endpoint">GET /api/team-member/team/{userId}</span>.</div>
+      <div class="flow-step">Dashboard loads applications using <span class="endpoint">GET /api/team-member/applications?teamId=...</span>.</div>
+      <div class="flow-step">Profile page uses <span class="endpoint">GET /api/profile/{userId}</span> and may also show the team and recent applications.</div>
+      <div class="flow-step">Problem browsing is allowed, but application submission is blocked because only TEAM_LEAD can apply.</div>
+    </div>
+
+    <h3>C. Login and registration components</h3>
+    <table>
+      <tr><th>Component</th><th>Details</th></tr>
+      <tr><td>Login fields</td><td>Email/Phone, Password, Role</td></tr>
+      <tr><td>Registration</td><td>No dedicated public registration form. Member accounts are created by the team leader flow.</td></tr>
+      <tr><td>Backend access</td><td>Login endpoint is shared, plus dedicated member endpoints for team and applications</td></tr>
+      <tr><td>Session storage</td><td>User profile stored in localStorage and used by dashboard/profile pages</td></tr>
+    </table>
+
+    <h3>D. Components used by Team Member</h3>
+    <table>
+      <tr><th>Frontend</th><th>Backend</th><th>APIs</th></tr>
+      <tr><td>Login, RoleDashboard, Dashboard, Profile, ProblemStatements, ProblemDetails, NotificationBell</td><td>TeamMemberController, AuthService, ProfileController, NotificationController</td><td class="endpoint">POST /api/auth/login, GET /api/team-member/team/{userId}, GET /api/team-member/applications, GET /api/profile/{userId}, GET /api/notifications/{userId}</td></tr>
+    </table>
+
+    <h3>E. Database usage for Team Member</h3>
+    <table>
+      <tr><th>Table</th><th>What it stores for members</th></tr>
+      <tr><td>users</td><td>Member identity, email, mobile, role TEAM_MEMBER, account status, hashed password</td></tr>
+      <tr><td>team_members</td><td>Detailed member profile, invitation status, and team association</td></tr>
+      <tr><td>teams</td><td>Member team grouping and leader relation</td></tr>
+      <tr><td>applications</td><td>Team submissions that the member can view</td></tr>
+      <tr><td>notifications</td><td>Activity feed for member-related and team-related events</td></tr>
+    </table>
+
+    <h3>F. Internal workflow logic</h3>
+    <div class="flow">
+      <div class="flow-step">Member is created by backend during team formation.</div>
+      <div class="flow-step">Member logs in using shared auth logic.</div>
+      <div class="flow-step">Dashboard queries team and applications linked to the member’s user ID or team ID.</div>
+      <div class="flow-step">UI remains read-heavy; no application submission permissions are granted.</div>
+    </div>
+
+    <h3>G. Connectivity and integration</h3>
+    <ul>
+      <li>Member depends on the team leader for account creation and team linkage.</li>
+      <li>Member sees the same notifications stream as the team leader, filtered by user ID.</li>
+      <li>Member profile and team information are shared across dashboard, profile, and notification components.</li>
+    </ul>
+
+    <h2>5. Role Analysis: Evaluator / Judge</h2>
+    <div class="role-box">
+      <h3>A. Role purpose</h3>
+      <p>The evaluator is the first review stage. It examines the submission, may generate AI guidance, and stores AI and manual scoring. The judge is the final stage and stores the final judge score after the evaluation stage has already completed.</p>
+    </div>
+
+    <h3>B. Complete user flow</h3>
+    <div class="flow">
+      <div class="flow-step"><b>Evaluator login.</b> Log in with role EVALUATOR and route to /evaluator.</div>
+      <div class="flow-step"><b>Evaluator dashboard.</b> Dashboard fetches applications from <span class="endpoint">GET /api/applications</span> and shows Pending or Evaluated status.</div>
+      <div class="flow-step"><b>Open work item.</b> Open <span class="endpoint">/evaluate/{id}</span>.</div>
+      <div class="flow-step"><b>Load application.</b> Page loads the application, abstract, and submission preview.</div>
+      <div class="flow-step"><b>AI guidance.</b> Page may call the external LLM wrapper to generate AI score and remarks.</div>
+      <div class="flow-step"><b>Manual review.</b> Enter manual score and manual remarks.</div>
+      <div class="flow-step"><b>Submit evaluation.</b> Send <span class="endpoint">PUT /api/applications/{id}/evaluation</span>.</div>
+      <div class="flow-step"><b>Backend checks.</b> Backend checks score ranges, required remarks, and duplicate evaluation prevention.</div>
+      <div class="flow-step"><b>Persist results.</b> Backend stores aiScore, aiRemarks, manualScore, manualRemarks, and marks the application EVALUATED.</div>
+      <div class="flow-step"><b>Judge login.</b> Log in with role JUDGE and route to /judge-dashboard.</div>
+      <div class="flow-step"><b>Judge dashboard.</b> Dashboard shows only applications that are evaluated or already judged.</div>
+      <div class="flow-step"><b>Open judge workspace.</b> Open <span class="endpoint">/feedback/{id}</span>.</div>
+      <div class="flow-step"><b>Judge review.</b> Page loads the application, AI output, evaluator output, and submission preview.</div>
+      <div class="flow-step"><b>Final score.</b> Enter judge score between 0 and 100.</div>
+      <div class="flow-step"><b>Submit judging.</b> Send <span class="endpoint">PUT /api/applications/{id}/judging</span>.</div>
+      <div class="flow-step"><b>Backend checks.</b> Backend checks that the application is in the correct stage and prevents repeat judging.</div>
+      <div class="flow-step"><b>Persist results.</b> Backend stores judge score, judgedBy, and marks the application JUDGED.</div>
+      <div class="flow-step"><b>Notify leader.</b> Team leader receives a notification.</div>
+    </div>
+
+    <h3>C. Login and registration components</h3>
+    <table>
+      <tr><th>Component</th><th>Details</th></tr>
+      <tr><td>Login fields</td><td>Email/Phone, Password, Role</td></tr>
+      <tr><td>Evaluator/Judge self-registration</td><td>Not provided in the UI; accounts appear to be seeded or created manually</td></tr>
+      <tr><td>Auth method</td><td>Shared login endpoint, role checked in backend and client route logic</td></tr>
+      <tr><td>Protection</td><td>Pages check localStorage role, but there is no token-based authorization layer</td></tr>
+    </table>
+
+    <h3>D. Components used by Evaluator / Judge</h3>
+    <table>
+      <tr><th>Frontend</th><th>Backend</th><th>APIs</th></tr>
+      <tr><td>Login, EvaluatorDashboard, Evaluate, JudgeDashboard, Judge, EvaluationReport, JudgeReport, RoleDashboard</td><td>ApplicationController, AuthController, NotificationController</td><td class="endpoint">GET /api/applications, GET /api/applications/{id}, PUT /api/applications/{id}/evaluation, PUT /api/applications/{id}/judging, GET /api/applications/{id}/submission-file</td></tr>
+    </table>
+
+    <h3>E. Database usage for Evaluator / Judge</h3>
+    <table>
+      <tr><th>Table</th><th>Role usage</th></tr>
+      <tr><td>applications</td><td>Stores ai_score, ai_remarks, manual_score, manual_remarks, judge_score, judged_by, evaluated_at, and submission status</td></tr>
+      <tr><td>teams</td><td>Provides team context</td></tr>
+      <tr><td>problem_statements</td><td>Provides problem details</td></tr>
+      <tr><td>notifications</td><td>Stores evaluation and judging-related alerts</td></tr>
+      <tr><td>evaluations / evaluation_scores / evaluation_criteria / judges / rounds</td><td>Present in code but not the active runtime path</td></tr>
+    </table>
+
+    <h3>F. Internal workflow logic</h3>
+    <div class="flow">
+      <div class="flow-step">Evaluator dashboard reads all applications and filters by status.</div>
+      <div class="flow-step">Evaluator page optionally calls AI service for structured scoring guidance.</div>
+      <div class="flow-step">Backend stores evaluator fields directly in the application row.</div>
+      <div class="flow-step">Judge stage reuses the same row and appends final judge score.</div>
+      <div class="flow-step">Final report pages compute weighted scores for display.</div>
+    </div>
+
+    <h3>G. Connectivity and integration</h3>
+    <ul>
+      <li>Evaluator depends on team submission data created by the team leader.</li>
+      <li>Judge depends on evaluator output before finalizing the result.</li>
+      <li>Notifications send results back to the team leader, connecting review and participant flows.</li>
+      <li>Submission file viewing is shared by evaluator and judge pages.</li>
+    </ul>
+
+    <h2>6. Database and Entity Analysis</h2>
+    <h3>Main entities</h3>
+    <table>
+      <tr><th>Entity</th><th>Purpose</th><th>Important notes</th></tr>
+      <tr><td>User</td><td>Stores every authenticated person in the system</td><td>Includes role_name, account_status, and team link</td></tr>
+      <tr><td>Team</td><td>Stores team identity and ownership</td><td>Leader is a User, members are TeamMember rows</td></tr>
+      <tr><td>TeamMember</td><td>Stores invited participant details</td><td>Maintains both member identity and optional User link</td></tr>
+      <tr><td>ProblemStatement</td><td>Stores competition problems</td><td>Seeded on startup through DataInitializer</td></tr>
+      <tr><td>Application</td><td>Stores submissions and review metadata</td><td>Central operational table for participation and review</td></tr>
+      <tr><td>Notification</td><td>Stores user messages and activity events</td><td>Used by dashboard bell and activity lists</td></tr>
+      <tr><td>Evaluation, EvaluationScore, EvaluationCriteria, Judge, Round</td><td>Supporting review model set</td><td>Defined in code, not fully wired into current APIs</td></tr>
+    </table>
+
+    <h3>Relationship summary</h3>
+    <table>
+      <tr><th>Relationship</th><th>Type</th><th>Meaning in this system</th></tr>
+      <tr><td>TeamLeader User -> Team</td><td>Effectively 1:1</td><td>Each leader can own only one team</td></tr>
+      <tr><td>Team -> TeamMember</td><td>1:N</td><td>A team contains multiple member records</td></tr>
+      <tr><td>Team -> Application</td><td>1:N</td><td>A team can submit multiple applications for different problems, but only one per team/problem</td></tr>
+      <tr><td>ProblemStatement -> Application</td><td>1:N</td><td>Many teams can apply to the same problem</td></tr>
+      <tr><td>User -> Notification</td><td>1:N</td><td>A user can receive many notifications</td></tr>
+      <tr><td>Application review data</td><td>1:1 inside row</td><td>Evaluation and judging are stored directly in the same application row</td></tr>
+    </table>
+
+    <h2>7. Frontend Component Analysis</h2>
+    <h3>Routing and shell</h3>
+    <p>The app router in frontend/src/App.js defines all major routes. Header and Footer surround the app. The Header shows login/logout, profile, and notification bell. NotificationBell reads notifications for the current user and shows the latest ones. Session helpers store user and team info in localStorage so the UI can route by role.</p>
+
+    <table>
+      <tr><th>File</th><th>Responsibility</th></tr>
+      <tr><td>frontend/src/services/api.js</td><td>Axios client with API base URL environment fallback and endpoint wrappers.</td></tr>
+      <tr><td>frontend/src/utils/session.js</td><td>Save, retrieve, and clear session state.</td></tr>
+      <tr><td>frontend/src/components/layout/Header.jsx</td><td>Top navigation, login/logout, profile link.</td></tr>
+      <tr><td>frontend/src/components/layout/NotificationBell.jsx</td><td>Notification dropdown.</td></tr>
+      <tr><td>frontend/src/utils/gemini.js</td><td>External LLM request wrapper.</td></tr>
+    </table>
+
+    <h3>Important pages</h3>
+    <table>
+      <tr><th>Page</th><th>Purpose</th></tr>
+      <tr><td>Login</td><td>Shared login for all roles</td></tr>
+      <tr><td>RegisterTeamLeader</td><td>Team leader registration</td></tr>
+      <tr><td>Dashboard and RoleDashboard</td><td>Role-specific dashboards</td></tr>
+      <tr><td>CreateTeam</td><td>Team creation form</td></tr>
+      <tr><td>ProblemStatements and ProblemDetails</td><td>Browse and inspect problems</td></tr>
+      <tr><td>Application</td><td>Submission form with file upload</td></tr>
+      <tr><td>MyApplications</td><td>Leader application list</td></tr>
+      <tr><td>AddProblem</td><td>Admin problem publishing form</td></tr>
+      <tr><td>EvaluatorDashboard, Evaluate, JudgeDashboard, Judge</td><td>Review workflow</td></tr>
+      <tr><td>EvaluationReport and JudgeReport</td><td>Report pages</td></tr>
+      <tr><td>Profile</td><td>Profile overview and team/application summary</td></tr>
+    </table>
+
+    <h3>UI behavior summary</h3>
+    <ul>
+      <li><b>Dashboard pages</b> are mostly data dashboards with sidebar actions, summary cards, and notifications.</li>
+      <li><b>Forms</b> use direct state management with input validation inside the component.</li>
+      <li><b>Routing</b> is role-aware, based on the role stored in localStorage and the role returned from the backend.</li>
+      <li><b>Graceful fallback</b> is used in several places, for example problem lists can fall back to local problem data if the API is unavailable.</li>
+    </ul>
+
+    <h2>8. Backend API and Service Analysis</h2>
+    <h3>Main controllers</h3>
+    <table>
+      <tr><th>Controller</th><th>Endpoints</th><th>Role in system</th></tr>
+      <tr><td>AuthController</td><td class="endpoint">/api/auth/register/team-lead, /api/auth/login, /api/auth/forgot-password</td><td>Handles registration, login, and password reset</td></tr>
+      <tr><td>TeamController</td><td class="endpoint">/api/teams, /api/teams/{id}, /api/teams/leader/{leaderId}, /api/teams/me</td><td>Team creation and lookup</td></tr>
+      <tr><td>TeamMemberController</td><td class="endpoint">/api/team-member/login, /api/team-member/team/{userId}, /api/team-member/applications</td><td>Member-specific operations</td></tr>
+      <tr><td>ApplicationController</td><td class="endpoint">/api/applications, /api/applications/{id}, /api/applications/{id}/evaluation, /api/applications/{id}/judging, /api/applications/{id}/submission-file</td><td>Submission and review lifecycle</td></tr>
+      <tr><td>ProblemStatementController</td><td class="endpoint">/api/problems, /api/problems/{id}</td><td>Problem catalog</td></tr>
+      <tr><td>NotificationController</td><td class="endpoint">/api/notifications/{userId}, /api/notifications/activity</td><td>Notification feed and activity logging</td></tr>
+      <tr><td>ProfileController</td><td class="endpoint">/api/profile/{userId}</td><td>User profile lookup</td></tr>
+    </table>
+
+    <h3>Main service behavior</h3>
+    <table>
+      <tr><th>Service</th><th>Core rules</th></tr>
+      <tr><td>AuthService</td><td>Validates registration data, hashes passwords, checks role match on login, supports password reset, builds AuthResponse.</td></tr>
+      <tr><td>TeamService</td><td>Ensures only TEAM_LEAD can create a team, one team per leader, unique team name, valid member roster, creates member users and notifications.</td></tr>
+      <tr><td>ApplicationService</td><td>Validates submission payload, prevents duplicate team/problem submission, enforces file type and size, stores file, handles evaluation and judging status transitions.</td></tr>
+      <tr><td>ProblemStatementService</td><td>Handles problem retrieval and creation with duplicate ID checks.</td></tr>
+      <tr><td>NotificationService</td><td>Creates and lists notifications ordered by most recent.</td></tr>
+    </table>
+
+    <h3>Important backend behaviors</h3>
+    <ul>
+      <li>Password storage uses BCrypt hashes.</li>
+      <li>There is no JWT authentication flow.</li>
+      <li>CORS is enabled at controller level with wildcard origins.</li>
+      <li>Application file upload is limited to PPT, PPTX, or PDF up to 20 MB.</li>
+      <li>Applications are written directly into the applications table; evaluation and judging data are stored in the same row.</li>
+      <li>Default problem statements are seeded at startup by DataInitializer.</li>
+    </ul>
+
+    <h2>9. AI and External Integration</h2>
+    <div class="section-box tight">
+      <p>The evaluator page can generate an AI suggestion by calling an external chat-completion endpoint from frontend/src/utils/gemini.js. The request uses a system prompt and the application abstract/problem context. The returned JSON-like response is parsed for score and remarks. If the API fails, the UI falls back to a locally generated score suggestion.</p>
+      <p>This means AI assistance is currently a frontend responsibility, not a backend service responsibility.</p>
+    </div>
+
+    <h2>10. Overall System Flow</h2>
+    <div class="flow">
+      <div class="flow-step">Team leader registers or logs in.</div>
+      <div class="flow-step">Team leader creates the team and adds members.</div>
+      <div class="flow-step">Admin or Event Head publishes problem statements.</div>
+      <div class="flow-step">Team leader browses problems and submits the application.</div>
+      <div class="flow-step">Evaluator reviews the application and writes AI/manual scores.</div>
+      <div class="flow-step">Judge reviews the evaluated application and writes the final judge score.</div>
+      <div class="flow-step">Notifications and reports show the result of each stage.</div>
+    </div>
+
+    <h3>Full lifecycle</h3>
+    <p>Registration -> Team creation -> Problem selection -> Application submission -> Evaluation -> Judging -> Report display -> Notification feed.</p>
+
+    <h2>11. Data Flow Diagram</h2>
+    <table>
+      <tr><th>Flow</th><th>Description</th></tr>
+      <tr><td>User -> Frontend</td><td>The user enters forms and navigates between pages.</td></tr>
+      <tr><td>Frontend -> API</td><td>Axios sends GET, POST, and PUT requests to Spring Boot endpoints.</td></tr>
+      <tr><td>API -> Backend</td><td>Controllers delegate to service classes.</td></tr>
+      <tr><td>Backend -> Database</td><td>Repositories persist or query JPA entities in MySQL.</td></tr>
+      <tr><td>Database -> Backend</td><td>Persisted rows are mapped back to Java objects.</td></tr>
+      <tr><td>Backend -> Response</td><td>Controllers return JSON responses or file streams.</td></tr>
+      <tr><td>Response -> UI</td><td>The frontend updates tables, dashboards, notifications, and session state.</td></tr>
+    </table>
+
+    <h2>12. Key Strengths, Missing Components, and Suggestions</h2>
+    <h3>Strengths</h3>
+    <ul>
+      <li>Clear controller-service-repository layering.</li>
+      <li>Complete role-based workflow coverage across leader, member, evaluator, and judge.</li>
+      <li>Practical duplicate checks and file validation.</li>
+      <li>Environment-driven frontend API URL support for deployment flexibility.</li>
+      <li>Useful notifications and dashboards for day-to-day monitoring.</li>
+    </ul>
+
+    <h3>Missing or incomplete components</h3>
+    <ul>
+      <li>No JWT or server-side session authorization layer is present.</li>
+      <li>The normalized evaluation tables exist but are not the primary runtime path.</li>
+      <li>Leaderboard is based on submission count, not final performance.</li>
+      <li>Automated tests are minimal.</li>
+      <li>CORS is permissive and should be tightened for production.</li>
+    </ul>
+
+    <h3>Suggestions for improvement</h3>
+    <ol>
+      <li>Add JWT-based authentication and backend authorization guards.</li>
+      <li>Move AI scoring into the backend to protect API keys and centralize behavior.</li>
+      <li>Use Flyway or Liquibase for migration control.</li>
+      <li>Normalize evaluation and judging data if that is the intended design.</li>
+      <li>Add integration tests for registration, team creation, submission, evaluation, and judging.</li>
+      <li>Tighten production CORS and add stronger validation annotations.</li>
+    </ol>
+
+    <div class="footer">
+      <p><b>Document note:</b> This HTML report is the web-format version of the system analysis. It can be opened in a browser or copied into Word if needed.</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -98,8 +98,8 @@ export default function EvaluateButton({
       () => setDots(d => d.length >= 3 ? '.' : d + '.'), 500
     );
     try {
-      const system = `You are an expert hackathon judge.
-Respond ONLY with valid JSON, no markdown:
+      const system = `You are an expert innovation evaluator.
+    Respond ONLY with valid JSON, no markdown:
 {
   "problemSolutionFit": <integer 1-10>,
   "innovation": <integer 1-10>,

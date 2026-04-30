@@ -12,10 +12,10 @@ function Home() {
       <section className="home-stats">
         <div className="home-section-header">
           <h2>Platform Snapshot</h2>
-          <p>Core numbers that make the hackathon ecosystem feel national-scale.</p>
+          <p>Core numbers that make the platform's innovation ecosystem feel national-scale.</p>
         </div>
         <div className="home-card-grid stats-grid">
-          <div className="home-card stat-card"><strong>26 Lakh+</strong><span>Hackathon ecosystem reach</span></div>
+          <div className="home-card stat-card"><strong>26 Lakh+</strong><span>Platform ecosystem reach</span></div>
           <div className="home-card stat-card"><strong>100+</strong><span>Problem statements</span></div>
           <div className="home-card stat-card"><strong>7</strong><span>Role-based user journeys</span></div>
         </div>
@@ -55,7 +55,7 @@ function Home() {
       <section className="home-events">
         <div className="home-section-header">
           <h2>Featured Events</h2>
-          <p>Showcasing hackathon-style event cards for a professional portal feel.</p>
+          <p>Showcasing innovation-style event cards for a professional portal feel.</p>
         </div>
         <div className="home-card-grid event-grid">
           <div className="event-card">
