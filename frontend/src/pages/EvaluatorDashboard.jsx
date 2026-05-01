@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getApplications, getProblems } from "../services/api";
+import { getApplications, getProblems, unwrapApiData } from "../services/api";
 import "./judging.css";
 
 function EvaluatorDashboard() {
@@ -19,8 +19,10 @@ function EvaluatorDashboard() {
         const [appsRes, problemsRes] = await Promise.all([getApplications(), getProblems()]);
         if (cancelled) return;
 
-        const apps = Array.isArray(appsRes?.data) ? appsRes.data : [];
-        const problems = Array.isArray(problemsRes?.data) ? problemsRes.data : [];
+        const appsData = unwrapApiData(appsRes);
+        const problemsData = unwrapApiData(problemsRes);
+        const apps = Array.isArray(appsData) ? appsData : [];
+        const problems = Array.isArray(problemsData) ? problemsData : [];
         const problemMap = new Map(problems.map((p) => [String(p.problemId), p]));
 
         const normalized = apps.map((app) => {

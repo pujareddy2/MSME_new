@@ -2,6 +2,7 @@ package com.sih.backend.controller;
 
 import com.sih.backend.dto.EvaluationRequest;
 import com.sih.backend.dto.JudgingRequest;
+import com.sih.backend.dto.ApplicationSummaryResponse;
 import com.sih.backend.model.Application;
 import com.sih.backend.service.ApplicationService;
 
@@ -43,12 +44,12 @@ public class ApplicationController {
     }
 
     @GetMapping
-    public List<Application> getAllApplications() {
+    public List<ApplicationSummaryResponse> getAllApplications() {
         return applicationService.getAllApplications();
     }
 
     @GetMapping("/{id}")
-    public Application getApplicationById(@PathVariable Long id) {
+    public ApplicationSummaryResponse getApplicationById(@PathVariable Long id) {
         return applicationService.getApplicationById(id);
     }
 
@@ -64,7 +65,7 @@ public class ApplicationController {
 
     @GetMapping("/{id}/submission-file")
     public ResponseEntity<Resource> viewSubmissionFile(@PathVariable Long id) {
-        Application application = applicationService.getApplicationById(id);
+        Application application = applicationService.getApplicationEntityById(id);
         if (application.getPptFilePath() == null || application.getPptFilePath().isBlank()) {
             return ResponseEntity.notFound().build();
         }

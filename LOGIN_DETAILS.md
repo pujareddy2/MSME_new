@@ -2,8 +2,26 @@
 
 This file is a single place to check login accounts currently stored in database.
 
-Last verified from DB (for listed accounts): 2026-04-20
+Last verified from DB (for listed accounts): 2026-05-01
 Database: Organization_portal
+
+**STATUS: ✅ All credentials synchronized - Email and phone-based login working**
+
+## SUMMARY OF CHANGES (2026-05-01)
+
+### Changes Made to Database:
+1. **Password Synchronization**: All platform role users (EVALUATOR, JUDGE, MENTOR, EVENT_HEAD, COLLEGE_SPOC, ADMIN) now have password `8004254595` with matching BCrypt hash
+2. **Duplicate Phone Numbers Fixed**: Resolved conflict where multiple users shared same phone numbers:
+   - organization.local users: Assigned unique numbers (9999999001-9999999005)
+   - platform.local users: Kept documented numbers (9000000001-9000000006)
+3. **Database Records Updated**: User IDs and phone numbers now accurately reflect database state
+4. **Authentication Verified**: Both email and phone-based login tested and confirmed working
+
+### Result:
+✅ Email login works: `evaluator@platform.local` + password `8004254595`
+✅ Phone login works: `9000000001` + password `8004254595`
+✅ All role-based routing functional
+✅ Database credentials synchronized with code
 
 ## 1. Login Form Inputs
 Use these values in login page:
@@ -15,31 +33,25 @@ Frontend source: frontend/src/pages/Login.jsx
 
 ## 2. Role-Wise Accounts Present In DB
 
-### TEAM_LEAD (listed: 5)
+### TEAM_LEAD (listed: 1)
 Stored users:
 
 | user_id | name | email | phone | status | password |
 |---|---|---|---|---|---|
-| 1 | Lead One | lead.20260410004026@example.com | 9999999990 | ACTIVE | Not readable from DB (bcrypt hash only) |
-| 2 | Lead One | lead.20260410004112305.8c1ea937@example.com | 7004112305 | ACTIVE | Not readable from DB (bcrypt hash only) |
-| 4 | Lead One | lead.20260410004254595.4d89413e@example.com | 7004254595 | ACTIVE | Not readable from DB (bcrypt hash only) |
-| 6 | Lead One | lead.20260410004516308.4e56aafa@example.com | 7004516308 | ACTIVE | Not readable from DB (bcrypt hash only) |
-| 8 | Lead One | lead.20260410004651607.d00743a7@example.com | 7004651607 | ACTIVE | Not readable from DB (bcrypt hash only) |
+| 2 | Team Leader One | leader@organization.local | 9999999002 | ACTIVE | Not readable from DB (bcrypt hash only) |
 
 Login usage:
 - Email/Phone: one of above email or phone values
 - Role: TEAM_LEAD
 - Password: use the original password used at registration
 
-### TEAM_MEMBER (listed: 4)
+### TEAM_MEMBER (listed: 2)
 Stored users:
 
 | user_id | name | email | phone | status | password |
 |---|---|---|---|---|---|
-| 5 | Lead One | member.20260410004254595.4d89413e@example.com | 8004254595 | INVITED | 8004254595 |
-| 7 | Lead One | member.20260410004516308.4e56aafa@example.com | 8004516308 | INVITED | 8004516308 |
-| 9 | Lead One | member.20260410004651607.d00743a7@example.com | 8004651607 | INVITED | 8004651607 |
-| 10 | puja | middepuja1005@gmail.com | 9121290912 | ACTIVE | 1234 |
+| 5 | Team Member One | member@organization.local | 9999999005 | ACTIVE | 9999999005 |
+| 13 | puja | middepuja1005@gmail.com | 9121290912 | ACTIVE | 1234 |
 
 Login usage:
 - Email/Phone: member email or member phone
@@ -51,7 +63,7 @@ Stored users:
 
 | user_id | name | email | phone | status | password |
 |---|---|---|---|---|---|
-| 11 | Evaluator User | evaluator@platform.local | 9000000001 | ACTIVE | 8004254595 |
+| 8 | Evaluator User | evaluator@platform.local | 9000000001 | ACTIVE | 8004254595 |
 
 Login usage:
 - Email/Phone: evaluator@platform.local or 9000000001
@@ -63,7 +75,7 @@ Stored users:
 
 | user_id | name | email | phone | status | password |
 |---|---|---|---|---|---|
-| 12 | Judge User | judge@platform.local | 9000000002 | ACTIVE | 8004254595 |
+| 9 | Judge User | judge@platform.local | 9000000002 | ACTIVE | 8004254595 |
 
 Login usage:
 - Email/Phone: judge@platform.local or 9000000002
@@ -75,7 +87,7 @@ Stored users:
 
 | user_id | name | email | phone | status | password |
 |---|---|---|---|---|---|
-| 13 | Mentor User | mentor@platform.local | 9000000003 | ACTIVE | 8004254595 |
+| 10 | Mentor User | mentor@platform.local | 9000000003 | ACTIVE | 8004254595 |
 
 Login usage:
 - Email/Phone: mentor@platform.local or 9000000003
@@ -87,7 +99,7 @@ Stored users:
 
 | user_id | name | email | phone | status | password |
 |---|---|---|---|---|---|
-| 14 | Event Head User | eventhead@platform.local | 9000000004 | ACTIVE | 8004254595 |
+| 11 | Event Head User | eventhead@platform.local | 9000000004 | ACTIVE | 8004254595 |
 
 Login usage:
 - Email/Phone: eventhead@platform.local or 9000000004
@@ -99,7 +111,7 @@ Stored users:
 
 | user_id | name | email | phone | status | password |
 |---|---|---|---|---|---|
-| 15 | College SPOC User | spoc@platform.local | 9000000005 | ACTIVE | 8004254595 |
+| 12 | College SPOC User | spoc@platform.local | 9000000005 | ACTIVE | 8004254595 |
 
 Login usage:
 - Email/Phone: spoc@platform.local or 9000000005
@@ -111,7 +123,7 @@ Stored users:
 
 | user_id | name | email | phone | status | password |
 |---|---|---|---|---|---|
-| 16 | Admin User | admin@platform.local | 9000000006 | ACTIVE | 8004254595 |
+| 6 | Admin User | admin@platform.local | 9000000006 | ACTIVE | 8004254595 |
 
 Login usage:
 - Email/Phone: admin@platform.local or 9000000006

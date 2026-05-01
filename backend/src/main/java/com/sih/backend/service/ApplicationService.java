@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sih.backend.dto.ApplicationCreateRequest;
 import com.sih.backend.dto.EvaluationRequest;
 import com.sih.backend.dto.JudgingRequest;
+import com.sih.backend.dto.ApplicationSummaryResponse;
 import com.sih.backend.model.Application;
 import com.sih.backend.model.ProblemStatement;
 import com.sih.backend.model.Team;
+import com.sih.backend.model.User;
 import com.sih.backend.repository.ApplicationRepository;
 import com.sih.backend.repository.ProblemStatementRepository;
 import com.sih.backend.repository.TeamRepository;
@@ -50,11 +52,19 @@ public class ApplicationService {
         this.notificationService = notificationService;
     }
 
-    public List<Application> getAllApplications() {
-        return applicationRepository.findAll();
+    public List<ApplicationSummaryResponse> getAllApplications() {
+        return applicationRepository.findAll().stream()
+                .map(this::toSummaryResponse)
+                .toList();
     }
 
-    public Application getApplicationById(Long id) {
+    public ApplicationSummaryResponse getApplicationById(Long id) {
+        return applicationRepository.findById(id)
+                .map(this::toSummaryResponse)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
+    }
+
+    public Application getApplicationEntityById(Long id) {
         return applicationRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
     }
@@ -248,5 +258,69 @@ public class ApplicationService {
         } catch (IOException exception) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to store PPT file", exception);
         }
+    }
+
+    private ApplicationSummaryResponse toSummaryResponse(Application application) {
+        ApplicationSummaryResponse response = new ApplicationSummaryResponse();
+        response.setApplicationId(application.getId());
+        response.setAbstractText(application.getAbstractText());
+        response.setSubmissionVersion(application.getSubmissionVersion());
+        response.setSubmissionStatus(application.getSubmissionStatus());
+        response.setSubmissionDate(application.getSubmissionDate());
+        response.setPptFileName(application.getPptFileName());
+        response.setTechnologyStack(application.getTechnologyStack());
+        response.setGithubLink(application.getGithubLink());
+        response.setDemoLink(application.getDemoLink());
+        response.setAiScore(application.getAiScore());
+        response.setAiRemarks(application.getAiRemarks());
+        response.setManualScore(application.getManualScore());
+        response.setManualRemarks(application.getManualRemarks());
+        response.setJudgeScore(application.getJudgeScore());
+        response.setJudgedBy(application.getJudgedBy());
+        response.setEvaluatedAt(application.getEvaluatedAt());
+        response.setTeam(toTeamSummary(application.getTeam()));
+        response.setProblem(toProblemSummary(application.getProblem()));
+        return response;
+    }
+
+    private ApplicationSummaryResponse.TeamSummary toTeamSummary(Team team) {
+        if (team == null) {
+            return null;
+        }
+
+        ApplicationSummaryResponse.TeamSummary response = new ApplicationSummaryResponse.TeamSummary();
+        response.setTeamId(team.getTeamId());
+        response.setTeamName(team.getTeamName());
+        response.setLeader(toLeaderSummary(team.getLeader()));
+        return response;
+    }
+
+    private ApplicationSummaryResponse.LeaderSummary toLeaderSummary(User leader) {
+        if (leader == null) {
+            return null;
+        }
+
+        ApplicationSummaryResponse.LeaderSummary response = new ApplicationSummaryResponse.LeaderSummary();
+        response.setUserId(leader.getUserId());
+        response.setFullName(leader.getFullName());
+        response.setEmail(leader.getEmail());
+        response.setPhoneNumber(leader.getPhoneNumber());
+        return response;
+    }
+
+    private ApplicationSummaryResponse.ProblemSummary toProblemSummary(ProblemStatement problem) {
+        if (problem == null) {
+            return null;
+        }
+
+        ApplicationSummaryResponse.ProblemSummary response = new ApplicationSummaryResponse.ProblemSummary();
+        response.setProblemId(problem.getProblemId());
+        response.setCustomProblemId(problem.getCustomProblemId());
+        response.setProblemTitle(problem.getProblemTitle());
+        response.setProblemDescription(problem.getProblemDescription());
+        response.setTheme(problem.getTheme());
+        response.setDomain(problem.getDomain());
+        response.setStatus(problem.getStatus());
+        return response;
     }
 }
