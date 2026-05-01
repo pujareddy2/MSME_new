@@ -1,0 +1,23 @@
+CREATE TABLE IF NOT EXISTS judge_reports (
+  id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  submission_id BIGINT NOT NULL,
+  problem_id BIGINT NOT NULL,
+  team_id BIGINT NOT NULL,
+  evaluation_id BIGINT NOT NULL,
+  ai_scores LONGTEXT NULL,
+  human_scores LONGTEXT NULL,
+  judge_scores LONGTEXT NULL,
+  ai_remark LONGTEXT NULL,
+  human_remark LONGTEXT NULL,
+  judge_remark LONGTEXT NULL,
+  final_score DOUBLE NULL,
+  submission_date TIMESTAMP NULL,
+  evaluation_date TIMESTAMP NULL,
+  justification_date TIMESTAMP NULL,
+  created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_judge_report_submission FOREIGN KEY (submission_id) REFERENCES applications(id),
+  CONSTRAINT fk_judge_report_problem FOREIGN KEY (problem_id) REFERENCES problem_statements(problem_id),
+  CONSTRAINT fk_judge_report_team FOREIGN KEY (team_id) REFERENCES teams(team_id),
+  CONSTRAINT fk_judge_report_evaluation FOREIGN KEY (evaluation_id) REFERENCES evaluations(evaluation_id)
+);

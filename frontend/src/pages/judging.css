@@ -514,6 +514,15 @@
   padding: 36px 18px;
 }
 
+.report-single-column {
+  display: block;
+}
+
+.report-stack {
+  display: grid;
+  gap: 14px;
+}
+
 .report-judged .judge-card,
 .report-judged .judge-report-card,
 .report-judged .judge-workflow-card {
@@ -602,6 +611,18 @@
   border-radius: 20px;
   padding: 22px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.24);
+}
+
+.judge-justify-modal {
+  width: min(980px, 100%);
+}
+
+.judge-justify-modal .judge-section-box {
+  background: #fbfeff;
+}
+
+.judge-justify-modal .report-breakdown-list {
+  margin-top: 10px;
 }
 
 .modal-head {

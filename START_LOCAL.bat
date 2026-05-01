@@ -6,7 +6,7 @@ setlocal enabledelayedexpansion
 
 echo.
 echo ========================================
-echo MSME Innovation Platform Full Stack Startup
+echo Organization Innovation Platform Full Stack Startup
 echo ========================================
 echo.
 

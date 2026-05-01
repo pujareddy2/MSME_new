@@ -7,7 +7,7 @@ setlocal enabledelayedexpansion
 cls
 echo.
 echo ========================================
-echo MSME Innovation Platform Setup Validator
+echo Organization Innovation Platform Setup Validator
 echo ========================================
 echo.
 echo This script will check if all required

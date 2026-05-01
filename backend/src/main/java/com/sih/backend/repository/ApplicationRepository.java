@@ -11,4 +11,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 	List<Application> findByTeam_TeamId(Long teamId);
 
 	List<Application> findByProblem_ProblemId(Long problemId);
+
+	long countByProblem_ProblemId(Long problemId);
 }

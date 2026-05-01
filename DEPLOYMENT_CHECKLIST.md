@@ -1,10 +1,10 @@
-# Deployment Checklist - MSME Evaluation System
+# Deployment Checklist - Organization Evaluation System
 
 ## Phase 1: Pre-Deployment Setup ⏳
 
 ### Database Setup
 - [ ] Backup existing MySQL database
-- [ ] Review `mysql_hackathon_schema_update.sql` script (schema for MSME Innovation Platform)
+- [ ] Review `mysql_hackathon_schema_update.sql` script (schema for Organization Innovation Platform)
 - [ ] Execute SQL migration in MySQL Workbench
 - [ ] Verify schema changes:
   ```sql

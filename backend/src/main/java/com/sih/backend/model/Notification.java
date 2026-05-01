@@ -2,8 +2,6 @@ package com.sih.backend.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -17,8 +15,8 @@ import java.sql.Timestamp;
 public class Notification {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "created_at")
+    private Timestamp timestamp;
 
     @Column(columnDefinition = "TEXT")
     private String message;
@@ -29,9 +27,6 @@ public class Notification {
     @Column(name = "is_read")
     private Boolean isRead = Boolean.FALSE;
 
-    @Column(name = "timestamp")
-    private Timestamp timestamp;
-
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -41,14 +36,6 @@ public class Notification {
         if (timestamp == null) {
             timestamp = new Timestamp(System.currentTimeMillis());
         }
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getMessage() {

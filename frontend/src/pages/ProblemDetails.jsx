@@ -1,8 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import problemData from "../data/problemData";
 import { getProblemById } from "../services/api";
 import { getStoredTeam, getStoredUser } from "../utils/session";
+import { unwrapApiData } from "../services/api";
 
 function ProblemDetails() {
   const navigate = useNavigate();
@@ -17,29 +17,8 @@ function ProblemDetails() {
     }
 
     getProblemById(id)
-      .then((response) => setProblem(response.data))
-      .catch(() => {
-        const problemId = parseInt(id, 10);
-        const localProblem = problemData.find(
-          (item) => Number(item.id || item.problemId) === problemId
-        );
-
-        if (localProblem) {
-          setProblem(localProblem);
-          return;
-        }
-
-        try {
-          const storedProblems = JSON.parse(localStorage.getItem("addedProblems")) || [];
-          setProblem(
-            [...problemData, ...storedProblems].find(
-              (item) => Number(item.id || item.problemId) === problemId
-            ) || null
-          );
-        } catch (error) {
-          setProblem(null);
-        }
-      });
+      .then((response) => setProblem(unwrapApiData(response)))
+      .catch(() => setProblem(null));
   }, [id]);
 
   if (!problem) {
@@ -59,7 +38,7 @@ function ProblemDetails() {
 
           <tr>
             <td className="label">Organization</td>
-            <td>{problem.org || problem.organizationName || "MSME Innovation Platform"}</td>
+            <td>{problem.org || problem.organizationName || "Organization Innovation Platform"}</td>
           </tr>
 
           <tr>

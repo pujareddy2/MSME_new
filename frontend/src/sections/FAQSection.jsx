@@ -6,15 +6,15 @@ function FAQSection() {
   const faqs = [
     {
       q: "What is the Innovation Platform?",
-      a: "This platform connects MSMEs, government bodies, and industry partners with innovators to solve real-world problems and generate employment opportunities."
+      a: "This platform connects organizations, government bodies, and industry partners with innovators to solve real-world problems and generate employment opportunities.",
     },
     {
       q: "Who can submit problem statements?",
-      a: "Government ministries, departments, industry partners, and MSMEs can submit problem statements for collaboration."
+      a: "Government ministries, departments, industry partners, and organizations can submit problem statements for collaboration.",
     },
     {
       q: "Who can participate?",
-      a: "Students, developers, startups, and professionals interested in solving MSME challenges can participate in platform initiatives."
+      a: "Students, developers, startups, and professionals interested in solving organization challenges can participate in platform initiatives.",
     }
   ];
 

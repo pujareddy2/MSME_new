@@ -3,7 +3,7 @@
 This file is a single place to check login accounts currently stored in database.
 
 Last verified from DB (for listed accounts): 2026-04-20
-Database: msme_portal
+Database: Organization_portal
 
 ## 1. Login Form Inputs
 Use these values in login page:
@@ -136,8 +136,8 @@ Seed script file:
 ## 4. DB Verification Commands
 List all users:
 
-"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -ppuja -D msme_portal -e "SELECT user_id, full_name, email, phone_number, role_name, account_status FROM users ORDER BY role_name, user_id;"
+"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -ppuja -D Organization_portal -e "SELECT user_id, full_name, email, phone_number, role_name, account_status FROM users ORDER BY role_name, user_id;"
 
 Count by role:
 
-"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -ppuja -D msme_portal -e "SELECT role_name, COUNT(*) AS user_count FROM users GROUP BY role_name ORDER BY role_name;"
+"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -ppuja -D Organization_portal -e "SELECT role_name, COUNT(*) AS user_count FROM users GROUP BY role_name ORDER BY role_name;"

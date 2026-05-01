@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { finalizeJudgeDecision, getApplicationById, getSubmissionDetails, unwrapApiData } from "../services/api";
+import { finalizeJudgeDecision, getApplicationById, getSubmissionDetailsCompat, unwrapApiData } from "../services/api";
 import { getStoredUser } from "../utils/session";
 import "./judging.css";
 
@@ -26,7 +26,7 @@ function Judge() {
         setLoading(true);
 
         const [reportResponse, applicationResponse] = await Promise.all([
-          getSubmissionDetails(id).catch(() => null),
+          getSubmissionDetailsCompat(id).catch(() => null),
           getApplicationById(id).catch(() => null),
         ]);
 
@@ -69,6 +69,8 @@ function Judge() {
 
   const criteriaRows = report?.criteriaScores || [];
   const isJudged = status === "JUDGED" || Boolean(report?.finalDecision && report.finalDecision !== "PENDING");
+  const appliedAtSource = report?.appliedAt || application?.submissionDate;
+  const appliedAt = appliedAtSource ? new Date(appliedAtSource).toLocaleString() : "N/A";
 
   const handleCompleteJudging = async () => {
     if (!currentUser?.userId) {
@@ -180,6 +182,9 @@ function Judge() {
               <p className="meta-value">{criteriaRows.length}</p>
             </div>
           </div>
+          <p><b>Problem Statement:</b> {report?.problemStatement || application?.problem?.problemDescription || "N/A"}</p>
+          <p><b>Application Status:</b> {report?.applicationStatus || application?.submissionStatus || "SUBMITTED"}</p>
+          <p><b>Applied At:</b> {appliedAt}</p>
         </section>
 
         <section className="judge-section-box report-score-grid report-breakdown-box">

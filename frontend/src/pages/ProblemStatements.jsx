@@ -12,9 +12,9 @@ function ProblemStatements() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [entries, setEntries] = useState(10);
+  const [sortBy, setSortBy] = useState("newest");
+  const [filterBy, setFilterBy] = useState("all");
   const [activePanel, setActivePanel] = useState("");
-  const [aiPanelOpen, setAiPanelOpen] = useState(false);
-  const [aiSelected, setAiSelected] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -119,7 +119,7 @@ function ProblemStatements() {
         <h1 className="ps-title">Problem Statements</h1>
         <div className="ps-top-actions">
           <button className="primary-btn" onClick={() => navigate("/add-problem")}>Add Problem Statement</button>
-          <button className="secondary-btn" onClick={() => setAiPanelOpen(true)}>AI-Based Automations</button>
+          <button className="secondary-btn" onClick={() => window.open("http://localhost:8080/api/template/download", "_blank")}>Download Template</button>
         </div>
         <div className="stats-row">
           <button className="stat-card clickable" onClick={() => setActivePanel("problems")}>
@@ -133,12 +133,43 @@ function ProblemStatements() {
         </div>
       </div>
 
+      {/* Filter Controls - 3 Box Layout */}
+      <div className="filter-controls">
+        <div className="filter-box">
+          <label>Show Entries</label>
+          <select value={entries} onChange={(e) => setEntries(Number(e.target.value))}>
+            <option value={10}>10 entries</option>
+            <option value={25}>25 entries</option>
+            <option value={50}>50 entries</option>
+            <option value={100}>100 entries</option>
+          </select>
+        </div>
+
+        <div className="filter-box">
+          <label>Sort By</label>
+          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="submissions-high">Most Submissions</option>
+            <option value="submissions-low">Least Submissions</option>
+          </select>
+        </div>
+
+        <div className="filter-box">
+          <label>Filter By</label>
+          <select value={filterBy} onChange={(e) => setFilterBy(e.target.value)}>
+            <option value="all">All Problems</option>
+            <option value="active">Active Only</option>
+            <option value="inactive">Inactive Only</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="team-note">
+        <strong>Team Size:</strong> Maximum 3 members
+      </div>
+
       <div className="table-controls">
-        <select value={entries} onChange={(e) => setEntries(Number(e.target.value))}>
-          <option value={10}>Show 10</option>
-          <option value={25}>Show 25</option>
-          <option value={50}>Show 50</option>
-        </select>
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -156,7 +187,6 @@ function ProblemStatements() {
               <th>Theme</th>
               <th>Sector</th>
               <th>Submissions</th>
-              <th>Team Note</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -169,7 +199,7 @@ function ProblemStatements() {
               visibleProblems.map((problem, index) => (
                 <tr key={problem.problemId}>
                   <td>{index + 1}</td>
-                  <td>{problem.problemId}</td>
+                  <td>{problem.customProblemId || problem.problemId}</td>
                   <td>
                     <strong>{problem.problemTitle}</strong>
                     <div className="muted">{problem.status || "ACTIVE"}</div>
@@ -177,7 +207,6 @@ function ProblemStatements() {
                   <td>{problem.theme || "General"}</td>
                   <td>{problem.domain || "General"}</td>
                   <td>{submissionCountByProblem[problem.problemId] || 0}</td>
-                  <td>Team size: Maximum 6 members</td>
                   <td>
                     <button className="action-btn" onClick={() => handleApply(problem.problemId)}>Apply</button>
                   </td>
@@ -208,39 +237,6 @@ function ProblemStatements() {
               </div>
             )}
             <button className="secondary-btn" onClick={() => setActivePanel("")}>Close</button>
-          </div>
-        </div>
-      )}
-
-      {aiPanelOpen && (
-        <div className="overlay" onClick={() => setAiPanelOpen(false)}>
-          <div className="modal-card wide" onClick={(e) => e.stopPropagation()}>
-            <h3>Previous Problem Statements</h3>
-            <div className="ai-list">
-              {problems.map((problem) => (
-                <button key={problem.problemId} className="ai-item" onClick={() => setAiSelected(problem)}>
-                  <div><strong>Problem ID:</strong> {problem.problemId}</div>
-                  <div><strong>Title:</strong> {problem.problemTitle}</div>
-                  <div><strong>Theme:</strong> {problem.theme || "General"}</div>
-                  <pre>{formatMultilineDescription(problem.problemDescription)}</pre>
-                </button>
-              ))}
-            </div>
-            <button className="secondary-btn" onClick={() => setAiPanelOpen(false)}>Close</button>
-          </div>
-        </div>
-      )}
-
-      {aiSelected && (
-        <div className="overlay" onClick={() => setAiSelected(null)}>
-          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-            <h3>{aiSelected.problemTitle}</h3>
-            <p><strong>Problem ID:</strong> {aiSelected.problemId}</p>
-            <p><strong>Theme:</strong> {aiSelected.theme || "General"}</p>
-            <p><strong>Sector:</strong> {aiSelected.domain || "General"}</p>
-            <p><strong>Status:</strong> {aiSelected.status || "ACTIVE"}</p>
-            <div className="description-box">{aiSelected.problemDescription || "No description available."}</div>
-            <button className="secondary-btn" onClick={() => setAiSelected(null)}>Close</button>
           </div>
         </div>
       )}

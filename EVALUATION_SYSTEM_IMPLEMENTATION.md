@@ -1,7 +1,7 @@
-# MSME Innovation Platform - Evaluation & Judging System Implementation
+# Organization Innovation Platform - Evaluation & Judging System Implementation
 
 ## Overview
-This document details the complete implementation of the criteria-based evaluation and judging system for the MSME Innovation Platform. The system enables evaluators to score submissions across multiple criteria with automatic weighted score calculation, and judges to review evaluations and submit final decisions.
+This document details the complete implementation of the criteria-based evaluation and judging system for the Organization Innovation Platform. The system enables evaluators to score submissions across multiple criteria with automatic weighted score calculation, and judges to review evaluations and submit final decisions.
 
 ---
 

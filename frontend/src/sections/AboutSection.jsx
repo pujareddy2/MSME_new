@@ -9,7 +9,7 @@ function AboutSection() {
         </p>
 
         <p>
-          By focusing on job creation, MSME support, and digital transformation, this platform empowers entrepreneurs—
+          By focusing on job creation, organization support, and digital transformation, this platform empowers entrepreneurs—
           including women and marginalized groups—to turn local ventures into sustainable businesses and create new employment opportunities.
         </p>
 

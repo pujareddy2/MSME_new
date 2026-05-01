@@ -96,6 +96,50 @@
   width: min(430px, 100%);
 }
 
+/* New Filter Controls */
+.filter-controls {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.filter-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-box label {
+  font-weight: 600;
+  color: #244357;
+  font-size: 13px;
+}
+
+.filter-box select {
+  border: 1px solid #bcd2de;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fff;
+  color: #244357;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.filter-box select:hover {
+  border-color: #92c5d6;
+}
+
+.team-note {
+  background: #e8f2f9;
+  padding: 12px 16px;
+  border-radius: 10px;
+  color: #244357;
+  font-size: 13px;
+  margin-bottom: 12px;
+  border-left: 4px solid #2f7f97;
+}
+
 .table-container {
   overflow-x: auto;
 }

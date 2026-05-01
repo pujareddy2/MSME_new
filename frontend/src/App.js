@@ -11,6 +11,7 @@ import RegisterTeamLeader from "./pages/RegisterTeamLeader";
 
 import ProblemStatement from "./pages/ProblemStatements";
 import ProblemDetails from "./pages/ProblemDetails";
+import ProblemAnalysis from "./pages/ProblemAnalysis";
 
 import Application from "./pages/Application";
 import Confirmation from "./pages/confirmation";
@@ -66,6 +67,7 @@ function App() {
           {/* Problem Statements */}
           <Route path="/problems" element={<ProblemStatement />} />
           <Route path="/problems/:id" element={<ProblemDetails />} />
+          <Route path="/problem-analysis" element={<ProblemAnalysis />} />
 
           {/* Application Flow */}
           <Route path="/apply/:id" element={<Application />} />

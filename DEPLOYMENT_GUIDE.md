@@ -1,4 +1,4 @@
-# Complete Full Stack Setup Guide for MSME Innovation Platform
+# Complete Full Stack Setup Guide for Organization Innovation Platform
 ## Running on Another Laptop (Windows/Mac/Linux)
 
 This guide covers how to set up and run the entire integrated system from scratch.
@@ -135,7 +135,7 @@ mysql -u root -p
 Inside MySQL CLI, run:
 
 ```sql
-CREATE DATABASE msme_portal;
+CREATE DATABASE Organization_portal;
 EXIT;
 ```
 
@@ -144,7 +144,7 @@ EXIT;
 ```powershell
 mysql -u root -p
 SHOW DATABASES;
-# Should list: msme_portal
+# Should list: Organization_portal
 EXIT;
 ```
 
@@ -406,7 +406,7 @@ Creates `backend/target/backend-0.0.1-SNAPSHOT.jar`
 **Problem:** Database doesn't exist
 - Solution: Create it again
   ```sql
-  CREATE DATABASE msme_portal;
+  CREATE DATABASE Organization_portal;
   ```
 
 ### Frontend won't start
@@ -455,7 +455,7 @@ Creates `backend/target/backend-0.0.1-SNAPSHOT.jar`
 
 ```properties
 # Database
-spring.datasource.url=jdbc:mysql://localhost:3306/msme_portal
+spring.datasource.url=jdbc:mysql://localhost:3306/Organization_portal
 spring.datasource.username=${DB_USERNAME:puja}
 spring.datasource.password=${DB_PASSWORD:puja}
 
@@ -504,7 +504,7 @@ npm start
 
 ```powershell
 mysql -u root -p
-USE msme_portal;
+USE Organization_portal;
 SELECT * FROM users;
 SELECT * FROM teams;
 SELECT * FROM applications;

@@ -12,7 +12,7 @@ const HeroSection = () => {
           </p>
 
           <div className="hero-quote">
-            aims to foster inclusive growth, technological advancement, and job creation by connecting MSMEs with innovators and practical solutions.
+            aims to foster inclusive growth, technological advancement, and job creation by connecting organizations with innovators and practical solutions.
           </div>
 
            <Link to="/problems" className="hero-btn">

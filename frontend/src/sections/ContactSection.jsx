@@ -8,14 +8,14 @@ const ContactSection = () => {
         <div className="contact-left">
           <h2>Contact Us</h2>
           <p>
-            For queries related to the MSME Innovation Platform,
+            For queries related to the Organization Innovation Platform,
             guidelines, or technical assistance, reach out to us.
           </p>
 
           <div className="contact-info">
-            <p><strong>Email:</strong> support@msme-innovation.gov.in</p>
+            <p><strong>Email:</strong> support@organization-innovation.gov.in</p>
             <p><strong>Phone:</strong> +91 11 2958 1000</p>
-            <p><strong>Address:</strong> MSME Innovation Platform Secretariat, New Delhi, India</p>
+            <p><strong>Address:</strong> Organization Innovation Platform Secretariat, New Delhi, India</p>
           </div>
         </div>
 

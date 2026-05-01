@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getApplicationById, getEvaluationReport, getSubmissionViewUrl, runAiEvaluation, submitUnifiedEvaluationCompat, unwrapApiData } from "../services/api";
+import { getApplicationById, getEvaluationReportCompat, getSubmissionViewUrl, runAiEvaluation, submitUnifiedEvaluationCompat, unwrapApiData } from "../services/api";
 import { getStoredUser } from "../utils/session";
 import "./judging.css";
 
@@ -133,9 +133,14 @@ function Evaluate() {
         humanScores,
         humanRemark: humanRemark.trim(),
       });
-      const reportRes = await getEvaluationReport(Number(id));
-      const report = unwrapApiData(reportRes);
       setSuccessMessage("Evaluation submitted successfully.");
+      let report = null;
+      try {
+        const reportRes = await getEvaluationReportCompat(Number(id));
+        report = unwrapApiData(reportRes);
+      } catch (reportError) {
+        console.warn("Report refresh failed after submit", reportError);
+      }
       navigate(`/evaluation-report/${id}`, { state: { report, toast: "Evaluation submitted successfully." } });
     } catch (error) {
       const message = error?.response?.data?.message || "Failed to submit evaluation.";

@@ -1,6 +1,7 @@
 package com.sih.backend.controller;
 
 import com.sih.backend.dto.JudgeFinalizeRequest;
+import com.sih.backend.dto.JudgeJustifyRequest;
 import com.sih.backend.dto.SubmissionDetailsResponse;
 import com.sih.backend.service.JudgeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +63,28 @@ public class JudgeController {
         }
     }
 
+    @PostMapping("/justify")
+    public ResponseEntity<?> justifyProblem(@RequestBody JudgeJustifyRequest request) {
+        try {
+            SubmissionDetailsResponse response = judgeService.justifyProblem(request);
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("message", "Submission justified successfully");
+            result.put("data", response);
+            return ResponseEntity.ok(result);
+        } catch (RuntimeException e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "Error processing justification: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+
     @GetMapping("/dashboard")
     public ResponseEntity<?> getJudgeDashboard() {
         return getJudgeEvaluations();
@@ -72,6 +95,22 @@ public class JudgeController {
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
         result.put("data", judgeService.getEvaluationReport(submissionId));
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/reports")
+    public ResponseEntity<?> getJudgeReports() {
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("data", judgeService.getJudgeReports());
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/report/{id}")
+    public ResponseEntity<?> getJudgeReport(@PathVariable Long id) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("data", judgeService.getJudgeReportById(id));
         return ResponseEntity.ok(result);
     }
 

@@ -51,13 +51,37 @@ export const submitUnifiedEvaluationCompat = async (data) => {
 		throw error;
 	}
 };
-export const getEvaluationReport = (submissionId) => api.get(`/evaluations/report/${submissionId}`);
+export const getEvaluationReportCompat = async (submissionId) => {
+	try {
+		return await api.get(`/evaluations/report/${submissionId}`);
+	} catch (error) {
+		const status = error?.response?.status;
+		if (status === 404 || status === 405) {
+			return api.get(`/evaluation/report/${submissionId}`);
+		}
+		throw error;
+	}
+};
+export const getSubmissionDetailsCompat = async (submissionId) => {
+	try {
+		return await api.get(`/evaluations/submissions/${submissionId}/details`);
+	} catch (error) {
+		const status = error?.response?.status;
+		if (status === 404 || status === 405) {
+			return api.get(`/evaluation/${submissionId}`);
+		}
+		throw error;
+	}
+};
 export const getProblemSubmissionCount = (problemId) => api.get(`/evaluations/problems/${problemId}/solutions/count`);
 export const getProblemEvaluationSummary = (problemId) => api.get(`/evaluations/problems/${problemId}/evaluation-summary`);
 export const getJudgeDashboard = () => api.get("/judge/dashboard");
 export const getJudgeEvaluations = () => api.get("/judge/evaluations");
 export const getPendingJudgmentCount = () => api.get("/judge/dashboard/pending-count");
 export const finalizeJudgeDecision = (data) => api.post("/judge/finalize", data);
+export const justifyJudgeDecision = (data) => api.post("/judge/justify", data);
+export const getJudgeReports = () => api.get("/judge/reports");
+export const getJudgeReportById = (id) => api.get(`/judge/report/${id}`);
 
 export const getNotifications = (userId) => api.get(`/notifications/user/${userId}`);
 export const createNotification = (data) => api.post("/notifications", data);

@@ -1,5 +1,7 @@
 package com.sih.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -12,6 +14,9 @@ public class ProblemStatement {
     @Id
     @Column(name = "problem_id")
     private Long problemId;
+
+    @Column(name = "custom_problem_id", unique = true, nullable = true)
+    private String customProblemId;  // e.g., "NV01", "NV02"
 
     @Column(name = "problem_title")
     private String problemTitle;
@@ -40,9 +45,11 @@ public class ProblemStatement {
     @JoinColumn(name = "created_by_admin_id")
     private User createdBy;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "problem")
     private List<Application> applications = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "problem")
     private List<Team> teams = new ArrayList<>();
 
@@ -54,6 +61,14 @@ public class ProblemStatement {
 
     public void setProblemId(Long problemId) {
         this.problemId = problemId;
+    }
+
+    public String getCustomProblemId() {
+        return customProblemId;
+    }
+
+    public void setCustomProblemId(String customProblemId) {
+        this.customProblemId = customProblemId;
     }
 
     public String getProblemTitle() {

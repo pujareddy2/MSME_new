@@ -50,7 +50,7 @@ public class NotificationService {
     }
 
     public NotificationResponse markAsRead(Long notificationId) {
-        Notification notification = notificationRepository.findById(notificationId)
+        Notification notification = notificationRepository.findById(new Timestamp(notificationId))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Notification not found"));
         notification.setIsRead(Boolean.TRUE);
         return toResponse(notificationRepository.save(notification));
@@ -58,7 +58,7 @@ public class NotificationService {
 
     private NotificationResponse toResponse(Notification notification) {
         NotificationResponse response = new NotificationResponse();
-        response.setId(notification.getId());
+        response.setId(notification.getTimestamp() == null ? null : notification.getTimestamp().getTime());
         response.setMessage(notification.getMessage());
         response.setType(notification.getType());
         response.setIsRead(notification.getIsRead());

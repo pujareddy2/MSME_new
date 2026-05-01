@@ -1,10 +1,10 @@
-# MSME Innovation Platform (Full Stack)
+# Organization Innovation Platform (Full Stack)
 
 This repository now runs as an integrated full-stack system:
 
 - Frontend: React application in `frontend/`
 -- Backend: Spring Boot REST API in `backend/`
--- Database: MySQL (`msme_portal`)
+-- Database: MySQL (`Organization_portal`)
 
 ## 🚀 Quick Start (For Immediate Setup)
 
@@ -125,7 +125,7 @@ Install these first:
 ### 1. Create database
 
 ```sql
-CREATE DATABASE msme_portal;
+CREATE DATABASE Organization_portal;
 ```
 
 ### 2. Backend DB config
@@ -136,7 +136,7 @@ The backend reads credentials from environment variables:
 - `DB_PASSWORD`
 
 Fallback defaults currently present in `application.properties`:
-- username: `puja`
+- username: `root`
 - password: `puja`
 
 > Recommended: always set real environment variables in production.
@@ -174,9 +174,19 @@ Invoke-WebRequest -Uri "http://localhost:8080/api/problems" -UseBasicParsing | S
 netstat -ano | findstr :8080
 taskkill /PID <PID_NUMBER> /F
 
-$env:DB_USERNAME="root"
-$env:DB_PASSWORD="puja"  # use your MySQL password
-& "C:\Desktop\Platform\backend\mvnw.cmd" -f "C:\Desktop\Platform\backend\pom.xml" spring-boot:run
+# Start backend (PowerShell)
+# Set DB environment variables for this PowerShell session (replace with your MySQL password):
+$env:DB_USERNAME = "root"
+$env:DB_PASSWORD = "puja"  # use your MySQL password
+Set-Location .\backend
+.\mvnw.cmd spring-boot:run
+
+# Alternatively, start from Command Prompt (cmd.exe):
+# In cmd.exe (replace with your MySQL password):
+# set DB_USERNAME=root
+# set DB_PASSWORD=puja
+# cd backend
+# mvnw.cmd spring-boot:run
 ```
 
 Mac/Linux (bash/zsh):
@@ -191,8 +201,9 @@ lsof -i :8080
 kill -9 <PID_NUMBER>
 
 cd backend
-export DB_USERNAME="root"
-export DB_PASSWORD="puja"   # use your MySQL password
+# Export environment variables for this shell session (replace with your MySQL password):
+export DB_USERNAME=root
+export DB_PASSWORD=puja  # use your MySQL password
 ./mvnw spring-boot:run
 ```
 to check  backedn s running or not "Invoke-WebRequest -Uri "http://localhost:8080/api/problems" -UseBasicParsing | Select-Object -ExpandProperty StatusCode"      

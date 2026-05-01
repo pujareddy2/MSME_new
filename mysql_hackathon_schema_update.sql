@@ -1,4 +1,4 @@
--- MSME Innovation Platform System Schema Update
+-- Organization Innovation Platform System Schema Update
 -- Safe migration-style script
 -- Goal: preserve existing data, do not drop/recreate existing tables
 

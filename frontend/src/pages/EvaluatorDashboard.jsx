@@ -9,7 +9,7 @@ function EvaluatorDashboard() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
   const currentRole = localStorage.getItem("role");
-  const isAllowed = currentRole === "EVALUATOR" || currentRole === "JUDGE" || currentRole === "ADMIN";
+  const isAllowed = currentRole === "EVALUATOR" || currentRole === "ADMIN";
 
   useEffect(() => {
     let cancelled = false;
@@ -30,7 +30,7 @@ function EvaluatorDashboard() {
           const status = (app.submissionStatus || "SUBMITTED").toUpperCase();
           return {
             submissionId,
-            problemId: problem.problemId || problemId,
+            problemId: problem.customProblemId || problem.problemId || problemId,
             problemTitle: problem.problemTitle || "N/A",
             teamId: app.team?.teamId || app.teamId,
             teamName: app.team?.teamName || "N/A",
@@ -38,7 +38,7 @@ function EvaluatorDashboard() {
             evaluatedCount: 0,
             pendingCount: 0,
             status,
-            isEvaluated: status === "EVALUATED" || status === "JUDGED",
+            isEvaluated: status === "EVALUATED" || status === "JUDGED" || status === "JUSTIFIED",
           };
         });
 
@@ -94,6 +94,7 @@ function EvaluatorDashboard() {
             <option value="pending">Pending</option>
             <option value="evaluated">Evaluated</option>
           </select>
+          <button type="button" className="judging-refresh-btn" onClick={() => navigate("/problem-analysis")}>View Analysis</button>
           <button type="button" className="judging-refresh-btn" onClick={() => navigate("/evaluator")}>Refresh View</button>
         </div>
       </div>
@@ -104,31 +105,32 @@ function EvaluatorDashboard() {
             <thead>
               <tr>
                 <th>Problem ID</th>
-                <th>Problem Title</th>
-                <th>Team ID</th>
-                <th>Team Name</th>
-                <th>Analytics</th>
+                <th>Problem Statement</th>
+                <th>Team</th>
                 <th>Status</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="7">Loading submissions...</td></tr>
+                <tr><td colSpan="5">Loading submissions...</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan="7">No submissions found.</td></tr>
+                <tr><td colSpan="5">No submissions found.</td></tr>
               ) : (
                 filtered.map((row) => (
                   <tr key={row.submissionId}>
                     <td>{row.problemId}</td>
-                    <td>{row.problemTitle}</td>
-                    <td>{row.teamId}</td>
-                    <td>{row.teamName}</td>
                     <td>
                       <div className="table-title-stack">
-                        <span>Total: {row.totalSubmissions}</span>
+                        <strong>{row.problemTitle}</strong>
+                        <span>Submissions: {row.totalSubmissions}</span>
                         <span>Evaluated: {row.evaluatedCount}</span>
-                        <span>Pending: {row.pendingCount}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="table-title-stack">
+                        <strong>{row.teamName}</strong>
+                        <span>Team ID: {row.teamId}</span>
                       </div>
                     </td>
                     <td>
@@ -138,19 +140,11 @@ function EvaluatorDashboard() {
                     </td>
                     <td className="judging-actions-cell">
                       <button
-                        className="action-btn action-judge"
-                        onClick={() => navigate(`/evaluate/${row.submissionId}`)}
+                        className={`action-btn ${row.isEvaluated ? "action-report" : "action-judge"}`}
+                        onClick={() => navigate(row.isEvaluated ? `/evaluation-report/${row.submissionId}` : `/evaluate/${row.submissionId}`)}
                       >
                         {row.isEvaluated ? "View Report" : "Evaluate"}
                       </button>
-                      {row.isEvaluated && (
-                        <button
-                          className="action-btn action-report"
-                          onClick={() => navigate(`/evaluation-report/${row.submissionId}`)}
-                        >
-                          View Report
-                        </button>
-                      )}
                     </td>
                   </tr>
                 ))

@@ -4,7 +4,7 @@ set -e
 
 echo
 echo "========================================"
-echo "MSME Innovation Platform Backend Safe Start (Mac/Linux)"
+echo "Organization Innovation Platform Backend Safe Start (Mac/Linux)"
 echo "========================================"
 echo
 

@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 
 echo.
 echo ========================================
-echo MSME Innovation Platform Backend Safe Start (Windows)
+echo Organization Innovation Platform Backend Safe Start (Windows)
 echo ========================================
 echo.
 

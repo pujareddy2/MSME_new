@@ -148,75 +148,140 @@ function Application() {
 
   return (
     <div className="applicationPage">
-      <h2 className="teamTitle">Application Form</h2>
+      <h1 className="formTitle">Application Form</h1>
 
+      {/* SECTION A: Problem Details - FULL WIDTH */}
       {problem && (
-        <div className="teamInfoBox">
-          <h3>Problem Details</h3>
-          <p><strong>Problem ID:</strong> {problem.problemId || id}</p>
-          <p><strong>Title:</strong> {problem.problemTitle || problem.title}</p>
-          <p><strong>Organization:</strong> {problem.organizationName || problem.org || "MSME Innovation Platform"}</p>
-          <p><strong>Category:</strong> {problem.domain || problem.category}</p>
-          <p><strong>Theme:</strong> {problem.difficultyLevel || problem.theme}</p>
+        <div className="form-section full-width">
+          <h3 className="section-title">Problem Details</h3>
+          <div className="problem-details-grid">
+            <div className="detail-item">
+              <label>Problem ID</label>
+              <p>{problem.customProblemId || problem.problemId || id}</p>
+            </div>
+            <div className="detail-item">
+              <label>Problem Title</label>
+              <p>{problem.problemTitle || problem.title}</p>
+            </div>
+            <div className="detail-item">
+              <label>Theme</label>
+              <p>{problem.difficultyLevel || problem.theme || "General"}</p>
+            </div>
+          </div>
         </div>
       )}
 
-      {team ? (
-        <div className="teamInfoBox">
-          <h3>Team Overview</h3>
-          <p><strong>Team Name:</strong> {team.teamName || "No Name"}</p>
-          <p><strong>Team Leader:</strong> {currentUser?.name || "N/A"}</p>
-          <p><strong>Team Members:</strong> {team.members ? team.members.length : 0}</p>
+      <div className="form-grid">
+        {/* SECTION B: Team Overview - LEFT COLUMN */}
+        {team ? (
+          <div className="form-section left-column">
+            <h3 className="section-title">Team Overview</h3>
+            <div className="form-field">
+              <label>Team Name</label>
+              <p className="info-value">{team.teamName || "No Name"}</p>
+            </div>
+            <div className="form-field">
+              <label>Team Leader</label>
+              <p className="info-value">{currentUser?.name || "N/A"}</p>
+            </div>
+            <div className="form-field">
+              <label>Team Members</label>
+              <p className="info-value">{team.members ? team.members.length : 0}</p>
+            </div>
+          </div>
+        ) : (
+          <div className="form-section left-column">
+            <p style={{ color: "red" }}>No team found. Please create a team first.</p>
+          </div>
+        )}
+
+        {/* SECTION C: Idea & Abstract - RIGHT COLUMN */}
+        <div className="form-section right-column">
+          <h3 className="section-title">Idea & Abstract</h3>
+          <div className="form-field">
+            <label>Idea Description</label>
+            <textarea
+              className="form-textarea"
+              placeholder="Enter your solution overview"
+              value={solution}
+              onChange={(e) => setSolution(e.target.value)}
+              rows={10}
+            />
+            <div className="word-counter">Word Count: {wordCount} / 6000</div>
+          </div>
         </div>
-      ) : (
-        <p style={{ color: "red" }}>No team found. Please create a team first.</p>
-      )}
-
-      <div className="solutionBox">
-        <h3>Idea Abstract / Solution Overview</h3>
-        <textarea
-          placeholder="Enter your solution overview"
-          value={solution}
-          onChange={(e) => setSolution(e.target.value)}
-        />
-        <p>Word Count: {wordCount} / 6000</p>
       </div>
 
-      <div className="solutionBox">
-        <h3>Technology Stack</h3>
-        <input
-          type="text"
-          placeholder="Python, TensorFlow, IoT Sensors"
-          value={technologyStack}
-          onChange={(e) => setTechnologyStack(e.target.value)}
-        />
-        <h3 style={{ marginTop: 18 }}>GitHub Repository Link</h3>
-        <input
-          type="url"
-          placeholder="https://github.com/..."
-          value={githubLink}
-          onChange={(e) => setGithubLink(e.target.value)}
-        />
-        <h3 style={{ marginTop: 18 }}>Prototype Demo Link</h3>
-        <input
-          type="url"
-          placeholder="Google Drive or YouTube link"
-          value={demoLink}
-          onChange={(e) => setDemoLink(e.target.value)}
-        />
+      {/* SECTION D: Tech Stack + Links - GRID */}
+      <div className="form-grid-2col">
+        {/* LEFT: Technology Stack */}
+        <div className="form-section">
+          <h3 className="section-title">Technology Stack</h3>
+          <div className="form-field">
+            <input
+              type="text"
+              className="form-input"
+              placeholder="e.g., Python, TensorFlow, IoT Sensors"
+              value={technologyStack}
+              onChange={(e) => setTechnologyStack(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* RIGHT: Links Section */}
+        <div className="form-section">
+          <h3 className="section-title">Project Links</h3>
+          
+          <div className="form-field">
+            <label>GitHub Repository Link</label>
+            <input
+              type="url"
+              className="form-input"
+              placeholder="https://github.com/..."
+              value={githubLink}
+              onChange={(e) => setGithubLink(e.target.value)}
+            />
+          </div>
+
+          <div className="form-field">
+            <label>Demo Link</label>
+            <input
+              type="url"
+              className="form-input"
+              placeholder="Google Drive or YouTube link"
+              value={demoLink}
+              onChange={(e) => setDemoLink(e.target.value)}
+            />
+          </div>
+        </div>
       </div>
 
-      <div className="uploadWrapper">
-        <h3>Upload Presentation</h3>
-        <input type="file" accept=".ppt,.pptx,.pdf" onChange={handleFileChange} />
-        {file && <p>{file.name} uploaded successfully.</p>}
+      {/* SECTION E: File Uploads */}
+      <div className="form-section full-width">
+        <h3 className="section-title">Upload Presentation</h3>
+        <div className="form-field">
+          <label>PPT / PDF File (Max 20MB)</label>
+          <input 
+            type="file" 
+            className="form-file-input"
+            accept=".ppt,.pptx,.pdf" 
+            onChange={handleFileChange} 
+          />
+          {file && (
+            <div className="file-uploaded">
+              <strong>✓ {file.name}</strong> uploaded successfully
+            </div>
+          )}
+        </div>
       </div>
 
-      {error && <p style={{ color: "#b00020" }}>{error}</p>}
+      {error && <p className="error-message">{error}</p>}
 
-      <button className="submitBtn" onClick={submitForm} disabled={loading}>
-        {loading ? "Submitting..." : "Submit Application"}
-      </button>
+      <div className="form-actions">
+        <button className="submitBtn" onClick={submitForm} disabled={loading}>
+          {loading ? "Submitting..." : "Submit Application"}
+        </button>
+      </div>
     </div>
   );
 }

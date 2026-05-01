@@ -228,13 +228,21 @@ public class EvaluationService {
         response.setSubmissionId(application.getId());
         response.setProblemId(application.getProblem().getProblemId());
         response.setProblemTitle(application.getProblem().getProblemTitle());
+        response.setProblemTheme(application.getProblem().getTheme());
+        response.setProblemStatement(application.getProblem().getProblemDescription());
+        response.setProblemStatus(application.getProblem().getStatus());
         response.setTeamId(application.getTeam().getTeamId());
         response.setTeamName(application.getTeam().getTeamName());
+        response.setTeamLeaderName(application.getTeam().getLeader() != null ? application.getTeam().getLeader().getFullName() : null);
+        response.setTeamMembers(application.getTeam().getMembers().stream().map(TeamMember::getName).filter(Objects::nonNull).collect(Collectors.toList()));
         response.setAbstractText(application.getAbstractText());
         response.setPptLink("/api/applications/" + application.getId() + "/submission-file");
         response.setGithubLink(application.getGithubLink());
         response.setDemoLink(application.getDemoLink());
+        response.setApplicationStatus(application.getSubmissionStatus());
+        response.setAppliedAt(application.getSubmissionDate());
         response.setEvaluationStatus(evaluation.getEvaluationStatus());
+        response.setEvaluationDate(application.getEvaluatedAt());
 
         Map<String, Double> aiScores = readScoreMap(evaluation.getAiScoresJson());
         Map<String, Double> humanScores = readScoreMap(evaluation.getHumanScoresJson());
@@ -253,7 +261,7 @@ public class EvaluationService {
         response.setJudgeName(application.getJudgedBy());
         response.setJudgeScore(application.getJudgeScore() == null ? null : application.getJudgeScore().doubleValue());
         response.setJudgeRemarks(application.getManualRemarks());
-        response.setFinalDecision("JUDGED".equalsIgnoreCase(application.getSubmissionStatus()) ? "FINALIZED" : "PENDING");
+        response.setFinalDecision("JUSTIFIED".equalsIgnoreCase(application.getSubmissionStatus()) || "JUDGED".equalsIgnoreCase(application.getSubmissionStatus()) ? "FINALIZED" : "PENDING");
 
         List<EvaluationScore> scoreRows = evaluationScoreRepository.findByEvaluation_EvaluationId(evaluation.getEvaluationId());
         List<EvaluationCriterionView> criteriaViews = scoreRows.stream().map(s -> {

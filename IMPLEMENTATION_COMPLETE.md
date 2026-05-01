@@ -1,8 +1,8 @@
-# MSME Evaluation & Judging System - Implementation Summary
+# Organization Evaluation & Judging System - Implementation Summary
 
 ## Executive Summary
 
-Completed implementation of a **production-ready, criteria-based evaluation and judging system** for the MSME Innovation Platform. The system enables:
+Completed implementation of a **production-ready, criteria-based evaluation and judging system** for the Organization Innovation Platform. The system enables:
 - **Evaluators** to score submissions across 6 weighted criteria with automatic score calculation
 - **Judges** to review evaluations and submit final decisions with mandatory evaluation-first validation
 - **Teams** to receive notifications and track their evaluation progress
@@ -464,7 +464,7 @@ Normalized: (69.68 / 83.34) × 100 = 83.6/100 ✓
 
 All files created in workspace:
 ```
-c:\Desktop\MSME - Copy\
+c:\Desktop\Organization - Copy\
 ├─ backend/src/main/java/com/sih/backend/
 │  ├─ dto/
 │  ├─ repository/

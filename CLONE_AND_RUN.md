@@ -236,7 +236,7 @@ mysql>
 
 Type this command:
 ```sql
-CREATE DATABASE msme_portal;
+CREATE DATABASE Organization_portal;
 ```
 
 Press **Enter**.
@@ -496,7 +496,7 @@ Just repeat **STEP 5** and **STEP 6**.
 mysql -u root -p
 # Password: puja
 
-   USE msme_portal;
+   USE Organization_portal;
 SELECT * FROM users;
 SELECT * FROM teams;
 SELECT * FROM applications;
@@ -550,7 +550,7 @@ Type in terminal where service is running
 
 ✅ **Prerequisites installed:** Java, Node.js, MySQL  
 ✅ **Repository cloned:** Project folder exists  
-✅ **Database created:** msme_portal  
+✅ **Database created:** Organization_portal  
 ✅ **Backend running:** Port 8080  
 ✅ **Frontend running:** Port 3000  
 ✅ **Full stack integrated:** Tested and working  
