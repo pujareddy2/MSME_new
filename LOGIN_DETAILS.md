@@ -33,7 +33,7 @@ Frontend source: frontend/src/pages/Login.jsx
 
 ## 2. Role-Wise Accounts Present In DB
 
-### TEAM_LEAD (listed: 1)
+ TEAM_LEAD (listed: 1)
 Stored users:
 
 | user_id | name | email | phone | status | password |
